@@ -34,11 +34,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     sendMessage() {
-        this.messages.push({ author: "user", "content": this.newMessage });
         if (this.newMessage.trim().length > 0) {
-            this.chatService.send(this.newMessage);
-            this.waitingForResponse = true;
+            const message = { author: "user", "content": this.newMessage }
+            this.messages.push(message);
             this.newMessage = '';
+            this.waitingForResponse = true;
+            this.chatService.send(message).subscribe(response => {
+                this.messages.push(response);
+                this.waitingForResponse = false;
+            });
         }
     }
 
