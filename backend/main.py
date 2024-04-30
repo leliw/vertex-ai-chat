@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 from pyaml_env import parse_config
 
+from chat_service import ChatService, ChatMessage
 from gcp_oauth import OAuth
 from gcp_secrets import GcpSecrets
 from gcp_session import SessionManager, SessionData as BaseSessionData
@@ -50,6 +51,12 @@ async def read_config():
     """Return config from yaml file"""
     return config
 
+chat_service = ChatService()
+
+@app.post("/api/chat")
+async def chat_post(message: ChatMessage):
+    """Post message to chat"""
+    return chat_service.get_answer(message)
 
 # Angular static files - it have to be at the end of file
 @app.get("/{full_path:path}", response_class=HTMLResponse)

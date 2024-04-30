@@ -1,0 +1,25 @@
+<div class="chat">
+    <mat-icon class="connection-status" [class]="connected ? 'connected' : 'disconnected'"
+        [matTooltip]="connected ? 'Połączony z serwerem' : 'Brak połączenia z serwerem. Czekaj na połączenie ...'">
+        {{connected ? "link" : "link_off"}}
+    </mat-icon>
+    <div #container class="chat-container">
+        @for (message of messages; track message) {
+        @if (message.content) {
+        <div class="message {{message.author}}">{{message.content}}</div>
+        } @else {
+        <div class="message {{message.author}}">
+            <pre>{{message | json}}</pre>
+        </div>
+        }
+        }
+        @if (waitingForResponse) {
+        <div class="message ai loading-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        }
+    </div>
+    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type a message...">
+</div>

@@ -1,0 +1,112 @@
+.chat {
+    position: relative;
+    height: 100%;
+    max-width: 600px;
+    margin: auto;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.chat-container {
+    height: calc(100% - 1em - 14px);
+    padding: 10px;
+    overflow-y: scroll;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.connection-status {
+    position: absolute;
+    top: 0;
+    right: 0.8em;
+    z-index: 1;
+    padding: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    border: none
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px;
+    margin: 5px;
+    margin-top: 10px;
+    border-radius: 20px;
+    color: white;
+    background-color: black;
+    position: relative;
+    font-size: 16px;
+    line-height: 1.4;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    white-space: pre-wrap;
+}
+
+input {
+    height: calc(1em + 14px);
+    width: 100%;
+    padding: 5px;
+    border-top: 1px solid #ccc;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+.user {
+    align-self: flex-start;
+    background-color: #343a40;
+    border-radius: 20px 20px 20px 0px;
+}
+
+.ai {
+    align-self: flex-end;
+    background-color: #007bff;
+    border-radius: 20px 20px 0px 20px;
+}
+
+.connected {
+    color: green
+}
+
+.disconnected {
+    color: red
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-spinner div {
+    width: 8px;
+    height: 8px;
+    margin: 0 3px;
+    background-color: white;
+    border-radius: 50%;
+    animation: loading-spinner 1.4s infinite ease-in-out both;
+}
+
+.loading-spinner div:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-spinner div:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes loading-spinner {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1.0);
+    }
+}
