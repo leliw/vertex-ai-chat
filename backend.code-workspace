@@ -5,7 +5,8 @@
         }
     ],
     "settings": {
-        "workbench.colorTheme": "Tomorrow Night Blue"
+        "window.title": "Vertex AI Chat (backend)",
+        "workbench.colorTheme": "Tomorrow Night Blue",
     },
     
     "launch": {

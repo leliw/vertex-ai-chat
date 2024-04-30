@@ -15,6 +15,7 @@ from static_files import static_file_response
 
 class SessionData(BaseSessionData):
     login_time: Optional[datetime.datetime] = None
+    chat_history: Optional[list[ChatMessage]] = []
 
 
 app = FastAPI()
@@ -56,9 +57,15 @@ chat_service = ChatService()
 
 
 @app.post("/api/chat")
-async def chat_post(message: ChatMessage):
+async def chat_post(
+    message: ChatMessage, request: Request, session_data: SessionDataDep
+):
     """Post message to chat"""
-    return chat_service.get_answer(message)
+    answer, session_data.chat_history = chat_service.get_answer(
+        history=session_data.chat_history, message=message
+    )
+    await session_manager.update_session(request, session_data)
+    return answer
 
 
 # Angular static files - it have to be at the end of file
