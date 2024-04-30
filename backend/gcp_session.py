@@ -38,7 +38,7 @@ class SessionManager(BaseSessionManager[SessionModel]):
         if not user_data:
             raise HTTPException(status_code=401, detail="Unauthorized")
         data = self.create_session_for_user(user_data)
-        await self.create_session(response, data)
+        await self.create_session(request, response, data)
         return data
 
     def create_session_for_user(self, user_data: UserData) -> SessionModel:
