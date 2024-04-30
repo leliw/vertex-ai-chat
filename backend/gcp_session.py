@@ -11,7 +11,9 @@ from session_manager import (
 class SessionData(BaseModel):
     user: UserData
 
+
 SessionModel = TypeVar("SessionModel", bound=SessionData)
+
 
 class SessionManager(BaseSessionManager[SessionModel]):
     """Session manager for GCP."""
@@ -38,8 +40,6 @@ class SessionManager(BaseSessionManager[SessionModel]):
         data = self.create_session_for_user(user_data)
         await self.create_session(response, data)
         return data
-    
+
     def create_session_for_user(self, user_data: UserData) -> SessionModel:
         return self.session_class(user=user_data)
-    
-    
