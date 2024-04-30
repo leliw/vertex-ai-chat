@@ -1,23 +1,30 @@
-from pydantic import BaseModel
-
-
-class ChatMessage(BaseModel):
-    author: str
-    content: str
+from verrtex_ai.vertex_ai_factory import ChatMessage, VertexAiFactory
 
 
 class ChatService:
+    """Service for chat."""
+
     def __init__(self):
-        self.messages: list[ChatMessage] = []
+        self.factory = VertexAiFactory()
 
-    def add_message(self, message: ChatMessage):
+    def get_answer(
+        self, history: list[ChatMessage], message: ChatMessage
+    ) -> tuple[ChatMessage, list[ChatMessage]]:
+        """Get an answer from the model."""
         self.messages.append(message)
-
-    def get_messages(self) -> list[ChatMessage]:
-        return self.messages
-
-    def get_answer(self, message: ChatMessage) -> ChatMessage:
-        self.messages.append(message)
-        answer = ChatMessage(author="ai", content=f"Hello, you said: {message.content}")
+        text, history = self.model_get_answer(history, message.content)
+        answer = ChatMessage(author="ai", content=text)
         self.messages.append(answer)
-        return answer
+        return (answer, history)
+
+    def model_get_answer(
+        self, history: list[ChatMessage], question: str
+    ) -> tuple[str, list[ChatMessage]]:
+        """Get an answer from the model."""
+        chat = self.factory.get_chat(history=history)
+        responses = chat.send_message(question, stream=True)
+        ret = ""
+        for response in responses:
+            ret += response.text
+        print(chat.history)
+        return (ret, chat.history)
