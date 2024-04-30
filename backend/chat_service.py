@@ -11,10 +11,8 @@ class ChatService:
         self, history: list[ChatMessage], message: ChatMessage
     ) -> tuple[ChatMessage, list[ChatMessage]]:
         """Get an answer from the model."""
-        self.messages.append(message)
         text, history = self.model_get_answer(history, message.content)
         answer = ChatMessage(author="ai", content=text)
-        self.messages.append(answer)
         return (answer, history)
 
     def model_get_answer(

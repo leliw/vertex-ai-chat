@@ -78,10 +78,9 @@ class SessionManager(Generic[SessionModel]):
         session_id = uuid4()
         await self.backend.create(session_id, data)
         self.cookie.attach_to_response(response, session_id)
-        if not request.cookies[self.cookie.model.name]:
-            request.cookies[self.cookie.model.name] = str(
-                self.cookie.signer.dumps(session_id.hex)
-            )
+        request.cookies[self.cookie.model.name] = str(
+            self.cookie.signer.dumps(session_id.hex)
+        )
         return session_id
 
     def get_session_id(self, request: Request) -> UUID:
