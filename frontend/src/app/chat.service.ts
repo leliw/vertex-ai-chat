@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 
+export interface Message {
+    author: string;
+    content?: string;
+}
+
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ChatService {
 
-  constructor() { }
+    constructor() { }
 }
