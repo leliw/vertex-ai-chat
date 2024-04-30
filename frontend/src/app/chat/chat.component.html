@@ -6,7 +6,7 @@
     <div #container class="chat-container">
         @for (message of messages; track message) {
         @if (message.content) {
-        <div class="message {{message.author}}">{{message.content}}</div>
+        <div class="message {{message.author}}" [innerHTML]="message.content | markdown"></div>
         } @else {
         <div class="message {{message.author}}">
             <pre>{{message | json}}</pre>
