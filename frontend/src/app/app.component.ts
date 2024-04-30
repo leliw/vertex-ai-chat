@@ -9,9 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from './shared/auth/auth.service';
 
-export interface Hello {
-    Hello: string;
-}
 @Component({
     selector: 'app-root',
     standalone: true,
@@ -22,16 +19,10 @@ export interface Hello {
 
 export class AppComponent {
 
-    title = 'frontend';
-    hello = '';
     version = '';
 
     constructor(private http: HttpClient, public authService: AuthService, private config: ConfigService) {
-        this.http.get<Hello>('/api').subscribe(data => {
-            this.hello = data.Hello;
-        });
         this.config.getConfig().subscribe(c => {
-            this.title = c.title;
             this.version = c.version;
         })
     }

@@ -1,9 +1,10 @@
 <header>
     <mat-toolbar color="primary">
-        <h1>Hello, {{hello}} - {{ title }}</h1>
+        <h1>Vertex AI chat</h1>
         @if(authService.user != null){
         <div class="flex-spacer"></div>
-        <img src="{{ authService.user.photoUrl }}" class="profile-photo" alt="User profile" referrerpolicy="no-referrer">
+        <img src="{{ authService.user.photoUrl }}" class="profile-photo" alt="User profile"
+            referrerpolicy="no-referrer">
         <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
             <mat-icon>logout</mat-icon>
         </button>
@@ -12,8 +13,6 @@
 </header>
 <main [class.login]="!authService.loggedIn">
     @if(authService.loggedIn){
-    <p>Congratulations! Your app is running . 🎉</p>
-    <a routerLink="/movies">Movies</a>
     <router-outlet></router-outlet>
     }@else{
     <asl-google-signin-button type='standard' size='large'></asl-google-signin-button>
