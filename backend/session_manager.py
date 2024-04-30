@@ -70,15 +70,28 @@ class SessionManager(Generic[SessionModel]):
             cookie_params=cookie_params,
         )
 
-    async def create_session(self, response: Response, data: SessionModel):
-        """Create a new session and attach it to the response."""
-        session = uuid4()
-        await self.backend.create(session, data)
-        self.cookie.attach_to_response(response, session)
-        return session
+    async def create_session(
+        self, request: Request, response: Response, data: SessionModel
+    ):
+        """Create a new session and attach it to the response and
+        to the request (if it wasn't already attached)."""
+        session_id = uuid4()
+        await self.backend.create(session_id, data)
+        self.cookie.attach_to_response(response, session_id)
+        if not request.cookies[self.cookie.model.name]:
+            request.cookies[self.cookie.model.name] = str(
+                self.cookie.signer.dumps(session_id.hex)
+            )
+        return session_id
 
     def get_session_id(self, request: Request) -> UUID:
+        """Get the session id from the request."""
         return self.cookie(request)
+
+    async def update_session(self, request: Request, data: SessionModel):
+        """Update the current session."""
+        session_id = self.cookie(request)
+        await self.backend.update(session_id, data)
 
     async def delete_session(self, request: Request, response: Response):
         """Delete the current session."""
