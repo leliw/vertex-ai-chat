@@ -11,6 +11,7 @@ class SessionData(BaseModel):
 
 class TestSessionManager(unittest.TestCase):
     """Test GCP session manager."""
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.app = FastAPI()

@@ -12,7 +12,7 @@ class ChatService:
 
     def add_message(self, message: ChatMessage):
         self.messages.append(message)
-    
+
     def get_messages(self) -> list[ChatMessage]:
         return self.messages
 
@@ -21,4 +21,3 @@ class ChatService:
         answer = ChatMessage(author="ai", content=f"Hello, you said: {message.content}")
         self.messages.append(answer)
         return answer
-    

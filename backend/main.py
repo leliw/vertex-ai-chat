@@ -51,12 +51,15 @@ async def read_config():
     """Return config from yaml file"""
     return config
 
+
 chat_service = ChatService()
+
 
 @app.post("/api/chat")
 async def chat_post(message: ChatMessage):
     """Post message to chat"""
     return chat_service.get_answer(message)
+
 
 # Angular static files - it have to be at the end of file
 @app.get("/{full_path:path}", response_class=HTMLResponse)
