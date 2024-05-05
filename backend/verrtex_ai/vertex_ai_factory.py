@@ -1,14 +1,8 @@
 """Factory for Vertex AI models."""
 
-from pydantic import BaseModel
 import vertexai
-from vertexai.generative_models import GenerativeModel, ChatSession
+from vertexai.generative_models import GenerativeModel, ChatSession, Content
 import vertexai.preview.generative_models as generative_models
-
-
-class ChatMessage(BaseModel):
-    author: str
-    content: str
 
 
 class VertexAiFactory:
@@ -35,7 +29,7 @@ class VertexAiFactory:
             },
         )
 
-    def get_chat(self, history: list[ChatMessage] = None) -> ChatSession:
+    def get_chat(self, history: list[Content] = None) -> ChatSession:
         """Get a chat session.
 
         Parameters:

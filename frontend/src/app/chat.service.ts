@@ -21,6 +21,10 @@ export class ChatService {
 
     disconect() { }
 
+    get(): Observable<Message[]> {
+        return this.httpClient.get<Message[]>(this.endpoint);
+    }
+    
     send(message: Message): Observable<Message>{ 
         return this.httpClient.post<Message>(this.endpoint, message);
     }
