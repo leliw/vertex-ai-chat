@@ -60,6 +60,7 @@ chat_service = ChatService()
 async def chat_get(session_data: SessionDataDep) -> list[ChatMessage]:
     return session_data.chat_history
 
+
 @app.post("/api/chat")
 async def chat_post(
     message: ChatMessage, request: Request, session_data: SessionDataDep
