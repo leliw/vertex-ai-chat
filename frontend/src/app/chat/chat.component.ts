@@ -24,7 +24,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     waitingForResponse = false;
     connected = false;
 
-    constructor(private chatService: ChatService) { }
+    constructor(private chatService: ChatService) { 
+        this.chatService.get().subscribe(messages => this.messages = messages);
+    }
 
     ngOnInit(): void {
         this.chatService.connect();
