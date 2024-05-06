@@ -4,9 +4,11 @@ from fastapi.testclient import TestClient
 
 class TestMainApp(unittest.TestCase):
     """Test the main FastAPI app."""
+
     @classmethod
     def setUpClass(cls):
         from main import app
+
         cls.client = TestClient(app)
 
     def test_config_get(self):
