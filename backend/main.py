@@ -2,6 +2,7 @@
 
 import datetime
 from typing import Annotated, Optional
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 from pyaml_env import parse_config
@@ -18,6 +19,7 @@ class SessionData(BaseSessionData):
     chat_history: Optional[list[ChatMessage]] = []
 
 
+load_dotenv()
 app = FastAPI()
 config = parse_config("./config.yaml")
 secrets = GcpSecrets(config.get("project_id"))
