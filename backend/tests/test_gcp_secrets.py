@@ -5,9 +5,8 @@ from gcp_secrets import GcpSecrets
 class TestGcpSecrets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.project_id = "angular-python-420314"
         cls.secret_id = "test_secret"
-        cls.gcp_secrets = GcpSecrets(cls.project_id)
+        cls.gcp_secrets = GcpSecrets()
 
     @classmethod
     def tearDownClass(cls):
