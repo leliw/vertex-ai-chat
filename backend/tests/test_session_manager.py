@@ -18,8 +18,8 @@ class TestSessionManager(unittest.TestCase):
         session_manager = SessionManager[SessionData]()
 
         @cls.app.post("/create_session/{name}")
-        async def create_session(name: str, response: Response):
-            await session_manager.create_session(response, SessionData(username=name))
+        async def create_session(name: str, request: Request, response: Response):
+            await session_manager.create_session(request, response, SessionData(username=name))
             return f"created session for {name}"
 
         @cls.app.get("/whoami")
