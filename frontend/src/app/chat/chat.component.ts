@@ -56,7 +56,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.messages.push(message);
             this.newMessage = '';
             this.waitingForResponse = true;
-            var response = { author: "ai", content: "" }
+            let response = { author: "ai", content: "" }
             this.messages.push(response);
             this.chatService.send_async(message).subscribe({
                 next: (chunk) => {

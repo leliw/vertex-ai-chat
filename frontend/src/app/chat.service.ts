@@ -17,9 +17,13 @@ export class ChatService {
 
     constructor(private httpClient: HttpClient) { }
 
-    connect() { }
+    connect() {
+        // Unused
+    }
 
-    disconect() { }
+    disconect() {
+        // Unused
+    }
 
     get(): Observable<Message[]> {
         return this.httpClient.get<Message[]>(this.endpoint);
