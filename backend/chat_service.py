@@ -9,6 +9,13 @@ class ChatMessage(BaseModel):
     content: str
 
 
+class ChatHistoryException(Exception):
+    """Is't strange form of returning history."""
+
+    def __init__(self, history: list[ChatMessage]):
+        self.history = history
+
+
 class ChatService:
     """Service for chat."""
 
@@ -28,14 +35,17 @@ class ChatService:
 
     def get_answer_async(
         self, history: list[ChatMessage], message: ChatMessage
-    ) -> Iterator[str | list[ChatMessage]]:
+    ) -> Iterator[str]:
         """Get an answer from the model."""
         in_history = [self._chat_message_to_content(m) for m in history]
         chat = self.factory.get_chat(history=in_history)
         responses = chat.send_message(message.content, stream=True)
         for response in responses:
             yield response.text
-        yield [self._content_to_chat_message(m) for m in chat.history]
+            # await asyncio.sleep(0.1)
+        raise ChatHistoryException(
+            [self._content_to_chat_message(m) for m in chat.history]
+        )
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""

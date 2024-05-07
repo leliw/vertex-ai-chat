@@ -7,19 +7,17 @@
         @for (message of messages; track message) {
         @if (message.content) {
         <div class="message {{message.author}}" [innerHTML]="message.content | markdown"></div>
+        } @else if (waitingForResponse && message.content=="") {<div class="message {{message.author}} loading-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
         } @else {
         <div class="message {{message.author}}">
             <pre>{{message | json}}</pre>
         </div>
         }
         }
-        @if (waitingForResponse) {
-        <div class="message ai loading-spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-        }
     </div>
-    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type a message...">
+    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()" placeholder="Type a message...">
 </div>

@@ -4,10 +4,10 @@ import datetime
 from typing import Annotated, Optional
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request, Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
 
-from chat_service import ChatService, ChatMessage
+from chat_service import ChatHistoryException, ChatService, ChatMessage
 from gcp_oauth import OAuth
 from gcp_secrets import GcpSecrets
 from gcp_session import SessionManager, SessionData as BaseSessionData
@@ -73,6 +73,28 @@ async def chat_post(
     )
     await session_manager.update_session(request, session_data)
     return answer
+
+
+@app.post("/api/chat/async")
+def chat_post_async(
+    message: ChatMessage, request: Request, session_data: SessionDataDep
+):
+    """Post message to chat and return async response"""
+    history = session_data.chat_history
+    responses = chat_service.get_answer_async(history=history, message=message)
+
+    async def handle_history(responses):
+        try:
+            for r in responses:
+                yield r
+        except ChatHistoryException as e:
+            session_data.chat_history = e.history
+            await session_manager.update_session(request, session_data)
+
+    return StreamingResponse(
+        handle_history(responses),
+        media_type="text/event-stream",
+    )
 
 
 # Angular static files - it have to be at the end of file

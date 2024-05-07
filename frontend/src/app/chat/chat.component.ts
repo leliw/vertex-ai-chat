@@ -24,7 +24,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     waitingForResponse = false;
     connected = false;
 
-    constructor(private chatService: ChatService) { 
+    constructor(private chatService: ChatService) {
         this.chatService.get().subscribe(messages => this.messages = messages);
     }
 
@@ -46,6 +46,25 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.chatService.send(message).subscribe(response => {
                 this.messages.push(response);
                 this.waitingForResponse = false;
+            });
+        }
+    }
+
+    sendMessageAsync() {
+        if (this.newMessage.trim().length > 0) {
+            const message = { author: "user", content: this.newMessage }
+            this.messages.push(message);
+            this.newMessage = '';
+            this.waitingForResponse = true;
+            var response = { author: "ai", content: "" }
+            this.messages.push(response);
+            this.chatService.send_async(message).subscribe({
+                next: (chunk) => {
+                    response.content += chunk;
+                },
+                complete: () => {
+                    this.waitingForResponse = false;
+                }
             });
         }
     }

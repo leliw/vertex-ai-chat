@@ -1,6 +1,6 @@
 import unittest
 
-from chat_service import ChatMessage, ChatService
+from chat_service import ChatHistoryException, ChatMessage, ChatService
 
 
 class TestChatService(unittest.TestCase):
@@ -24,11 +24,11 @@ class TestChatService(unittest.TestCase):
         message = ChatMessage(author="user", content="Hello")
 
         text = ""
-        for p in self.service.get_answer_async(history, message):
-            if isinstance(p, str):
+        try:
+            for p in self.service.get_answer_async(history, message):
                 text += p
-            else:
-                chat_history = p
+        except ChatHistoryException as e:
+            chat_history = e.history
         answer = ChatMessage(author="ai", content=text)
         self.assertEqual(answer.author, "ai")
         self.assertIsInstance(answer.content, str)
