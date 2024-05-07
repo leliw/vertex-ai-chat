@@ -5,6 +5,7 @@
 		}
     ],
     "settings": {
-        "workbench.colorTheme": "Solarized Dark"
+        "workbench.colorTheme": "Solarized Dark",
+        "window.title": "VertexAI${separator}${rootNameShort}${separator}${profileName}${separator}${dirty}${activeEditorShort}${separator}"
     }
 }

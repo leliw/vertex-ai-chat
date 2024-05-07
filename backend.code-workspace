@@ -5,7 +5,7 @@
         }
     ],
     "settings": {
-        "window.title": "Vertex AI Chat (backend)",
+        "window.title": "VertexAI${separator}${rootNameShort}${separator}${profileName}${separator}${dirty}${activeEditorShort}${separator}",
         "workbench.colorTheme": "Tomorrow Night Blue",
     },
     
