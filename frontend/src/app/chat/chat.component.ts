@@ -23,8 +23,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     newMessage = '';
     waitingForResponse = false;
     connected = false;
+    currentAnswer = '';
+    currentTypeIndex = 0;
 
     constructor(private chatService: ChatService) {
+        // Get the initial messages from the server
         this.chatService.get().subscribe(messages => this.messages = messages);
     }
 
@@ -38,6 +41,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     sendMessage() {
+        // Send message to the server and process the response synchronously
         if (this.newMessage.trim().length > 0) {
             const message = { author: "user", "content": this.newMessage }
             this.messages.push(message);
@@ -51,16 +55,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     sendMessageAsync() {
+        // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
             const message = { author: "user", content: this.newMessage }
             this.messages.push(message);
             this.newMessage = '';
             this.waitingForResponse = true;
-            let response = { author: "ai", content: "" }
-            this.messages.push(response);
+            this.currentAnswer = '';
+            this.currentTypeIndex = 0;
+            this.messages.push({ author: "ai", content: "" });
             this.chatService.send_async(message).subscribe({
                 next: (chunk) => {
-                    response.content += chunk;
+                    this.currentAnswer += chunk;
+                    if (this.currentTypeIndex==0)
+                        this.typeAnswer();
                 },
                 complete: () => {
                     this.waitingForResponse = false;
@@ -68,8 +76,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
         }
     }
+    typeAnswer() {
+        // Simulate typing effect
+        if (this.currentTypeIndex < this.currentAnswer.length) {
+            this.messages[this.messages.length-1].content += this.currentAnswer[this.currentTypeIndex];
+            this.currentTypeIndex++;
+            setTimeout(() => this.typeAnswer(), 15);
+        }
+    }
 
     ngAfterViewChecked(): void {
+        // Scroll to the bottom of the chat container
         this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
     }
 }
