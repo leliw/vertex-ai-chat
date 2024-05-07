@@ -5,3 +5,4 @@ uvicorn main:app --reload &
 cd ../frontend
 ng serve -o
 cd ..
+killall uvicorn
