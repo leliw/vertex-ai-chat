@@ -121,7 +121,6 @@ class OAuth:
         token = request.headers.get("Authorization")
         if token:
             token = token.split(" ")[1]
-            print(token)
             return self.verify_jwt(token)
         return None
 
