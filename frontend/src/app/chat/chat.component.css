@@ -35,8 +35,8 @@
     margin: 5px;
     margin-top: 10px;
     border-radius: 20px;
-    color: white;
-    background-color: black;
+    color: black;
+    background-color: white;
     position: relative;
     font-size: 16px;
     line-height: 1.4;
@@ -59,13 +59,13 @@ input {
 }
 
 .user {
-    background-color: #343a40;
+    background-color: #90c6ff;
     align-self: flex-end;
     border-radius: 20px 20px 0px 20px;
 }
 
 .ai {
-    background-color: #007bff;
+    background-color: #c4c4c4;
     align-self: flex-start;
     border-radius: 20px 20px 20px 0px;
 }
@@ -126,4 +126,16 @@ mat-drawer {
     padding: 0.2rem;
     min-width: 15%;
     max-width: 30%;
+    overflow: auto;
+}
+
+.summary {
+    display: inline-block;
+    width: calc(100% - 12px - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hljs {
+    background-color: transparent !important;
 }
