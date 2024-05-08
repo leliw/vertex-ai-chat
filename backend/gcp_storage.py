@@ -24,7 +24,6 @@ class Storage(BaseStorage[T], Generic[T]):
 
     def put(self, key: str, data: T) -> None:
         """Put a document in the collection."""
-        print(data)
         self._coll_ref.document(key).set(
             data.model_dump(by_alias=True, exclude_none=True)
         )

@@ -43,7 +43,6 @@ async def login_google(request: Request):
 @app.get("/auth")
 async def auth_google(code: str, response: Response):
     user_data = await oAuth.auth(code)
-    print(user_data)
     await session_manager.create_session(response, SessionData(user=user_data))
     return user_data
 
