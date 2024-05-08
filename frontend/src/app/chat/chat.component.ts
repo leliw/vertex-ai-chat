@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { ChatService, Message } from '../chat.service';
+import { ChatService, ChatSessionHeader, Message } from '../chat.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -21,6 +21,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @ViewChild('container') container!: ElementRef;
 
+    history: ChatSessionHeader[] = [];
     messages: Message[] = []
     newMessage = '';
     waitingForResponse = false;
@@ -30,7 +31,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     constructor(private chatService: ChatService) {
         // Get the initial messages from the server
-        this.chatService.get().subscribe(messages => this.messages = messages);
+        this.chatService.new().subscribe(messages => this.messages = messages);
+        this.chatService.get_all().subscribe(history => this.history = history);
     }
 
     ngOnInit(): void {
@@ -84,15 +86,27 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.messages[this.messages.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
             setTimeout(() => this.typeAnswer(), 15);
-        }
+        } else if (this.waitingForResponse)
+            setTimeout(() => this.typeAnswer(), 15);
     }
 
     ngAfterViewChecked(): void {
         // Scroll to the bottom of the chat container
         this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
     }
-    
+
     newChat() {
         this.chatService.new().subscribe(messages => this.messages = messages);
     }
+
+    loadChat(chat_session_id: string) {
+        this.chatService.get(chat_session_id).subscribe(messages => this.messages = messages);
+    }
+
+    deleteChat(chat_session_id: string) {
+        this.chatService.delete(chat_session_id).subscribe(
+            () => this.chatService.get_all().subscribe(history => this.history = history)
+        );
+    }
+
 }

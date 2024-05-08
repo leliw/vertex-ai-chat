@@ -7,6 +7,13 @@ export interface Message {
     content?: string;
 }
 
+export interface ChatSessionHeader {
+    chat_session_id: string;
+    user: string;
+    created: Date;
+    summary?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -29,8 +36,8 @@ export class ChatService {
         return this.httpClient.get<Message[]>(`${this.endpoint}/_NEW_`);
     }
 
-    get(): Observable<Message[]> {
-        return this.httpClient.get<Message[]>(this.endpoint);
+    get(chat_session_id: string): Observable<Message[]> {
+        return this.httpClient.get<Message[]>(`${this.endpoint}/${chat_session_id}`);
     }
 
     send(message: Message): Observable<Message> {
@@ -60,4 +67,11 @@ export class ChatService {
         return this.connected$;
     }
 
+    get_all(): Observable<ChatSessionHeader[]> {
+        return this.httpClient.get<ChatSessionHeader[]>(this.endpoint);
+    }
+
+    delete(chat_session_id: string): Observable<void> {
+        return this.httpClient.delete<void>(`${this.endpoint}/${chat_session_id}`);
+    }
 }
