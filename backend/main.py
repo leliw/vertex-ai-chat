@@ -7,15 +7,22 @@ from fastapi import Depends, FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
 
-from chat_service import ChatHistoryException, ChatService, ChatMessage
 from gcp_oauth import OAuth
 from gcp_secrets import GcpSecrets
 from gcp_session import SessionManager, SessionData as BaseSessionData
 from static_files import static_file_response
 
+from chat_service import (
+    ChatHistoryException,
+    ChatService,
+    ChatMessage,
+    ChatSessionHeader,
+)
+
 
 class SessionData(BaseSessionData):
     login_time: Optional[datetime.datetime] = None
+    chat_session_id: Optional[str] = None
     chat_history: Optional[list[ChatMessage]] = []
 
 
@@ -59,16 +66,26 @@ chat_service = ChatService()
 
 
 @app.get("/api/chat")
-async def chat_get(session_data: SessionDataDep) -> list[ChatMessage]:
-    return session_data.chat_history
+async def chat_get_all(session_data: SessionDataDep) -> list[ChatSessionHeader]:
+    return await chat_service.get_all(session_data.user.email)
+
 
 @app.get("/api/chat/{chat_id}")
-async def chat_get_by_id(chat_id: str, request: Request, session_data: SessionDataDep) -> list[ChatMessage]:
+async def chat_get_by_id(
+    chat_id: str, request: Request, session_data: SessionDataDep
+) -> list[ChatMessage]:
     if chat_id == "_NEW_":
         # Create new chat
+        session_data.chat_session_id = None
         session_data.chat_history = []
+    else:
+        # Load chat
+        session_data.chat_history = await chat_service.get_chat(
+            chat_id, session_data.user.email
+        )
     await session_manager.update_session(request, session_data)
     return session_data.chat_history
+
 
 @app.post("/api/chat")
 async def chat_post(
@@ -87,14 +104,22 @@ def chat_post_async(
     message: ChatMessage, request: Request, session_data: SessionDataDep
 ):
     """Post message to chat and return async response"""
+    chat_session_id = session_data.chat_session_id
+    user_email = session_data.user.email
     history = session_data.chat_history
-    responses = chat_service.get_answer_async(history=history, message=message)
+    responses = chat_service.get_answer_async(
+        history=history,
+        message=message,
+        chat_session_id=chat_session_id,
+        user=user_email,
+    )
 
     async def handle_history(responses):
         try:
             for r in responses:
                 yield r
         except ChatHistoryException as e:
+            session_data.chat_session_id = e.chat_session_id
             session_data.chat_history = e.history
             await session_manager.update_session(request, session_data)
 
@@ -102,6 +127,11 @@ def chat_post_async(
         handle_history(responses),
         media_type="text/event-stream",
     )
+
+
+@app.delete("/api/chat/{chat_id}")
+async def chat_delete(chat_id: str, session_data: SessionDataDep) -> None:
+    await chat_service.delete_chat(chat_id, session_data.user.email)
 
 
 # Angular static files - it have to be at the end of file

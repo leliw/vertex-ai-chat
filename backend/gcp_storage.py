@@ -10,9 +10,14 @@ class Storage(BaseStorage[T], Generic[T]):
     """A simple wrapper around Google Cloud Firestore."""
 
     def __init__(
-        self, collection: str, clazz: Type[T], project: str = None, database: str = None
+        self,
+        collection: str,
+        clazz: Type[T],
+        project: str = None,
+        database: str = None,
+        key_name: str = None,
     ):
-        super().__init__(clazz)
+        super().__init__(clazz, key_name=key_name)
         self._db = firestore.Client(project=project, database=database)
         self._collection = collection
         self._coll_ref = self._db.collection(self._collection)
