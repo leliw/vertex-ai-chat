@@ -2,6 +2,8 @@ import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, 
 import { ChatService, Message } from '../chat.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MarkdownPipe } from '../shared/markdown.pipe';
@@ -10,7 +12,7 @@ import { MarkdownPipe } from '../shared/markdown.pipe';
 @Component({
     selector: 'app-chat',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIconModule, MatTooltipModule, MarkdownPipe],
+    imports: [CommonModule, FormsModule, MatSidenavModule, MatListModule, MatIconModule, MatTooltipModule, MarkdownPipe],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
@@ -67,7 +69,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.chatService.send_async(message).subscribe({
                 next: (chunk) => {
                     this.currentAnswer += chunk;
-                    if (this.currentTypeIndex==0)
+                    if (this.currentTypeIndex == 0)
                         this.typeAnswer();
                 },
                 complete: () => {
@@ -79,7 +81,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     typeAnswer() {
         // Simulate typing effect
         if (this.currentTypeIndex < this.currentAnswer.length) {
-            this.messages[this.messages.length-1].content += this.currentAnswer[this.currentTypeIndex];
+            this.messages[this.messages.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
             setTimeout(() => this.typeAnswer(), 15);
         }
@@ -88,5 +90,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     ngAfterViewChecked(): void {
         // Scroll to the bottom of the chat container
         this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
+    }
+    
+    newChat() {
+        this.chatService.new().subscribe(messages => this.messages = messages);
     }
 }

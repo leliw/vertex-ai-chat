@@ -113,3 +113,17 @@ input {
         transform: scale(1.0);
     }
 }
+
+
+mat-drawer-container {
+    width: auto;
+    height: 100%;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+mat-drawer {
+    padding: 0.2rem;
+    min-width: 15%;
+    max-width: 30%;
+}

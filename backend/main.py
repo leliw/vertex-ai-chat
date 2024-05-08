@@ -62,6 +62,13 @@ chat_service = ChatService()
 async def chat_get(session_data: SessionDataDep) -> list[ChatMessage]:
     return session_data.chat_history
 
+@app.get("/api/chat/{chat_id}")
+async def chat_get_by_id(chat_id: str, request: Request, session_data: SessionDataDep) -> list[ChatMessage]:
+    if chat_id == "_NEW_":
+        # Create new chat
+        session_data.chat_history = []
+    await session_manager.update_session(request, session_data)
+    return session_data.chat_history
 
 @app.post("/api/chat")
 async def chat_post(

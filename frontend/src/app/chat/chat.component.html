@@ -1,23 +1,33 @@
-<div class="chat">
-    <mat-icon class="connection-status" [class]="connected ? 'connected' : 'disconnected'"
-        [matTooltip]="connected ? 'Połączony z serwerem' : 'Brak połączenia z serwerem. Czekaj na połączenie ...'">
-        {{connected ? "link" : "link_off"}}
-    </mat-icon>
-    <div #container class="chat-container">
-        @for (message of messages; track message) {
-        @if (message.content) {
-        <div class="message {{message.author}}" [innerHTML]="message.content | markdown"></div>
-        } @else if (waitingForResponse && message.content=="") {<div class="message {{message.author}} loading-spinner">
-            <div></div>
-            <div></div>
-            <div></div>
+<mat-drawer-container>
+    <mat-drawer mode="side" opened>
+        <mat-action-list>
+            <button mat-list-item (click)="newChat()">New chat</button>
+        </mat-action-list>
+    </mat-drawer>
+    <mat-drawer-content>
+        <div class="chat">
+            <mat-icon class="connection-status" [class]="connected ? 'connected' : 'disconnected'"
+                [matTooltip]="connected ? 'Połączony z serwerem' : 'Brak połączenia z serwerem. Czekaj na połączenie ...'">
+                {{connected ? "link" : "link_off"}}
+            </mat-icon>
+            <div #container class="chat-container">
+                @for (message of messages; track message) {
+                @if (message.content) {
+                <div class="message {{message.author}}" [innerHTML]="message.content | markdown"></div>
+                } @else if (waitingForResponse && message.content=="") {<div
+                    class="message {{message.author}} loading-spinner">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                } @else {
+                <div class="message {{message.author}}">
+                    <pre>{{message | json}}</pre>
+                </div>
+                }
+                }
+            </div>
+            <input [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()" placeholder="Type a message...">
         </div>
-        } @else {
-        <div class="message {{message.author}}">
-            <pre>{{message | json}}</pre>
-        </div>
-        }
-        }
-    </div>
-    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()" placeholder="Type a message...">
-</div>
+    </mat-drawer-content>
+</mat-drawer-container>

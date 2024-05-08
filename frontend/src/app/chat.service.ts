@@ -25,6 +25,10 @@ export class ChatService {
         // Unused
     }
 
+    new(): Observable<Message[]> {
+        return this.httpClient.get<Message[]>(`${this.endpoint}/_NEW_`);
+    }
+
     get(): Observable<Message[]> {
         return this.httpClient.get<Message[]>(this.endpoint);
     }
