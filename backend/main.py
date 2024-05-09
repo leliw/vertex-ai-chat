@@ -1,6 +1,7 @@
 """Main file for FastAPI server"""
 
 import datetime
+import os
 from typing import Annotated, Optional
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request, Response
@@ -8,7 +9,6 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
 
 from gcp_oauth import OAuth
-from gcp_secrets import GcpSecrets
 from gcp_session import SessionManager, SessionData as BaseSessionData
 from static_files import static_file_response
 
@@ -28,10 +28,9 @@ class SessionData(BaseSessionData):
 
 load_dotenv()
 app = FastAPI()
-config = parse_config("./config.yaml")
-secrets = GcpSecrets(config.get("project_id"))
-client_secret = secrets.get_secret("oauth_client_secret")
-oAuth = OAuth(config.get("oauth_client_id"), client_secret)
+config: dict = parse_config("./config.yaml")
+config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+oAuth = OAuth()
 session_manager = SessionManager[SessionData](oAuth, SessionData)
 
 

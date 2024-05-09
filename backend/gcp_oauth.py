@@ -1,5 +1,6 @@
 """Google OAuth2 class."""
 
+import os
 from typing import Any
 from urllib.parse import urlparse, urlunparse
 from fastapi import Request, Response
@@ -29,14 +30,14 @@ class OAuth:
 
     def __init__(
         self,
-        client_id,
-        client_secret,
+        client_id: str = None,
+        client_secret: str = None,
         redirect_uri: str = "/auth",
         included_paths: list[str] = None,
         excluded_paths: list[str] = None,
     ):
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self.client_id =  os.getenv("GOOGLE_OAUTH_CLIENT_ID", client_id)
+        self.client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", client_secret)
         self.redirect_uri = redirect_uri
         self.included_paths = included_paths or ["/*"]
         self.excluded_paths = excluded_paths or [
