@@ -32,9 +32,16 @@ class Storage(BaseStorage[T], Generic[T]):
         """Get a document from the collection."""
         return self.clazz.model_validate(self._coll_ref.document(key).get().to_dict())
 
-    def get_all(self) -> Iterator[T]:
+    def get_all(self, order_by: list[str | tuple[str, any]] = None) -> Iterator[T]:
         """Get all documents from the collection."""
-        for doc in self._coll_ref.stream():
+        coll_ref = self._coll_ref
+        if order_by:
+            for o in order_by:
+                if isinstance(o, tuple):
+                    coll_ref = coll_ref.order_by(o[0], direction=o[1])
+                else:
+                    coll_ref = coll_ref.order_by(o)
+        for doc in coll_ref.stream():
             yield self.clazz.model_validate(doc.to_dict())
 
     def keys(self) -> Iterator[str]:

@@ -36,7 +36,7 @@ class OAuth:
         included_paths: list[str] = None,
         excluded_paths: list[str] = None,
     ):
-        self.client_id =  os.getenv("GOOGLE_OAUTH_CLIENT_ID", client_id)
+        self.client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", client_id)
         self.client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", client_secret)
         self.redirect_uri = redirect_uri
         self.included_paths = included_paths or ["/*"]
