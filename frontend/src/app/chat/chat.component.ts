@@ -1,8 +1,8 @@
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatDrawerContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -17,8 +17,9 @@ import { MarkdownPipe } from '../shared/markdown.pipe';
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
 })
-export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy {
 
+    @ViewChild(MatDrawerContainer) drawerContainer!: MatDrawerContainer;
     @ViewChild('container') container!: ElementRef;
 
     history: ChatSessionHeader[] = [];
@@ -32,7 +33,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     constructor(private chatService: ChatService) {
         // Get the initial messages from the server
         this.newChat()
-        this.chatService.get_all().subscribe(history => this.history = history);
+        this.chatService.get_all().subscribe(history => {
+            this.history = history;
+            setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
+        });
     }
 
     ngOnInit(): void {
@@ -56,6 +60,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
                 });
             const message = { author: "user", content: this.newMessage }
             this.session.history.push(message);
+            this.scrollBottom();
             this.newMessage = '';
             this.waitingForResponse = true;
             this.currentAnswer = '';
@@ -78,12 +83,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (this.currentTypeIndex < this.currentAnswer.length) {
             this.session.history[this.session.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
+            this.scrollBottom();
             setTimeout(() => this.typeAnswer(), 15);
         } else if (this.waitingForResponse)
             setTimeout(() => this.typeAnswer(), 15);
     }
 
-    ngAfterViewChecked(): void {
+    scrollBottom(): void {
         // Scroll to the bottom of the chat container
         this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
     }
@@ -93,7 +99,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     loadChat(chat_session_id: string) {
-        this.chatService.get(chat_session_id).subscribe(session => this.session = session);
+        this.chatService.get(chat_session_id).subscribe(session => {
+            this.session = session;
+            setTimeout(() => this.scrollBottom(), 100);
+        });
+
     }
 
     deleteChat(chat_session_id: string) {
