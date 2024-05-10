@@ -3,6 +3,7 @@ from typing import Iterator, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
 
+from google.cloud import firestore
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
@@ -28,9 +29,8 @@ class ChatSession(ChatSessionHeader):
 class ChatHistoryException(Exception):
     """Is't strange form of returning history."""
 
-    def __init__(self, chat_session_id: str, history: list[ChatMessage]):
-        self.chat_session_id = chat_session_id
-        self.history = history
+    def __init__(self, chat_session: ChatSession):
+        self.chat_session = chat_session
 
 
 class ChatService:
@@ -53,25 +53,11 @@ class ChatService:
 
     def get_answer_async(
         self,
-        history: list[ChatMessage],
+        chat_session: ChatSession,
         message: ChatMessage,
-        chat_session_id: str = None,
-        user: str = "Anonymous",
     ) -> Iterator[str]:
         """Get an answer from the model."""
-        if chat_session_id:
-            chat_session = self.storage.get(chat_session_id)
-            history = chat_session.history
-        else:
-            chat_session_id = str(uuid4())
-            chat_session = ChatSession(
-                chat_session_id=chat_session_id,
-                user=user,
-                created=datetime.now(),
-                summary=message.content,
-                history=[],
-            )
-        in_history = [self._chat_message_to_content(m) for m in history]
+        in_history = [self._chat_message_to_content(m) for m in chat_session.history]
         chat = self.factory.get_chat(history=in_history)
         responses = chat.send_message(message.content, stream=True)
         for response in responses:
@@ -79,8 +65,10 @@ class ChatService:
             # await asyncio.sleep(0.1)
         out_history = [self._content_to_chat_message(m) for m in chat.history]
         chat_session.history = out_history
+        if not chat_session.summary:
+            chat_session.summary = out_history[0].content
         self.storage.save(chat_session)
-        raise ChatHistoryException(chat_session_id, out_history)
+        raise ChatHistoryException(chat_session)
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""
@@ -105,21 +93,31 @@ class ChatService:
                 created=s.created,
                 summary=s.summary,
             )
-            for s in self.storage.get_all()
+            for s in self.storage.get_all([("created", firestore.Query.DESCENDING)])
             if s.user == user
         ]
         return ret
 
-    async def get_chat(self, chat_id: str, user: str) -> list[ChatMessage]:
+    async def get_chat(self, chat_session_id: str, user: str) -> ChatSession:
         """Get chat history by id."""
-        chat_session = self.storage.get(chat_id)
-        if chat_session.user != user:
-            raise ValueError("Chat session does not belong to the user.")
-        return chat_session.history
+        if chat_session_id == "_NEW_":
+            chat_session_id = str(uuid4())
+            chat_session = ChatSession(
+                chat_session_id=chat_session_id,
+                user=user,
+                created=datetime.now(),
+                summary="",
+                history=[],
+            )
+        else:        
+            chat_session = self.storage.get(chat_session_id)
+            if chat_session.user != user:
+                raise ValueError("Chat session does not belong to the user.")
+        return chat_session
 
-    async def delete_chat(self, chat_id: str, user: str) -> None:
+    async def delete_chat(self, chat_session_id: str, user: str) -> None:
         """Delete chat history by id."""
-        chat_session = self.storage.get(chat_id)
+        chat_session = self.storage.get(chat_session_id)
         if chat_session.user != user:
             raise ValueError("Chat session does not belong to the user.")
-        return self.storage.delete(chat_id)
+        return self.storage.delete(chat_session_id)

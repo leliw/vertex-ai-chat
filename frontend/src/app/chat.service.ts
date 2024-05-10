@@ -2,7 +2,7 @@ import { HttpClient, HttpDownloadProgressEvent, HttpEventType } from '@angular/c
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter, map } from 'rxjs';
 
-export interface Message {
+export interface ChatMessage {
     author: string;
     content?: string;
 }
@@ -12,6 +12,10 @@ export interface ChatSessionHeader {
     user: string;
     created: Date;
     summary?: string;
+}
+
+export interface ChatSession extends ChatSessionHeader {
+    history: ChatMessage[];
 }
 
 @Injectable({
@@ -32,21 +36,17 @@ export class ChatService {
         // Unused
     }
 
-    new(): Observable<Message[]> {
-        return this.httpClient.get<Message[]>(`${this.endpoint}/_NEW_`);
+    new(): Observable<ChatSession> {
+        return this.httpClient.get<ChatSession>(`${this.endpoint}/_NEW_`);
     }
 
-    get(chat_session_id: string): Observable<Message[]> {
-        return this.httpClient.get<Message[]>(`${this.endpoint}/${chat_session_id}`);
+    get(chat_session_id: string): Observable<ChatSession> {
+        return this.httpClient.get<ChatSession>(`${this.endpoint}/${chat_session_id}`);
     }
 
-    send(message: Message): Observable<Message> {
-        return this.httpClient.post<Message>(this.endpoint, message);
-    }
-
-    send_async(message: Message): Observable<string> {
+    send_async(message: ChatMessage): Observable<string> {
         let alreadyDownloaded = "";
-        return this.httpClient.post(this.endpoint + "/async", message, {
+        return this.httpClient.post(`${this.endpoint}/message`, message, {
             responseType: 'text',
             reportProgress: true,
             observe: 'events'

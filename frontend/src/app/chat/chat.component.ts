@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { ChatService, ChatSessionHeader, Message } from '../chat.service';
+import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -22,7 +22,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     @ViewChild('container') container!: ElementRef;
 
     history: ChatSessionHeader[] = [];
-    messages: Message[] = []
+    session!: ChatSession;
     newMessage = '';
     waitingForResponse = false;
     connected = false;
@@ -31,7 +31,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     constructor(private chatService: ChatService) {
         // Get the initial messages from the server
-        this.chatService.new().subscribe(messages => this.messages = messages);
+        this.newChat()
         this.chatService.get_all().subscribe(history => this.history = history);
     }
 
@@ -44,30 +44,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.chatService.disconect();
     }
 
-    sendMessage() {
-        // Send message to the server and process the response synchronously
-        if (this.newMessage.trim().length > 0) {
-            const message = { author: "user", "content": this.newMessage }
-            this.messages.push(message);
-            this.newMessage = '';
-            this.waitingForResponse = true;
-            this.chatService.send(message).subscribe(response => {
-                this.messages.push(response);
-                this.waitingForResponse = false;
-            });
-        }
-    }
-
     sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
+            if (this.session.history.length == 0)
+                this.history.unshift({
+                    chat_session_id: this.session.chat_session_id,
+                    user: "",
+                    created: new Date(),
+                    summary: this.newMessage
+                });
             const message = { author: "user", content: this.newMessage }
-            this.messages.push(message);
+            this.session.history.push(message);
             this.newMessage = '';
             this.waitingForResponse = true;
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
-            this.messages.push({ author: "ai", content: "" });
+            this.session.history.push({ author: "ai", content: "" });
             this.chatService.send_async(message).subscribe({
                 next: (chunk) => {
                     this.currentAnswer += chunk;
@@ -83,7 +76,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     typeAnswer() {
         // Simulate typing effect
         if (this.currentTypeIndex < this.currentAnswer.length) {
-            this.messages[this.messages.length - 1].content += this.currentAnswer[this.currentTypeIndex];
+            this.session.history[this.session.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
             setTimeout(() => this.typeAnswer(), 15);
         } else if (this.waitingForResponse)
@@ -96,16 +89,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     newChat() {
-        this.chatService.new().subscribe(messages => this.messages = messages);
+        this.chatService.new().subscribe(session => this.session = session);
     }
 
     loadChat(chat_session_id: string) {
-        this.chatService.get(chat_session_id).subscribe(messages => this.messages = messages);
+        this.chatService.get(chat_session_id).subscribe(session => this.session = session);
     }
 
     deleteChat(chat_session_id: string) {
         this.chatService.delete(chat_session_id).subscribe(
-            () => this.chatService.get_all().subscribe(history => this.history = history)
+            () => {
+                if (this.session.chat_session_id == chat_session_id)
+                    this.newChat();
+                this.chatService.get_all().subscribe(history => this.history = history);
+            }
         );
     }
 
