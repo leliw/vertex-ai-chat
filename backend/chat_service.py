@@ -109,7 +109,7 @@ class ChatService:
                 summary="",
                 history=[],
             )
-        else:        
+        else:
             chat_session = self.storage.get(chat_session_id)
             if chat_session.user != user:
                 raise ValueError("Chat session does not belong to the user.")
