@@ -1,5 +1,6 @@
-<mat-drawer-container>
-    <mat-drawer mode="side" opened>
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+        [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false" [class.handset]="isHandset">
         <mat-action-list>
             <button mat-list-item (click)="newChat()">New chat</button>
             <mat-list-item *ngFor="let session of history">
@@ -10,9 +11,25 @@
                 </button>
             </mat-list-item>
         </mat-action-list>
-    </mat-drawer>
-    <mat-drawer-content>
-        <div class="chat">
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar color="primary">
+            @if (isHandset$ | async) {
+            <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()">
+                <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+            </button>
+            }
+            <span>AI Chat</span>
+            <div class="flex-spacer"></div>
+            @if (!(isHandset$ | async)) {
+            <img src="{{ authService.user?.photoUrl }}" class="profile-photo" alt="User profile"
+                referrerpolicy="no-referrer">
+            }
+            <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
+                <mat-icon>logout</mat-icon>
+            </button>
+        </mat-toolbar>
+        <div class="chat" [class.handset]="isHandset">
             <mat-icon class="connection-status" [class]="connected ? 'connected' : 'disconnected'"
                 [matTooltip]="connected ? 'Połączony z serwerem' : 'Brak połączenia z serwerem. Czekaj na połączenie ...'">
                 {{connected ? "link" : "link_off"}}
@@ -37,6 +54,6 @@
                 }
             </div>
             <input [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()" placeholder="Type a message...">
-        </div>
-    </mat-drawer-content>
-</mat-drawer-container>
+        </div>       
+    </mat-sidenav-content>
+</mat-sidenav-container>
