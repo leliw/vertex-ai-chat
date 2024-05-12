@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Observable, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../shared/config/config.service';
 
 
 @Component({

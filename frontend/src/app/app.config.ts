@@ -7,7 +7,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { GoogleLoginProvider, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { authInterceptor } from './shared/auth/auth.interceptor';
-import { ConfigService } from './config/config.service';
+import { ConfigService } from './shared/config/config.service';
 
 export const appConfig: ApplicationConfig = {
     providers: [
