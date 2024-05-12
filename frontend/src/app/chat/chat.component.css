@@ -1,11 +1,19 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%
+}
+
 .chat {
     position: relative;
-    height: 100%;
+    height: calc(100% - var(--mat-toolbar-standard-height));
     max-width: 1000px;
     margin: auto;
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
+
 
 .chat-container {
     height: calc(100% - 1em - 14px);
@@ -30,7 +38,6 @@
 }
 
 .message {
-    max-width: 90%;
     padding: 10px;
     margin: 5px;
     margin-top: 10px;
@@ -38,6 +45,7 @@
     color: black;
     background-color: white;
     position: relative;
+    max-width: 90%;
     font-size: 16px;
     line-height: 1.4;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -115,27 +123,71 @@ input {
 }
 
 
-mat-drawer-container {
-    width: auto;
-    height: 100%;
-    margin: 0px;
-    box-sizing: border-box;
-}
-
-mat-drawer {
-    padding: 0.2rem;
-    min-width: 15%;
-    max-width: 30%;
-    overflow: auto;
-}
-
 .summary {
     display: inline-block;
-    width: calc(100% - 12px - 24px);
+    width: calc(100% - 48px);
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .hljs {
     background-color: transparent !important;
+}
+
+.flex-spacer {
+    flex: 1 1 auto;
+}
+
+.profile-photo {
+    border-radius: 50%;
+    width: calc(var(--mat-toolbar-standard-height) * 0.8);
+    height: calc(var(--mat-toolbar-standard-height) * 0.8);
+    border: 2px solid white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidenav-container {
+    height: 100%;
+}
+
+.sidenav {
+    min-width: 15%;
+    max-width: 30%;
+}
+
+
+.sidenav .mat-toolbar {
+    background: inherit;
+}
+
+.mat-toolbar.mat-primary {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Smartphone layout */
+
+.sidenav.handset {
+    min-width: 50%;
+    max-width: 100%;
+}
+
+.chat.handset {
+    position: relative;
+    height: calc(100% - var(--mat-toolbar-standard-height));
+    width: 100%;
+    margin: 0px;
+    border: none;
+}
+
+.chat.handset .chat-container {
+    padding: 5px;
+}
+
+.chat.handset .message {
+    max-width: 100%;
+    padding: 5px;
+    margin: 2px;
+    margin-top: 5px;
 }

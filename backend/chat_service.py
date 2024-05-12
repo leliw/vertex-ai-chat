@@ -58,9 +58,11 @@ class ChatService:
     ) -> Iterator[str]:
         """Get an answer from the model."""
         if chat_session and chat_session.history:
-            in_history = [self._chat_message_to_content(m) for m in chat_session.history]
+            in_history = [
+                self._chat_message_to_content(m) for m in chat_session.history
+            ]
         else:
-            in_history =[]
+            in_history = []
         chat = self.factory.get_chat(history=in_history)
         responses = chat.send_message(message.content, stream=True)
         for response in responses:

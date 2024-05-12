@@ -1,25 +1,38 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDrawerContainer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MarkdownPipe } from '../shared/markdown.pipe';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { Observable, map, shareReplay } from 'rxjs';
+import { AuthService } from '../shared/auth/auth.service';
+import { ConfigService } from '../config/config.service';
 
 
 @Component({
     selector: 'app-chat',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatSidenavModule, MatListModule, MatIconModule, MatTooltipModule, MarkdownPipe],
+    imports: [CommonModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatListModule,
+        MatIconModule,
+        AsyncPipe,
+        FormsModule, MatTooltipModule, MarkdownPipe],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
 })
 export class ChatComponent implements OnInit, OnDestroy {
 
-    @ViewChild(MatDrawerContainer) drawerContainer!: MatDrawerContainer;
+    @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
     @ViewChild('container') container!: ElementRef;
 
     history: ChatSessionHeader[] = [];
@@ -30,13 +43,23 @@ export class ChatComponent implements OnInit, OnDestroy {
     currentAnswer = '';
     currentTypeIndex = 0;
 
-    constructor(private chatService: ChatService) {
+    private breakpointObserver = inject(BreakpointObserver);
+
+    isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+        .pipe(
+            map(result => result.matches),
+            shareReplay()
+        );
+    isHandset!: boolean;
+
+    constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
         this.newChat()
         this.chatService.get_all().subscribe(history => {
             this.history = history;
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
         });
+        this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }
 
     ngOnInit(): void {
@@ -101,6 +124,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     loadChat(chat_session_id: string) {
         this.chatService.get(chat_session_id).subscribe(session => {
             this.session = session;
+            if (this.isHandset)
+                this.drawerContainer.close();
             setTimeout(() => this.scrollBottom(), 100);
         });
 
