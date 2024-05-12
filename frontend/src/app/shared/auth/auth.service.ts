@@ -13,7 +13,7 @@ export class AuthService {
     constructor(private router: Router, private socialAuthService: SocialAuthService) {
         const jsonUser = localStorage.getItem("user")
         if (jsonUser) {
-            this.user = JSON.parse(jsonUser);  
+            this.user = JSON.parse(jsonUser);
             this.loggedIn = (this.user != null);
         }
         this.socialAuthService.authState.subscribe((user) => {

@@ -54,8 +54,13 @@
                 }
                 }
             </div>
+            @if(progressSpinner) {
+                <div class="spinner-overlay">
+                    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                  </div>
+            }
             <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
-                placeholder="Type a message..."></textarea>
+                [disabled]="isLoading" placeholder="Type a message..."></textarea>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

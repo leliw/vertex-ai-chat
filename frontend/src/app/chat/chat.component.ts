@@ -14,6 +14,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Observable, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
@@ -26,7 +27,7 @@ import { ConfigService } from '../shared/config/config.service';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MarkdownPipe],
+        FormsModule, MatInputModule, MatTooltipModule, MarkdownPipe, MatProgressSpinnerModule],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
@@ -39,6 +40,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     history: ChatSessionHeader[] = [];
     session!: ChatSession;
     newMessage = '';
+    isLoading = false;
+    progressSpinner = false;
     waitingForResponse = false;
     connected = false;
     currentAnswer = '';
@@ -119,19 +122,19 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     newChat() {
-        this.chatService.new().subscribe(session => {
-            this.session = session;
-            if (this.isHandset)
-                this.drawerContainer.close();
-        });
+        this.loadChat('_NEW_');
     }
 
     loadChat(chat_session_id: string) {
+        this.isLoading = true;
+        setTimeout(() => this.progressSpinner = this.isLoading, 500);
         this.chatService.get(chat_session_id).subscribe(session => {
             this.session = session;
             if (this.isHandset)
                 this.drawerContainer.close();
             setTimeout(() => this.scrollBottom(), 100);
+            this.isLoading = false;
+            this.progressSpinner= false;
         });
 
     }
