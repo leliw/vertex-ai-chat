@@ -3,7 +3,7 @@
     height: calc(100% - 2px - var(--mat-toolbar-standard-height));
     max-width: 1000px;
     margin: auto;
-    border: 1px solid #ccc;
+    border: none;
     box-sizing: border-box;
 }
 
@@ -52,10 +52,8 @@
     height: calc(3rem + 14px);
     width: 100%;
     padding: 5px;
-    border-top: 1px solid #ccc;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
+    border: 1px solid #ccc;
+    border-radius: 10px;
     box-sizing: border-box;
     resize: none;
 }
@@ -68,13 +66,13 @@
 }
 
 .user {
-    background-color: #90c6ff;
+    /* background-color: #90c6ff; */
     align-self: flex-end;
     border-radius: 20px 20px 0px 20px;
 }
 
 .ai {
-    background-color: #c4c4c4;
+    background-color: #ececec;
     align-self: flex-start;
     border-radius: 20px 20px 20px 0px;
 }

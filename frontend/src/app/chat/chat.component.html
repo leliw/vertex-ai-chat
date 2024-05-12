@@ -7,7 +7,7 @@
             <mat-list-item *ngFor="let session of history">
                 <a class="summary" matLine (click)="loadChat(session.chat_session_id)"
                     [matTooltip]="session.summary ?? '(brak)'">{{ session.summary }}</a>
-                <button mat-icon-button (click)="deleteChat(session.chat_session_id)">
+                <button mat-icon-button (click)="deleteChat(session.chat_session_id)" color="accent">
                     <mat-icon>delete</mat-icon>
                 </button>
             </mat-list-item>
@@ -31,10 +31,6 @@
             </button>
         </mat-toolbar>
         <div class="chat" [class.handset]="isHandset">
-            <mat-icon class="connection-status" [class]="connected ? 'connected' : 'disconnected'"
-                [matTooltip]="connected ? 'Połączony z serwerem' : 'Brak połączenia z serwerem. Czekaj na połączenie ...'">
-                {{connected ? "link" : "link_off"}}
-            </mat-icon>
             <div #container class="chat-container">
                 @if(session){
                 @for (message of session.history; track message) {
