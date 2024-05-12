@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MarkdownPipe } from '../shared/markdown.pipe';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Observable, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
@@ -25,7 +26,7 @@ import { ConfigService } from '../config/config.service';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatTooltipModule, MarkdownPipe],
+        FormsModule, MatInputModule, MatTooltipModule, MarkdownPipe],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
@@ -118,7 +119,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     newChat() {
-        this.chatService.new().subscribe(session => this.session = session);
+        this.chatService.new().subscribe(session => {
+            this.session = session;
+            if (this.isHandset)
+                this.drawerContainer.close();
+        });
     }
 
     loadChat(chat_session_id: string) {
