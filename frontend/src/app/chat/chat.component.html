@@ -1,6 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
     <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-        [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false" [class.handset]="isHandset">
+        [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false"
+        [class.handset]="isHandset">
         <mat-action-list>
             <button mat-list-item (click)="newChat()">New chat</button>
             <mat-list-item *ngFor="let session of history">
@@ -53,7 +54,8 @@
                 }
                 }
             </div>
-            <input [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()" placeholder="Type a message...">
-        </div>       
+            <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
+                placeholder="Type a message..."></textarea>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
