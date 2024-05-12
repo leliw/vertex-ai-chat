@@ -1,6 +1,7 @@
 import { GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { Component } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ConfigService } from '../../config/config.service';
 
 @Component({
     selector: 'app-login',
@@ -10,5 +11,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     styleUrl: './login.component.css'
 })
 export class LoginComponent {
-    version = "xxx"
+    version = ""
+
+    constructor(private configService: ConfigService) {
+        this.configService.getConfig().subscribe(config => this.version = config.version);
+    }
 }
