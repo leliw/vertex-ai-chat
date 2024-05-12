@@ -74,4 +74,8 @@ export class ChatService {
     delete(chat_session_id: string): Observable<void> {
         return this.httpClient.delete<void>(`${this.endpoint}/${chat_session_id}`);
     }
+
+    putChatSession(chatSession: ChatSession): Observable<void> {
+        return this.httpClient.put<void>(`${this.endpoint}/${chatSession.chat_session_id}`, chatSession);
+    }
 }

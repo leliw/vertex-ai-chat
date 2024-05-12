@@ -55,12 +55,18 @@
                 }
             </div>
             @if(progressSpinner) {
-                <div class="spinner-overlay">
-                    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-                  </div>
+            <div class="spinner-overlay">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+            </div>
             }
             <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
-                [disabled]="isLoading" placeholder="Type a message..."></textarea>
+                [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
+            @if(waitingForResponse) {
+            <button class="cancel-loading" mat-icon-button (click)="cancelLoading()" matTooltip="Cancel loading"
+                color="warn">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            }
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

@@ -107,6 +107,21 @@ def chat_post_message_async(
         return "Resource exhausted", 503
 
 
+@app.put("/api/chat/{chat_session_id}")
+async def chat_session_update(
+    chat_session_id: str,
+    chat_session: ChatSession,
+    request: Request,
+    session_data: SessionDataDep,
+):
+    """Update chat session."""
+    session_data.chat_session = chat_session
+    await session_manager.update_session(request, session_data)
+    await chat_service.update_chat(
+        chat_session_id, chat_session, session_data.user.email
+    )
+
+
 @app.delete("/api/chat/{chat_id}")
 async def chat_delete(chat_id: str, session_data: SessionDataDep) -> None:
     await chat_service.delete_chat(chat_id, session_data.user.email)

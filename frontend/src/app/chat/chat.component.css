@@ -9,7 +9,7 @@
 
 
 .chat-container {
-    height: calc(100% - 3em - 14px);
+    height: calc(100% - 3rem - 14px);
     padding: 10px;
     overflow-y: scroll;
     position: relative;
@@ -49,7 +49,7 @@
 }
 
 .input-area {
-    height: calc(3em + 14px);
+    height: calc(3rem + 14px);
     width: 100%;
     padding: 5px;
     border-top: 1px solid #ccc;
@@ -58,6 +58,13 @@
     border-bottom: none;
     box-sizing: border-box;
     resize: none;
+}
+
+.cancel-loading {
+    position: absolute !important;
+    bottom: calc(3rem + 14px);;
+    right: 0.8em;
+    z-index: 1;
 }
 
 .user {

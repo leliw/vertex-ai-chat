@@ -11,7 +11,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Observable, map, shareReplay } from 'rxjs';
+import { Observable, Subscription, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -47,6 +47,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     currentAnswer = '';
     currentTypeIndex = 0;
 
+    private dataSubscription!: Subscription;
     private breakpointObserver = inject(BreakpointObserver);
 
     isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -93,7 +94,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
             this.session.history.push({ author: "ai", content: "" });
-            this.chatService.send_async(message).subscribe({
+            this.dataSubscription = this.chatService.send_async(message).subscribe({
                 next: (chunk) => {
                     this.currentAnswer += chunk;
                     if (this.currentTypeIndex == 0)
@@ -134,9 +135,24 @@ export class ChatComponent implements OnInit, OnDestroy {
                 this.drawerContainer.close();
             setTimeout(() => this.scrollBottom(), 100);
             this.isLoading = false;
-            this.progressSpinner= false;
+            this.progressSpinner = false;
         });
 
+    }
+
+    cancelLoading() {
+        console.log("Cancel loading");
+        // Cancel the current request
+        this.dataSubscription.unsubscribe();
+        this.waitingForResponse = false;
+        // Stop typing
+        this.currentTypeIndex = this.currentAnswer.length
+        if (this.session.history[this.session.history.length - 1].author == "ai")
+            this.session.history.pop();
+        const question = this.session.history.pop();
+        if (question)
+            this.newMessage = question.content || '';
+        this.chatService.putChatSession(this.session).subscribe();
     }
 
     deleteChat(chat_session_id: string) {

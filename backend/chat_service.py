@@ -120,6 +120,12 @@ class ChatService:
                 raise ValueError("Chat session does not belong to the user.")
         return chat_session
 
+    async def update_chat(self, chat_session_id: str, chat_session: ChatSession, user: str) -> None:
+        old_session = self.storage.get(chat_session_id)
+        if old_session.user != user:
+            raise ValueError("Chat session does not belong to the user.")
+        return self.storage.save(chat_session)
+
     async def delete_chat(self, chat_session_id: str, user: str) -> None:
         """Delete chat history by id."""
         chat_session = self.storage.get(chat_session_id)
