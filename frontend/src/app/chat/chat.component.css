@@ -58,7 +58,7 @@
     resize: none;
 }
 
-.cancel-loading {
+.cancel-generating {
     position: absolute !important;
     bottom: calc(3rem + 14px);;
     right: 0.8em;

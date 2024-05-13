@@ -58,7 +58,7 @@
             <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
                 [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
             @if(waitingForResponse) {
-            <button class="cancel-loading" mat-icon-button (click)="cancelLoading()" matTooltip="Cancel loading"
+            <button class="cancel-generating" mat-icon-button (click)="cancelGenerating()" matTooltip="Cancel generating"
                 color="warn">
                 <mat-icon>cancel</mat-icon>
             </button>

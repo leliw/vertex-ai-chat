@@ -140,8 +140,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     }
 
-    cancelLoading() {
-        console.log("Cancel loading");
+    cancelGenerating() {
         // Cancel the current request
         this.dataSubscription.unsubscribe();
         this.waitingForResponse = false;
