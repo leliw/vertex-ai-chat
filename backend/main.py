@@ -63,6 +63,11 @@ async def read_config():
 chat_service = ChatService()
 
 
+@app.get("/api/models")
+def models_get_all() -> list[str]:
+    return [m.strip() for m in config.get("models").split(",")]
+
+
 @app.get("/api/chat")
 async def chat_get_all(session_data: SessionDataDep) -> list[ChatSessionHeader]:
     return await chat_service.get_all(session_data.user.email)
