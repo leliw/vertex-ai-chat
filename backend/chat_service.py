@@ -33,6 +33,16 @@ class ChatHistoryException(Exception):
         self.chat_session = chat_session
 
 
+class StreamedEvent(BaseModel):
+    type: str
+    value: str
+
+
+class ChatSessionUserError(ValueError):
+    def __init__(self):
+        super().__init__("Chat session does not belong to the user.")
+
+
 class ChatService:
     """Service for chat."""
 
@@ -63,17 +73,22 @@ class ChatService:
             ]
         else:
             in_history = []
-        chat = self.factory.get_chat(history=in_history)
-        responses = chat.send_message(message.content, stream=True)
-        for response in responses:
-            yield response.text
-            # await asyncio.sleep(0.1)
-        out_history = [self._content_to_chat_message(m) for m in chat.history]
-        chat_session.history = out_history
-        if not chat_session.summary:
-            chat_session.summary = out_history[0].content
-        self.storage.save(chat_session)
-        raise ChatHistoryException(chat_session)
+        try:
+            chat = self.factory.get_chat(history=in_history)
+            responses = chat.send_message(message.content, stream=True)
+            for response in responses:
+                if response.text:
+                    yield StreamedEvent(type="text", value=response.text)
+                # await asyncio.sleep(0.1)
+            out_history = [self._content_to_chat_message(m) for m in chat.history]
+            chat_session.history = out_history
+            if not chat_session.summary:
+                chat_session.summary = out_history[0].content
+            self.storage.save(chat_session)
+        except Exception as e:
+            yield StreamedEvent(type=f"error:{type(e).__name__}", value=str(e))
+        finally:
+            raise ChatHistoryException(chat_session)
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""
@@ -117,18 +132,20 @@ class ChatService:
         else:
             chat_session = self.storage.get(chat_session_id)
             if chat_session.user != user:
-                raise ValueError("Chat session does not belong to the user.")
+                raise ChatSessionUserError()
         return chat_session
 
-    async def update_chat(self, chat_session_id: str, chat_session: ChatSession, user: str) -> None:
+    async def update_chat(
+        self, chat_session_id: str, chat_session: ChatSession, user: str
+    ) -> None:
         old_session = self.storage.get(chat_session_id)
         if old_session.user != user:
-            raise ValueError("Chat session does not belong to the user.")
+            raise ChatSessionUserError()
         return self.storage.save(chat_session)
 
     async def delete_chat(self, chat_session_id: str, user: str) -> None:
         """Delete chat history by id."""
         chat_session = self.storage.get(chat_session_id)
         if chat_session.user != user:
-            raise ValueError("Chat session does not belong to the user.")
+            raise ChatSessionUserError()
         return self.storage.delete(chat_session_id)
