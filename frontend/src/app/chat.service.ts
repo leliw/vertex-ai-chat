@@ -45,6 +45,10 @@ export class ChatService {
         clearInterval(this.pingIntervalId);
     }
 
+    get_models(): Observable<string[]> {
+        return this.httpClient.get<string[]>(`/api/models`);
+    }
+
     new(): Observable<ChatSession> {
         return this.httpClient.get<ChatSession>(`${this.endpoint}/_NEW_`);
     }
