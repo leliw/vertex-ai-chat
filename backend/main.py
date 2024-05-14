@@ -63,6 +63,11 @@ def ping():
 chat_service = ChatService()
 
 
+@app.get("/api/models")
+def models_get_all() -> list[str]:
+    return [m.strip() for m in config.get("models").split(",")]
+
+
 @app.get("/api/chat")
 async def chat_get_all(request: Request) -> list[ChatSessionHeader]:
     return await chat_service.get_all(request.state.session_data.user.email)

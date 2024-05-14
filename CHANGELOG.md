@@ -1,5 +1,9 @@
 # Changelog
 
+## Verions 0.2.7 - 2024-05-18
+
+* AI model selection
+
 ## Verions 0.2.6 - 2024-05-16
 
 * Ping request to keep container alive
