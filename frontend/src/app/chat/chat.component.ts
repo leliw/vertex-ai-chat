@@ -6,6 +6,7 @@ import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { MarkdownPipe } from '../shared/markdown.pipe';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MarkdownPipe, MatProgressSpinnerModule],
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
@@ -37,6 +38,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
     @ViewChild('container') container!: ElementRef;
 
+    models: string[] = [];
+    model!: string;
     history: ChatSessionHeader[] = [];
     session!: ChatSession;
     newMessage = '';
@@ -60,6 +63,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
         this.newChat()
+        this.chatService.get_models().subscribe(models => {
+            this.models = models;
+            this.model = models[0];
+        });
         this.chatService.get_all().subscribe(history => {
             this.history = history;
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
@@ -76,6 +83,10 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.chatService.disconect();
     }
 
+    setModel(model: string) {
+        this.model = model;
+    }
+    
     sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {

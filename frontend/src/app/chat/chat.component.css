@@ -127,7 +127,7 @@
 }
 
 
-.summary {
+.side-menu-item {
     display: inline-block;
     width: calc(100% - 48px);
     overflow: hidden;
