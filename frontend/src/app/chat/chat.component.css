@@ -60,19 +60,24 @@
 
 .cancel-generating {
     position: absolute !important;
-    bottom: calc(3rem + 14px);;
+    bottom: calc(3rem + 14px);
     right: 0.8em;
     z-index: 1;
 }
 
 .user {
-    /* background-color: #90c6ff; */
     align-self: flex-end;
     border-radius: 20px 20px 0px 20px;
 }
 
 .ai {
     background-color: #ececec;
+    align-self: flex-start;
+    border-radius: 20px 20px 20px 0px;
+}
+
+.error {
+    background-color: #e29292;
     align-self: flex-start;
     border-radius: 20px 20px 20px 0px;
 }

@@ -96,9 +96,19 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.session.history.push({ author: "ai", content: "" });
             this.dataSubscription = this.chatService.send_async(message).subscribe({
                 next: (chunk) => {
-                    this.currentAnswer += chunk;
-                    if (this.currentTypeIndex == 0)
-                        this.typeAnswer();
+                    if (chunk.type == "text") {
+                        this.currentAnswer += chunk.value;
+                        if (this.currentTypeIndex == 0)
+                            this.typeAnswer();
+                    } else if (chunk.type.startsWith("error")) {
+                        this.stopTyping()
+                        if (this.session.history[this.session.history.length - 1].author == "ai")
+                            this.session.history.pop();
+                        const errorClass = chunk.type.split(":")[1];
+                        const errorMessage = "```\n" + chunk.value + "\n```"
+                        this.session.history.push({ author: "error", content: `### ${errorClass}\n\n${errorMessage}` });
+                        setTimeout(() => this.scrollBottom(), 100);
+                    }
                 },
                 complete: () => {
                     this.waitingForResponse = false;
@@ -106,15 +116,22 @@ export class ChatComponent implements OnInit, OnDestroy {
             });
         }
     }
+
     typeAnswer() {
         // Simulate typing effect
         if (this.currentTypeIndex < this.currentAnswer.length) {
             this.session.history[this.session.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
             this.scrollBottom();
-            setTimeout(() => this.typeAnswer(), 15);
+            setTimeout(() => this.typeAnswer(), 10);
         } else if (this.waitingForResponse)
-            setTimeout(() => this.typeAnswer(), 15);
+            setTimeout(() => this.typeAnswer(), 10);
+    }
+
+    stopTyping() {
+        // Stop typing
+        this.currentTypeIndex = this.currentAnswer.length
+        this.waitingForResponse = false;
     }
 
     scrollBottom(): void {
@@ -143,14 +160,12 @@ export class ChatComponent implements OnInit, OnDestroy {
     cancelGenerating() {
         // Cancel the current request
         this.dataSubscription.unsubscribe();
-        this.waitingForResponse = false;
-        // Stop typing
-        this.currentTypeIndex = this.currentAnswer.length
+        this.stopTyping();
         if (this.session.history[this.session.history.length - 1].author == "ai")
             this.session.history.pop();
         const question = this.session.history.pop();
         if (question)
-            this.newMessage = question.content || '';
+            this.newMessage = question.content ?? '';
         this.chatService.putChatSession(this.session).subscribe();
     }
 

@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
-from google.api_core.exceptions import ResourceExhausted
 
 from gcp_oauth import OAuth
 from gcp_session import SessionManager, SessionData as BaseSessionData
@@ -84,28 +83,24 @@ def chat_post_message_async(
     message: ChatMessage, request: Request, session_data: SessionDataDep
 ):
     """Post message to chat and return async response"""
-    try:
-        responses = chat_service.get_answer_async(
-            chat_session=session_data.chat_session,
-            message=message,
-        )
+    responses = chat_service.get_answer_async(
+        chat_session=session_data.chat_session,
+        message=message,
+    )
 
-        async def handle_history(responses):
-            try:
-                for r in responses:
-                    yield r
-            except ChatHistoryException as e:
-                session_data.chat_session = e.chat_session
-                await session_manager.update_session(request, session_data)
+    async def handle_history(responses):
+        try:
+            for i, r in enumerate(responses):
+                comma = "," if i > 0 else ""
+                yield f"{comma}{r.model_dump_json()}\n"
+        except ChatHistoryException as e:
+            session_data.chat_session = e.chat_session
+            await session_manager.update_session(request, session_data)
 
-        return StreamingResponse(
-            handle_history(responses),
-            media_type="text/event-stream",
-        )
-    except ResourceExhausted as e:
-        print(e)
-        return "Resource exhausted", 503
-
+    return StreamingResponse(
+        handle_history(responses),
+        media_type="text/event-stream",
+    )
 
 @app.put("/api/chat/{chat_session_id}")
 async def chat_session_update(
