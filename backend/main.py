@@ -102,6 +102,7 @@ def chat_post_message_async(
         media_type="text/event-stream",
     )
 
+
 @app.put("/api/chat/{chat_session_id}")
 async def chat_session_update(
     chat_session_id: str,
