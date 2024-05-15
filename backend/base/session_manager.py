@@ -1,16 +1,53 @@
-from typing import Generic
+from typing import Generic, Type
 from fastapi import HTTPException, Request, Response
 from uuid import UUID, uuid4
 
 from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
-from fastapi_sessions.backends.session_backend import SessionBackend, SessionModel
+from fastapi_sessions.backends.session_backend import (
+    SessionBackend,
+    BackendError,
+    SessionModel,
+)
+
+from .base_storage import BaseStorage
 
 
 class InvalidSessionException(HTTPException):
     def __init__(self):
         super().__init__(status_code=403, detail="Invalid session")
+
+
+class BasicSessionBackend(Generic[SessionModel], SessionBackend[UUID, SessionModel]):
+    def __init__(self, storage: BaseStorage, session_class: Type[SessionModel]) -> None:
+        """Initialize a new in-memory database."""
+        self.storage = storage
+        self.session_class = session_class
+
+    async def create(self, session_id: UUID, data: SessionModel):
+        """Create a new session entry."""
+        if self.storage.get(str(session_id)):
+            raise BackendError("create can't overwrite an existing session")
+        self.storage.put(str(session_id), data)
+
+    async def read(self, session_id: UUID):
+        """Read an existing session data."""
+        data = self.storage.get(str(session_id))
+        if not data:
+            return
+        return data
+
+    async def update(self, session_id: UUID, data: SessionModel) -> None:
+        """Update an existing session."""
+        if self.storage.get(str(session_id)):
+            self.storage.put(str(session_id), data)
+        else:
+            raise BackendError("session does not exist, cannot update")
+
+    async def delete(self, session_id: UUID) -> None:
+        """Delete an existing session."""
+        self.storage.delete(str(session_id))
 
 
 class BasicVerifier(SessionVerifier[UUID, SessionModel]):
@@ -19,7 +56,7 @@ class BasicVerifier(SessionVerifier[UUID, SessionModel]):
         *,
         identifier: str,
         auto_error: bool,
-        backend: InMemoryBackend[UUID, SessionModel],
+        backend: SessionBackend[UUID, SessionModel],
         auth_http_exception: HTTPException,
     ):
         self._identifier = identifier
@@ -48,7 +85,7 @@ class BasicVerifier(SessionVerifier[UUID, SessionModel]):
         return True
 
 
-class SessionManager(Generic[SessionModel]):
+class BasicSessionManager(Generic[SessionModel]):
     """Session manager."""
 
     def __init__(
@@ -87,6 +124,11 @@ class SessionManager(Generic[SessionModel]):
         """Get the session id from the request."""
         return self.cookie(request)
 
+    async def get_session(self, request: Request) -> SessionModel:
+        """Get the current session, if any"""
+        self.cookie(request)
+        return await self.verifier(request)
+
     async def update_session(self, request: Request, data: SessionModel):
         """Update the current session."""
         session_id = self.cookie(request)
@@ -100,5 +142,4 @@ class SessionManager(Generic[SessionModel]):
 
     async def __call__(self, request: Request) -> SessionModel:
         """Get the current session, if any"""
-        self.cookie(request)
-        return await self.verifier(request)
+        return await self.get_session(request)

@@ -9,7 +9,7 @@ export interface Config {
 }
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class ConfigService {
 
@@ -17,18 +17,20 @@ export class ConfigService {
     private static config: Config | undefined = undefined;
 
     constructor(private http: HttpClient) { }
-    
+
     public getConfig(): Observable<Config> {
-        if (!ConfigService.config)
+        const jsonConfig = localStorage.getItem('config');
+        if (jsonConfig) {
+            return of(JSON.parse(jsonConfig));
+        } else {
             return this.http.get<Config>(this.url)
                 .pipe(map(c => {
                     if (!c.version)
                         c.version = "0.0.1";
-                    ConfigService.config = c;
+                    localStorage.setItem('config', JSON.stringify(c));
                     return c;
                 }));
-        else
-            return of(ConfigService.config);
+        }
     }
 
     getOAuthClientId(): Promise<string> {

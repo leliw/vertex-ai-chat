@@ -3,7 +3,7 @@
 from typing import Generic, Iterator, Type
 from google.cloud import firestore
 
-from storage import T, BaseStorage
+from base import T, BaseStorage
 
 
 class Storage(BaseStorage[T], Generic[T]):
@@ -30,7 +30,10 @@ class Storage(BaseStorage[T], Generic[T]):
 
     def get(self, key: str) -> T:
         """Get a document from the collection."""
-        return self.clazz.model_validate(self._coll_ref.document(key).get().to_dict())
+        data = self._coll_ref.document(key).get().to_dict()
+        if not data:
+            return
+        return self.clazz.model_validate(data)
 
     def get_all(self, order_by: list[str | tuple[str, any]] = None) -> Iterator[T]:
         """Get all documents from the collection."""

@@ -7,7 +7,7 @@ from google.cloud import firestore
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
-from gcp_storage import Storage
+from gcp import Storage
 
 
 class ChatSessionHeader(BaseModel):
@@ -62,9 +62,7 @@ class ChatService:
         return (ret, out_history)
 
     def get_answer_async(
-        self,
-        chat_session: ChatSession,
-        message: ChatMessage,
+        self, chat_session: ChatSession, message: ChatMessage
     ) -> Iterator[str]:
         """Get an answer from the model."""
         if chat_session and chat_session.history:

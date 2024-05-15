@@ -17,21 +17,22 @@ export const appConfig: ApplicationConfig = {
         {
             provide: 'SocialAuthServiceConfig',
             useFactory: async (configService: ConfigService) => {
-              const clientId = await configService.getOAuthClientId();
-              return {
-                autoLogin: false,
-                providers: [
-                  {
-                    id: GoogleLoginProvider.PROVIDER_ID,
-                    provider: new GoogleLoginProvider(clientId)
-                  }
-                ],
-                onError: (err: any) => {
-                  console.error(err);
-                }
-              } as SocialAuthServiceConfig;
+                const clientId = await configService.getOAuthClientId();
+                const oneTapEnabled = localStorage.getItem("user") == null;
+                return {
+                    autoLogin: false,
+                    providers: [
+                        {
+                            id: GoogleLoginProvider.PROVIDER_ID,
+                            provider: new GoogleLoginProvider(clientId, { oneTapEnabled: oneTapEnabled })
+                        }
+                    ],
+                    onError: (err: any) => {
+                        console.error(err);
+                    }
+                } as SocialAuthServiceConfig;
             },
             deps: [ConfigService]
-          }        
+        }
     ]
 };

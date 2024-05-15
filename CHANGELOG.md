@@ -1,5 +1,10 @@
 # Changelog
 
+## Verions 0.2.5 - 2024-05-15
+
+* Session persistent storage
+* Python packages refactor
+
 ## Verions 0.2.4 - 2024-05-14
 
 * AI model error handling - is shown to the user
