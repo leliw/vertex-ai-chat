@@ -39,11 +39,8 @@ class OAuth:
         self.client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", client_id)
         self.client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", client_secret)
         self.redirect_uri = redirect_uri
-        self.included_paths = included_paths or ["/*"]
+        self.included_paths = included_paths or ["/api/*"]
         self.excluded_paths = excluded_paths or [
-            "/login",
-            "/auth",
-            "/favicon.ico",
             "/api/config",
         ]
         self._google_public_keys = self._get_google_public_keys()
