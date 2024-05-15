@@ -62,9 +62,7 @@ class ChatService:
         return (ret, out_history)
 
     def get_answer_async(
-        self,
-        chat_session: ChatSession,
-        message: ChatMessage,
+        self, chat_session: ChatSession, message: ChatMessage
     ) -> Iterator[str]:
         """Get an answer from the model."""
         if chat_session and chat_session.history:

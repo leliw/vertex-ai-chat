@@ -29,6 +29,7 @@ export class AuthService {
         this.user = null;
         localStorage.removeItem("user");
         this.loggedIn = false;
+        this.router.navigate(['/login']);
     }
 
     public getToken(): string {

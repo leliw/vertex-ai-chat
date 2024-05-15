@@ -2,14 +2,16 @@
 
 import datetime
 import os
-from typing import Annotated, Optional
+from typing import Optional
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
 
 from gcp_oauth import OAuth
 from gcp_session import SessionManager, SessionData as BaseSessionData
+from gcp_storage import Storage
+from session_manager import BasicSessionBackend
 from static_files import static_file_response
 
 from chat_service import (
@@ -31,7 +33,14 @@ app = FastAPI()
 config: dict = parse_config("./config.yaml")
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 oAuth = OAuth()
-session_manager = SessionManager[SessionData](oAuth, SessionData)
+session_storage = Storage("sessions", SessionData)
+session_backend = BasicSessionBackend(session_storage, SessionData)
+session_manager = SessionManager(oAuth, session_backend, SessionData)
+
+
+@app.middleware("http")
+async def add_session_data(request: Request, call_next):
+    return await session_manager.middleware_add_session_data(request, call_next)
 
 
 @app.get("/login")
@@ -46,12 +55,9 @@ async def auth_google(code: str, response: Response):
     return user_data
 
 
-SessionDataDep = Annotated[SessionData, Depends(session_manager.session_reader)]
-
-
 @app.get("/api/user")
-async def user_get(session_data: SessionDataDep):
-    return session_data.user
+async def user_get(request: Request):
+    return request.state.session_data.user
 
 
 @app.get("/api/config")
@@ -64,27 +70,25 @@ chat_service = ChatService()
 
 
 @app.get("/api/chat")
-async def chat_get_all(session_data: SessionDataDep) -> list[ChatSessionHeader]:
-    return await chat_service.get_all(session_data.user.email)
+async def chat_get_all(request: Request) -> list[ChatSessionHeader]:
+    return await chat_service.get_all(request.state.session_data.user.email)
 
 
 @app.get("/api/chat/{chat_id}")
-async def chat_get_by_id(
-    chat_id: str, request: Request, session_data: SessionDataDep
-) -> ChatSession:
-    chat_session = await chat_service.get_chat(chat_id, session_data.user.email)
-    session_data.chat_session = chat_session
-    await session_manager.update_session(request, session_data)
-    return session_data.chat_session
+async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
+    chat_session = await chat_service.get_chat(
+        chat_id, request.state.session_data.user.email
+    )
+    request.state.session_data.chat_session = chat_session
+    return chat_session
 
 
 @app.post("/api/chat/message")
-def chat_post_message_async(
-    message: ChatMessage, request: Request, session_data: SessionDataDep
-):
+def chat_post_message_async(message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
+    chat_session = request.state.session_data.chat_session
     responses = chat_service.get_answer_async(
-        chat_session=session_data.chat_session,
+        chat_session=chat_session,
         message=message,
     )
 
@@ -94,6 +98,7 @@ def chat_post_message_async(
                 comma = "," if i > 0 else ""
                 yield f"{comma}{r.model_dump_json()}\n"
         except ChatHistoryException as e:
+            session_data = request.state.session_data
             session_data.chat_session = e.chat_session
             await session_manager.update_session(request, session_data)
 
@@ -108,19 +113,17 @@ async def chat_session_update(
     chat_session_id: str,
     chat_session: ChatSession,
     request: Request,
-    session_data: SessionDataDep,
 ):
     """Update chat session."""
-    session_data.chat_session = chat_session
-    await session_manager.update_session(request, session_data)
+    request.state.session_data.chat_session = chat_session
     await chat_service.update_chat(
-        chat_session_id, chat_session, session_data.user.email
+        chat_session_id, chat_session, request.state.session_data.user.email
     )
 
 
 @app.delete("/api/chat/{chat_id}")
-async def chat_delete(chat_id: str, session_data: SessionDataDep) -> None:
-    await chat_service.delete_chat(chat_id, session_data.user.email)
+async def chat_delete(chat_id: str, request: Request) -> None:
+    await chat_service.delete_chat(chat_id, request.state.session_data.user.email)
 
 
 # Angular static files - it have to be at the end of file
