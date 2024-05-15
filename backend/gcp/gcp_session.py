@@ -12,7 +12,9 @@ from base import InvalidSessionException, BasicSessionManager
 
 
 class SessionData(BaseModel):
-    timestamp: Optional[datetime.datetime] = Field(default_factory=datetime.datetime.now)
+    timestamp: Optional[datetime.datetime] = Field(
+        default_factory=datetime.datetime.now
+    )
     user: UserData
 
 
