@@ -7,7 +7,7 @@ from google.cloud import firestore
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
-from gcp_storage import Storage
+from gcp import Storage
 
 
 class ChatSessionHeader(BaseModel):

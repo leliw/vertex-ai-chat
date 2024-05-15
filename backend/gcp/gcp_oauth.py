@@ -1,7 +1,7 @@
 """Google OAuth2 class."""
 
 import os
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlparse, urlunparse
 from fastapi import Request, Response
 from fastapi.responses import RedirectResponse
@@ -20,9 +20,9 @@ GOOGLE_URL_USERINFO = "https://www.googleapis.com/oauth2/v1/userinfo"
 class UserData(BaseModel):
     email: str
     name: str
-    given_name: str
-    family_name: str
-    picture: str
+    given_name: Optional[str] = None
+    family_name: Optional[str] = None
+    picture: Optional[str] = None
 
 
 class OAuth:
@@ -44,6 +44,7 @@ class OAuth:
             "/login",
             "/auth",
             "/favicon.ico",
+            "/api/config",
         ]
         self._google_public_keys = self._get_google_public_keys()
 

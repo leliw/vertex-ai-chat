@@ -11,7 +11,7 @@ from fastapi_sessions.backends.session_backend import (
     SessionModel,
 )
 
-from gcp_storage import Storage
+from .base_storage import BaseStorage
 
 
 class InvalidSessionException(HTTPException):
@@ -20,8 +20,7 @@ class InvalidSessionException(HTTPException):
 
 
 class BasicSessionBackend(Generic[SessionModel], SessionBackend[UUID, SessionModel]):
-
-    def __init__(self, storage: Storage, session_class: Type[SessionModel]) -> None:
+    def __init__(self, storage: BaseStorage, session_class: Type[SessionModel]) -> None:
         """Initialize a new in-memory database."""
         self.storage = storage
         self.session_class = session_class
@@ -30,7 +29,6 @@ class BasicSessionBackend(Generic[SessionModel], SessionBackend[UUID, SessionMod
         """Create a new session entry."""
         if self.storage.get(str(session_id)):
             raise BackendError("create can't overwrite an existing session")
-        print(type(data))
         self.storage.put(str(session_id), data)
 
     async def read(self, session_id: UUID):
@@ -38,7 +36,6 @@ class BasicSessionBackend(Generic[SessionModel], SessionBackend[UUID, SessionMod
         data = self.storage.get(str(session_id))
         if not data:
             return
-
         return data
 
     async def update(self, session_id: UUID, data: SessionModel) -> None:
@@ -88,7 +85,7 @@ class BasicVerifier(SessionVerifier[UUID, SessionModel]):
         return True
 
 
-class SessionManager(Generic[SessionModel]):
+class BasicSessionManager(Generic[SessionModel]):
     """Session manager."""
 
     def __init__(

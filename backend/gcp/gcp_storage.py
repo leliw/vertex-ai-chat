@@ -3,7 +3,7 @@
 from typing import Generic, Iterator, Type
 from google.cloud import firestore
 
-from storage import T, BaseStorage
+from base import T, BaseStorage
 
 
 class Storage(BaseStorage[T], Generic[T]):
