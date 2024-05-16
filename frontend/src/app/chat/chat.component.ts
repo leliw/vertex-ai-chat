@@ -11,7 +11,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Observable, Subscription, map, shareReplay } from 'rxjs';
+import { Observable, Subscription, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -39,6 +39,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     history: ChatSessionHeader[] = [];
     session!: ChatSession;
+    sessionChanged = false;
     newMessage = '';
     isLoading = false;
     progressSpinner = false;
@@ -46,6 +47,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     connected = false;
     currentAnswer = '';
     currentTypeIndex = 0;
+    actionButtons?: number = undefined;
 
     private dataSubscription!: Subscription;
     private breakpointObserver = inject(BreakpointObserver);
@@ -76,7 +78,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.chatService.disconect();
     }
 
-    sendMessageAsync() {
+    async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
             if (this.session.history.length == 0)
@@ -87,6 +89,10 @@ export class ChatComponent implements OnInit, OnDestroy {
                     summary: this.newMessage
                 });
             const message = { author: "user", content: this.newMessage }
+            if (this.sessionChanged) {
+                await firstValueFrom(this.chatService.putChatSession(this.session));
+                this.sessionChanged = false;
+            }
             this.session.history.push(message);
             this.scrollBottom();
             this.newMessage = '';
@@ -141,6 +147,8 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     newChat() {
         this.loadChat('_NEW_');
+        this.newMessage = '';
+        this.sessionChanged = false;
     }
 
     loadChat(chat_session_id: string) {
@@ -153,6 +161,8 @@ export class ChatComponent implements OnInit, OnDestroy {
             setTimeout(() => this.scrollBottom(), 100);
             this.isLoading = false;
             this.progressSpinner = false;
+            this.newMessage = '';
+            this.sessionChanged = false;
         });
 
     }
@@ -179,4 +189,12 @@ export class ChatComponent implements OnInit, OnDestroy {
         );
     }
 
+    changeMessage(index: number) {
+        this.newMessage = this.session.history[index].content?.trim() ?? '';
+        const newHistory = this.session.history.slice(0, index);
+        this.session.history = newHistory;
+        this.sessionChanged = true;
+    }
+
+    
 }
