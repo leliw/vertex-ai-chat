@@ -35,12 +35,13 @@
                 @if(session){
                 @for (message of session.history; track message; let index=$index; let last=$last) {
                 @if (message.content) {
-                <div class="message {{message.author}}" (mouseover)="actionButtons=index" (mouseleave)="actionButtons=undefined"
-                    (focus)="actionButtons=index">
+                <div class="message {{message.author}}" (mouseover)="actionButtons=index"
+                    (mouseleave)="actionButtons=undefined" (focus)="actionButtons=index">
                     <div [innerHTML]="message.content | markdown"></div>
                     @if(actionButtons==index && message.author == 'user') {
                     <div class="action-buttons">
-                        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary" (click)="changeMessage(index)">
+                        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary"
+                            (click)="changeMessage(index)">
                             <mat-icon>edit</mat-icon>
                         </button>
                     </div>
@@ -65,14 +66,28 @@
                 <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
             </div>
             }
-            <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
-                [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
             @if(waitingForResponse) {
             <button class="cancel-generating" mat-icon-button (click)="cancelGenerating()"
                 matTooltip="Cancel generating" color="warn">
                 <mat-icon>cancel</mat-icon>
             </button>
             }
+
+            <div class="input-area" (drop)="onFileDropped($event)" (dragover)="$event.preventDefault()">
+                <div class="files-bar" *ngIf="selectedFile">
+                    {{ selectedFile.name }}
+                </div>
+                <div class="input-bar">
+                    <button mat-icon-button (click)="openFileDialog()">
+                        <mat-icon>attach_file</mat-icon>
+                    </button>
+                    <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
+                        [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
+                    <button mat-icon-button (click)="sendMessageAsync()" [disabled]="isLoading || waitingForResponse">
+                        <mat-icon>send</mat-icon>
+                    </button>
+                </div>
+            </div>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

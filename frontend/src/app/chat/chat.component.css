@@ -1,4 +1,6 @@
 .chat {
+    display: flex;
+    flex-direction: column;
     position: relative;
     height: calc(100% - 2px - var(--mat-toolbar-standard-height));
     max-width: 1000px;
@@ -9,7 +11,7 @@
 
 
 .chat-container {
-    height: calc(100% - 3rem - 14px);
+    flex: auto;
     padding: 10px;
     overflow-y: scroll;
     position: relative;
@@ -56,12 +58,42 @@
 }
 
 .input-area {
-    height: calc(3rem + 14px);
+    display: flex;
+    flex-direction: column;
     width: 100%;
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 10px;
     box-sizing: border-box;
+}
+
+.files-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+
+.input-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 100%;
+}
+
+
+
+.input-area textarea {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    height: auto;
+    overflow-y: hidden;
     resize: none;
 }
 

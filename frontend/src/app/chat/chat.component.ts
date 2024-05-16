@@ -196,4 +196,26 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.sessionChanged = true;
     }
 
+    selectedFile: File | null = null;
+
+    openFileDialog(): void {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.click();
+        input.onchange = (event: any) => {
+            this.selectedFile = event.target.files[0];
+        };
+    }
+
+    onFileSelected(event: any): void {
+        this.selectedFile = event.target.files[0];
+    }
+
+    onFileDropped(event: DragEvent): void {
+        event.preventDefault();
+        if ( event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+            this.selectedFile = event.dataTransfer.files[0];
+        }
+    }
+
 }
