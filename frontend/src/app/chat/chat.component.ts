@@ -3,6 +3,7 @@ import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,6 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     standalone: true,
     imports: [CommonModule,
         MatToolbarModule,
+        MatChipsModule,
         MatButtonModule,
         MatSidenavModule,
         MatListModule,
@@ -196,26 +198,38 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.sessionChanged = true;
     }
 
-    selectedFile: File | null = null;
+    selectedFiles: File[] = [];
 
     openFileDialog(): void {
         const input = document.createElement('input');
         input.type = 'file';
+        input.multiple = true;
         input.click();
         input.onchange = (event: any) => {
-            this.selectedFile = event.target.files[0];
+            const files: FileList = event.target.files;
+            Array.from(files).forEach(
+                file => this.selectedFiles.push(file)
+            );
         };
     }
 
     onFileSelected(event: any): void {
-        this.selectedFile = event.target.files[0];
+        const files: FileList = event.target.files;
+        Array.from(files).forEach(
+            file => this.selectedFiles.push(file)
+        );
     }
 
     onFileDropped(event: DragEvent): void {
         event.preventDefault();
-        if ( event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-            this.selectedFile = event.dataTransfer.files[0];
+        if (event.dataTransfer?.files) {
+            Array.from(event.dataTransfer.files).forEach(
+                file => this.selectedFiles.push(file)
+            );
         }
     }
 
+    removeFile(index: number): void {
+        this.selectedFiles.splice(index, 1);
+    }
 }

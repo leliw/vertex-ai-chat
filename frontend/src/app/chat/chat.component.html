@@ -74,16 +74,24 @@
             }
 
             <div class="input-area" (drop)="onFileDropped($event)" (dragover)="$event.preventDefault()">
-                <div class="files-bar" *ngIf="selectedFile">
-                    {{ selectedFile.name }}
-                </div>
+                <mat-chip-set class="files-bar">
+                    @for (file of selectedFiles; track file; let index=$index) {
+                    <mat-chip-row (removed)="removeFile(index)">
+                        {{file.name}}
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    }
+                </mat-chip-set>
                 <div class="input-bar">
-                    <button mat-icon-button (click)="openFileDialog()">
+                    <button mat-icon-button matTooltip="Select file or drop here" (click)="openFileDialog()">
                         <mat-icon>attach_file</mat-icon>
                     </button>
                     <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
                         [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
-                    <button mat-icon-button (click)="sendMessageAsync()" [disabled]="isLoading || waitingForResponse">
+                    <button mat-icon-button matTooltip="Send message" (click)="sendMessageAsync()"
+                        [disabled]="isLoading || waitingForResponse">
                         <mat-icon>send</mat-icon>
                     </button>
                 </div>
