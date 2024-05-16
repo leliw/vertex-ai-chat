@@ -1,5 +1,9 @@
 # Changelog
 
+## Verions 0.2.6 - 2024-05-16
+
+* Ping request to keep container alive
+
 ## Verions 0.2.5 - 2024-05-15
 
 * Session persistent storage

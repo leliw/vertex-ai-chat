@@ -31,15 +31,18 @@ export class ChatService {
 
     private endpoint = '/api/chat';
     private connected$ = new BehaviorSubject<boolean>(false);
+    private pingIntervalId: any;
+    
 
     constructor(private httpClient: HttpClient) { }
 
     connect() {
-        // Unused
+        // Set a timeout to keep the connection alive
+        this.pingIntervalId = setInterval(() => this.httpClient.get<void>("/api/ping").subscribe(), 60000);
     }
 
     disconect() {
-        // Unused
+        clearInterval(this.pingIntervalId);
     }
 
     new(): Observable<ChatSession> {
