@@ -55,6 +55,10 @@ async def read_config():
     """Return config from yaml file"""
     return config
 
+@app.get("/api/ping")
+def ping():
+    """Just for keep container alive"""
+    
 
 chat_service = ChatService()
 
