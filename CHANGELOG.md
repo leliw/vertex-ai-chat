@@ -3,6 +3,7 @@
 ## Verions 0.2.6 - 2024-05-16
 
 * Ping request to keep container alive
+* Editing messaging in chat and sending again
 
 ## Verions 0.2.5 - 2024-05-15
 

@@ -33,9 +33,19 @@
         <div class="chat" [class.handset]="isHandset">
             <div #container class="chat-container">
                 @if(session){
-                @for (message of session.history; track message) {
+                @for (message of session.history; track message; let index=$index; let last=$last) {
                 @if (message.content) {
-                <div class="message {{message.author}}" [innerHTML]="message.content | markdown"></div>
+                <div class="message {{message.author}}" (mouseover)="actionButtons=index" (mouseleave)="actionButtons=undefined"
+                    (focus)="actionButtons=index">
+                    <div [innerHTML]="message.content | markdown"></div>
+                    @if(actionButtons==index && message.author == 'user') {
+                    <div class="action-buttons">
+                        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary" (click)="changeMessage(index)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </div>
+                    }
+                </div>
                 } @else if (waitingForResponse && message.content=="") {<div
                     class="message {{message.author}} loading-spinner">
                     <div></div>
@@ -58,8 +68,8 @@
             <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
                 [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
             @if(waitingForResponse) {
-            <button class="cancel-generating" mat-icon-button (click)="cancelGenerating()" matTooltip="Cancel generating"
-                color="warn">
+            <button class="cancel-generating" mat-icon-button (click)="cancelGenerating()"
+                matTooltip="Cancel generating" color="warn">
                 <mat-icon>cancel</mat-icon>
             </button>
             }
