@@ -19,7 +19,7 @@ class ChatSessionHeader(BaseModel):
 
 
 class ChatMessageFile(BaseModel):
-    name: str
+    name: Optional[str] = Field("")
     url: str
     mime_type: str
 
@@ -111,16 +111,35 @@ class ChatService:
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""
+        parts = [Part.from_text(message.content)]
+        for file in message.files:
+            parts.append(
+                Part.from_uri(
+                    uri=file.url,
+                    mime_type=file.mime_type,
+                )
+            )
         return Content(
             role=message.author if message.author == "user" else "model",
-            parts=[Part.from_text(message.content)],
+            parts=parts,
         )
 
     def _content_to_chat_message(self, content: Content) -> ChatMessage:
         """Convert Content to ChatMessage."""
+        print(content)
+        files = []
+        for part in content.parts:
+            if part.file_data:
+                files.append(
+                    ChatMessageFile(
+                        url=part.file_data.file_uri,
+                        mime_type=part.file_data.mime_type,
+                    )
+                )
         return ChatMessage(
             author=content.role if content.role == "user" else "ai",
             content=content.parts[0].text,
+            files=files,
         )
 
     async def get_all(self, user: str) -> list[ChatSessionHeader]:
