@@ -75,7 +75,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
                 if not session_in:
                     raise InvalidSessionException()
                 request.state.session_data = session_in.model_copy()
-            except InvalidSessionException:
+            except (InvalidSessionException, HTTPException):
                 session_in = None
                 user_data = self.o_auth.verify_token(request)
                 request.state.session_data = self.create_session_for_user(user_data)
