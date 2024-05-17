@@ -1,6 +1,7 @@
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { Injectable, inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { ApiService } from '../api.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +11,7 @@ export class AuthService {
     user: SocialUser | null = null;
     loggedIn: boolean = false;
 
-    constructor(private router: Router, private socialAuthService: SocialAuthService) {
+    constructor(private router: Router, private socialAuthService: SocialAuthService, private apiService: ApiService) {
         const jsonUser = localStorage.getItem("user")
         if (jsonUser) {
             this.user = JSON.parse(jsonUser);
@@ -29,7 +30,9 @@ export class AuthService {
         this.user = null;
         localStorage.removeItem("user");
         this.loggedIn = false;
-        this.router.navigate(['/login']);
+        this.apiService.logout().subscribe(
+            () => this.router.navigate(['/login'])
+        );
     }
 
     public getToken(): string {

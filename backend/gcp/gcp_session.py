@@ -45,7 +45,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
         user_data = await self.o_auth.auth(code)
         await self.create_session(response, SessionData(user=user_data))
         return user_data
-
+    
     async def session_reader(
         self, request: Request, response: Response
     ) -> SessionModel:
@@ -74,8 +74,9 @@ class SessionManager(BasicSessionManager[SessionModel]):
                 session_in = await self.get_session(request)
                 if not session_in:
                     raise InvalidSessionException()
-                request.state.session_data = session_in.model_copy()
-            except InvalidSessionException:
+                request.state.session_id = self.get_session_id(request)
+                request.state.session_data = session_in.model_copy(deep=True)
+            except (InvalidSessionException, HTTPException):
                 session_in = None
                 user_data = self.o_auth.verify_token(request)
                 request.state.session_data = self.create_session_for_user(user_data)

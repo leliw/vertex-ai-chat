@@ -109,4 +109,8 @@ export class ChatService {
     putChatSession(chatSession: ChatSession): Observable<void> {
         return this.httpClient.put<void>(`${this.endpoint}/${chatSession.chat_session_id}`, chatSession);
     }
+
+    uploadFiles(formData: FormData): Observable<void> {
+        return this.httpClient.post<void>(`${this.endpoint}/upload`, formData);
+    }
 }

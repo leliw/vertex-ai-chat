@@ -63,8 +63,8 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
-        this.newChat()
         this.chatService.get_all().subscribe(history => {
+            this.newChat()
             this.history = history;
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
         });
@@ -95,6 +95,8 @@ export class ChatComponent implements OnInit, OnDestroy {
                 await firstValueFrom(this.chatService.putChatSession(this.session));
                 this.sessionChanged = false;
             }
+            await this.uploadFiles();
+            this.selectedFiles = [];
             this.session.history.push(message);
             this.scrollBottom();
             this.newMessage = '';
@@ -149,8 +151,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     newChat() {
         this.loadChat('_NEW_');
-        this.newMessage = '';
-        this.sessionChanged = false;
     }
 
     loadChat(chat_session_id: string) {
@@ -164,6 +164,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.isLoading = false;
             this.progressSpinner = false;
             this.newMessage = '';
+            this.selectedFiles = [];
             this.sessionChanged = false;
         });
 
@@ -231,5 +232,17 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     removeFile(index: number): void {
         this.selectedFiles.splice(index, 1);
+    }
+
+    async uploadFiles() {
+        // Upload files to the server
+        if (this.selectedFiles.length === 0) {
+            return;
+        }
+        const formData = new FormData();
+        for (let i = 0; i < this.selectedFiles.length; i++) {
+            formData.append('files', this.selectedFiles[i]);
+        }
+        await firstValueFrom(this.chatService.uploadFiles(formData));
     }
 }

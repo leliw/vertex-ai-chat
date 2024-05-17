@@ -1,17 +1,19 @@
 """Main file for FastAPI server"""
 
 import os
-from typing import Optional
+from typing import List, Optional
+from uuid import uuid4
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Response
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import FastAPI, File, Request, Response, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pyaml_env import parse_config
 
 from base import static_file_response
-from gcp import SessionManager, SessionData as BaseSessionData
+from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
 from chat_service import (
     ChatHistoryException,
+    ChatMessageFile,
     ChatService,
     ChatMessage,
     ChatSession,
@@ -21,6 +23,7 @@ from chat_service import (
 
 class SessionData(BaseSessionData):
     chat_session: Optional[ChatSession] = None
+    files: list[ChatMessageFile] = File(default_factory=list)
 
 
 load_dotenv()
@@ -28,21 +31,29 @@ app = FastAPI()
 config: dict = parse_config("./config.yaml")
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 session_manager = SessionManager(session_class=SessionData)
-
+file_storage = FileStorage("vertex-ai-chat-dev-session-files")
 
 @app.middleware("http")
 async def add_session_data(request: Request, call_next):
     return await session_manager.middleware_add_session_data(request, call_next)
 
 
-@app.get("/login")
+@app.get("/api/login")
 async def login_google(request: Request):
     return session_manager.redirect_login(request)
 
 
-@app.get("/auth")
+@app.get("/api/auth")
 async def auth_google(request: Request, response: Response):
     return session_manager.auth(request, response)
+
+
+@app.post("/api/logout")
+async def logout(request: Request, response: Response):
+    session_id = request.state.session_id
+    blob_name = f"session-{session_id}"
+    file_storage.delete_folder(blob_name)
+    await session_manager.delete_session(request, response)
 
 
 @app.get("/api/user")
@@ -55,12 +66,13 @@ async def read_config():
     """Return config from yaml file"""
     return config
 
+
 @app.get("/api/ping")
 def ping():
     """Just for keep container alive"""
-    
 
-chat_service = ChatService()
+
+chat_service = ChatService(file_storage)
 
 
 @app.get("/api/chat")
@@ -74,6 +86,7 @@ async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
         chat_id, request.state.session_data.user.email
     )
     request.state.session_data.chat_session = chat_session
+    request.state.session_data.files = []
     return chat_session
 
 
@@ -81,9 +94,11 @@ async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
 def chat_post_message_async(message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
     chat_session = request.state.session_data.chat_session
+    files: list[ChatMessageFile] = request.state.session_data.files
     responses = chat_service.get_answer_async(
         chat_session=chat_session,
         message=message,
+        files=files,
     )
 
     async def handle_history(responses):
@@ -94,6 +109,7 @@ def chat_post_message_async(message: ChatMessage, request: Request):
         except ChatHistoryException as e:
             session_data = request.state.session_data
             session_data.chat_session = e.chat_session
+            session_data.files = []
             await session_manager.update_session(request, session_data)
 
     return StreamingResponse(
@@ -118,6 +134,24 @@ async def chat_session_update(
 @app.delete("/api/chat/{chat_id}")
 async def chat_delete(chat_id: str, request: Request) -> None:
     await chat_service.delete_chat(chat_id, request.state.session_data.user.email)
+
+
+@app.post("/api/chat/upload")
+def upload_files(request: Request, files: List[UploadFile] = File(...)):
+    for file in files:
+        session_id = request.state.session_id
+        file_id = str(uuid4())
+        blob_name = f"session-{session_id}/{file_id}"
+        file_storage.upload_blob_from_file(blob_name, file)
+        chat_message_file = ChatMessageFile(
+            name=file.filename,
+            url=f"gs://{file_storage.bucket_name}/{blob_name}",
+            mime_type=file.content_type,
+        )
+        request.state.session_data.files.append(chat_message_file)
+    return JSONResponse(
+        content={"message": "Files uploaded successfully"}, status_code=200
+    )
 
 
 # Angular static files - it have to be at the end of file

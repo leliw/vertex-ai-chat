@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from uuid import uuid4
 
 from google.cloud import firestore
+from gcp.gcp_file_storage import FileStorage
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
@@ -17,9 +18,16 @@ class ChatSessionHeader(BaseModel):
     summary: Optional[str] = Field("")
 
 
+class ChatMessageFile(BaseModel):
+    name: str
+    url: str
+    mime_type: str
+
+
 class ChatMessage(BaseModel):
     author: str
     content: str
+    files: Optional[list[ChatMessageFile]] = Field([])
 
 
 class ChatSession(ChatSessionHeader):
@@ -46,9 +54,10 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
-    def __init__(self):
+    def __init__(self, file_storage: FileStorage):
         self.factory = VertexAiFactory()
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
+        self.file_storage = file_storage
 
     def get_answer(
         self, history: list[ChatMessage], message: ChatMessage
@@ -62,7 +71,10 @@ class ChatService:
         return (ret, out_history)
 
     def get_answer_async(
-        self, chat_session: ChatSession, message: ChatMessage
+        self,
+        chat_session: ChatSession,
+        message: ChatMessage,
+        files: list[ChatMessageFile],
     ) -> Iterator[str]:
         """Get an answer from the model."""
         if chat_session and chat_session.history:
@@ -73,7 +85,16 @@ class ChatService:
             in_history = []
         try:
             chat = self.factory.get_chat(history=in_history)
-            responses = chat.send_message(message.content, stream=True)
+            parts = []
+            parts.append(Part.from_text(message.content))
+            for file in files:
+                session_blob_name = "/".join(file.url.split("/")[3:])
+                chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
+                self.file_storage.move_blob(session_blob_name, chat_blob_name)
+                uri = f"gs://{self.file_storage.bucket_name}/{chat_blob_name}"
+                parts.append(Part.from_uri(uri, mime_type=file.mime_type))
+            content = Content(role="user", parts=parts)
+            responses = chat.send_message(content, stream=True)
             for response in responses:
                 if response.text:
                     yield StreamedEvent(type="text", value=response.text)
