@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterator, Optional
+from typing import Iterator, Literal, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
 
@@ -18,7 +18,7 @@ class ChatSessionHeader(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    author: str
+    author: Literal['user', 'ai']
     content: str
 
 
@@ -51,19 +51,22 @@ class ChatService:
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
 
     def get_answer(
-        self, history: list[ChatMessage], message: ChatMessage
+        self, model_name: str, history: list[ChatMessage], message: ChatMessage
     ) -> tuple[ChatMessage, list[ChatMessage]]:
         """Get an answer from the model."""
         in_history = [self._chat_message_to_content(m) for m in history]
-        chat = self.factory.get_chat(history=in_history)
+        chat = self.factory.get_chat(model_name=model_name, history=in_history)
         response: GenerationResponse = chat.send_message(message.content, stream=False)
         ret = ChatMessage(author="ai", content=response.text)
         out_history = [self._content_to_chat_message(m) for m in chat.history]
         return (ret, out_history)
 
     def get_answer_async(
-        self, chat_session: ChatSession, message: ChatMessage
-    ) -> Iterator[str]:
+        self,
+        model_name: str,
+        chat_session: ChatSession,
+        message: ChatMessage,
+    ) -> Iterator[StreamedEvent]:
         """Get an answer from the model."""
         if chat_session and chat_session.history:
             in_history = [
@@ -72,7 +75,7 @@ class ChatService:
         else:
             in_history = []
         try:
-            chat = self.factory.get_chat(history=in_history)
+            chat = self.factory.get_chat(model_name=model_name, history=in_history)
             responses = chat.send_message(message.content, stream=True)
             for response in responses:
                 if response.text:

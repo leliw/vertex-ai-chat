@@ -1,4 +1,4 @@
-import { HttpClient, HttpDownloadProgressEvent, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpDownloadProgressEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter } from 'rxjs';
 
@@ -57,11 +57,13 @@ export class ChatService {
         return this.httpClient.get<ChatSession>(`${this.endpoint}/${chat_session_id}`);
     }
 
-    send_async(message: ChatMessage): Observable<StreamedEvent> {
+    send_async(model: string, message: ChatMessage): Observable<StreamedEvent> {
         let lastCommaIndex = 0;
         return new Observable(observer => {
             let buffer = '';
+            let params = new HttpParams().set('model', model);
             this.httpClient.post(`${this.endpoint}/message`, message, {
+                params: params,
                 responseType: 'text',
                 reportProgress: true,
                 observe: 'events'

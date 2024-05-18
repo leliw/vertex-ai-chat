@@ -111,7 +111,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
             this.session.history.push({ author: "ai", content: "" });
-            this.dataSubscription = this.chatService.send_async(message).subscribe({
+            this.dataSubscription = this.chatService.send_async(this.model, message).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
                         this.currentAnswer += chunk.value;
