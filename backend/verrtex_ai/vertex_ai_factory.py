@@ -3,7 +3,7 @@
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession, Content
 import vertexai.preview.generative_models as generative_models
-from vertexai.language_models import ChatModel, InputOutputTextPair
+from vertexai.language_models import ChatModel
 
 
 class VertexAiFactory:
