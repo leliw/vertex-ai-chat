@@ -55,12 +55,18 @@ async def read_config():
     """Return config from yaml file"""
     return config
 
+
 @app.get("/api/ping")
 def ping():
     """Just for keep container alive"""
-    
+
 
 chat_service = ChatService()
+
+
+@app.get("/api/models")
+def models_get_all() -> list[str]:
+    return [m.strip() for m in config.get("models").split(",")]
 
 
 @app.get("/api/chat")
@@ -78,10 +84,13 @@ async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
 
 
 @app.post("/api/chat/message")
-def chat_post_message_async(message: ChatMessage, request: Request):
+def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
     chat_session = request.state.session_data.chat_session
+    if not model:
+        model = config.get("default_model")
     responses = chat_service.get_answer_async(
+        model_name=model,
         chat_session=chat_session,
         message=message,
     )
