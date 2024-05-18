@@ -3,6 +3,7 @@ from typing import Iterator, Literal, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
 
+from google.api_core import exceptions
 from google.cloud import firestore
 from gcp.gcp_file_storage import FileStorage
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
@@ -187,4 +188,11 @@ class ChatService:
         chat_session = self.storage.get(chat_session_id)
         if chat_session.user != user:
             raise ChatSessionUserError()
+        chat_session = self.storage.get(chat_session_id)
+        for message in chat_session.history:
+            for file in message.files:
+                try:
+                    self.file_storage.delete("/".join(file.url.split("/")[3:]))
+                except exceptions.NotFound:
+                    pass
         return self.storage.delete(chat_session_id)
