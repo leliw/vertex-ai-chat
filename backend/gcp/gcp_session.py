@@ -45,7 +45,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
         user_data = await self.o_auth.auth(code)
         await self.create_session(response, SessionData(user=user_data))
         return user_data
-    
+
     async def session_reader(
         self, request: Request, response: Response
     ) -> SessionModel:
