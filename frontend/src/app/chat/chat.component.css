@@ -133,7 +133,6 @@
     }
 }
 
-
 .side-menu-item {
     display: inline-block;
     width: calc(100% - 48px);
@@ -162,10 +161,22 @@
 }
 
 .sidenav {
+    position: relative;
     min-width: 15%;
     max-width: 30%;
 }
 
+.sidenav .back {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    z-index: 1;
+}
+
+
+.sidenav mat-list-item.handset:first-child {
+    padding-left: 48px;
+}
 
 .sidenav .mat-toolbar {
     background: inherit;

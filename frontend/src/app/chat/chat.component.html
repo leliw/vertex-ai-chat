@@ -2,8 +2,13 @@
     <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
         [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false"
         [class.handset]="isHandset">
+        @if (isHandset$ | async) {
+        <button class="back" mat-icon-button (click)="drawer.toggle()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        }
         <mat-action-list>
-            <mat-list-item>
+            <mat-list-item [class.handset]="isHandset">
                 <a class="side-menu-item" matLine (click)="newChat()">New chat [{{model}}]</a>
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                     <mat-icon>more_vert</mat-icon>
@@ -46,12 +51,13 @@
                 @if(session){
                 @for (message of session.history; track message; let index=$index; let last=$last) {
                 @if (message.content) {
-                <div class="message {{message.author}}" (mouseover)="actionButtons=index" (mouseleave)="actionButtons=undefined"
-                    (focus)="actionButtons=index">
+                <div class="message {{message.author}}" (mouseover)="actionButtons=index"
+                    (mouseleave)="actionButtons=undefined" (focus)="actionButtons=index">
                     <div [innerHTML]="message.content | markdown"></div>
                     @if(actionButtons==index && message.author == 'user') {
                     <div class="action-buttons">
-                        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary" (click)="changeMessage(index)">
+                        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary"
+                            (click)="changeMessage(index)">
                             <mat-icon>edit</mat-icon>
                         </button>
                     </div>
