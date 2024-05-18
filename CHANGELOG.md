@@ -1,10 +1,14 @@
 # Changelog
 
-## Version 0.3.0 - 2024-05-17
+## Version 0.3.0
 
 * Files can be attached to the message and send to the AI model
 
-## Version 0.2.6 - 2024-05-16
+## Verions 0.2.7 - 2024-05-18
+
+* AI model selection
+
+## Verions 0.2.6 - 2024-05-16
 
 * Ping request to keep container alive
 * Editing messaging in chat and sending again

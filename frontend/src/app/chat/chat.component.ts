@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { MarkdownPipe } from '../shared/markdown.pipe';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,7 +30,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MarkdownPipe, MatProgressSpinnerModule],
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule],
     templateUrl: './chat.component.html',
     styleUrl: './chat.component.css',
     encapsulation: ViewEncapsulation.None,
@@ -39,6 +40,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
     @ViewChild('container') container!: ElementRef;
 
+    models: string[] = [];
+    model!: string;
     history: ChatSessionHeader[] = [];
     session!: ChatSession;
     sessionChanged = false;
@@ -63,6 +66,11 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
+        this.newChat()
+        this.chatService.get_models().subscribe(models => {
+            this.models = models;
+            this.model = models[0];
+        });
         this.chatService.get_all().subscribe(history => {
             this.newChat()
             this.history = history;
@@ -80,6 +88,10 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.chatService.disconect();
     }
 
+    setModel(model: string) {
+        this.model = model;
+    }
+    
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
@@ -104,7 +116,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
             this.session.history.push({ author: "ai", content: "" });
-            this.dataSubscription = this.chatService.send_async(message).subscribe({
+            this.dataSubscription = this.chatService.send_async(this.model, message).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
                         this.currentAnswer += chunk.value;

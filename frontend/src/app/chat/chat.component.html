@@ -2,10 +2,26 @@
     <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
         [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false"
         [class.handset]="isHandset">
+        @if (isHandset$ | async) {
+        <button class="back" mat-icon-button (click)="drawer.toggle()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        }
         <mat-action-list>
-            <button mat-list-item (click)="newChat()">New chat</button>
+            <mat-list-item [class.handset]="isHandset">
+                <a class="side-menu-item" matLine (click)="newChat()">New chat [{{model}}]</a>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" xPosition="before">
+                    @for( model of models; track model) {
+                    <button mat-menu-item (click)="setModel(model)">{{model}}</button>
+                    }
+                </mat-menu>
+            </mat-list-item>
+
             <mat-list-item *ngFor="let session of history">
-                <a class="summary" matLine (click)="loadChat(session.chat_session_id)"
+                <a class="side-menu-item" matLine (click)="loadChat(session.chat_session_id)"
                     [matTooltip]="session.summary ?? '(brak)'">{{ session.summary }}</a>
                 <button mat-icon-button (click)="deleteChat(session.chat_session_id)" color="accent">
                     <mat-icon>delete</mat-icon>
