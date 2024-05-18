@@ -18,7 +18,7 @@ class ChatSessionHeader(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    author: Literal['user', 'ai']
+    author: Literal["user", "ai"]
     content: str
 
 
