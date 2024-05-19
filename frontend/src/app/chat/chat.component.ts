@@ -13,7 +13,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Observable, Subscription, firstValueFrom, map, shareReplay } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, filter, first, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -63,6 +63,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             shareReplay()
         );
     isHandset!: boolean;
+    isUploading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
@@ -106,7 +107,8 @@ export class ChatComponent implements OnInit, OnDestroy {
                 await firstValueFrom(this.chatService.putChatSession(this.session));
                 this.sessionChanged = false;
             }
-            await this.uploadFiles();
+            if (this.isUploading$.value)
+                await firstValueFrom(this.isUploading$.pipe(filter(ul => !ul)));
             this.selectedFiles = [];
             this.session.history.push(message);
             this.scrollBottom();
@@ -217,35 +219,36 @@ export class ChatComponent implements OnInit, OnDestroy {
         input.type = 'file';
         input.multiple = true;
         input.click();
-        input.onchange = (event: any) => {
-            const files: FileList = event.target.files;
-            Array.from(files).forEach(
-                file => this.selectedFiles.push(file)
-            );
-        };
+        input.onchange = (event: any) => this.uploadFiles(event.target.files)
     }
 
     onFileSelected(event: any): void {
-        const files: FileList = event.target.files;
-        Array.from(files).forEach(
-            file => this.selectedFiles.push(file)
-        );
+        this.uploadFiles(event.target.files);
     }
 
     onFileDropped(event: DragEvent): void {
         event.preventDefault();
-        if (event.dataTransfer?.files) {
-            Array.from(event.dataTransfer.files).forEach(
-                file => this.selectedFiles.push(file)
-            );
-        }
+        if (event.dataTransfer?.files)
+            this.uploadFiles(event.dataTransfer.files);
     }
 
     removeFile(index: number): void {
         this.selectedFiles.splice(index, 1);
     }
 
-    async uploadFiles() {
+    uploadFiles(files: FileList) {
+        const formData = new FormData();
+        Array.from(files).forEach(
+            file => {
+                formData.append('files', file);
+                this.selectedFiles.push(file);
+            }
+        );
+        this.isUploading$.next(true);
+        this.chatService.uploadFiles(formData).subscribe(() => this.isUploading$.next(false));
+    }
+
+    async uploadFiles_old() {
         // Upload files to the server
         if (this.selectedFiles.length === 0) {
             return;

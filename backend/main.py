@@ -2,10 +2,9 @@
 
 import os
 from typing import List, Optional
-from uuid import uuid4
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pyaml_env import parse_config
 
 from base import static_file_response
@@ -23,7 +22,6 @@ from chat_service import (
 
 class SessionData(BaseSessionData):
     chat_session: Optional[ChatSession] = None
-    files: list[ChatMessageFile] = File(default_factory=list)
 
 
 load_dotenv()
@@ -97,7 +95,13 @@ async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
 def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
     chat_session = request.state.session_data.chat_session
-    files: list[ChatMessageFile] = request.state.session_data.files
+    session_id = request.state.session_data.session_id
+    files: list[ChatMessageFile] = [
+        ChatMessageFile(
+            name=sf.name, url=f"session-{session_id}/{sf.name}", mime_type=sf.mime_type
+        )
+        for sf in request.state.session_data.files
+    ]
     if not model:
         model = config.get("default_model")
     responses = chat_service.get_answer_async(
@@ -145,19 +149,7 @@ async def chat_delete(chat_id: str, request: Request) -> None:
 @app.post("/api/chat/upload")
 def upload_files(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
-        session_id = request.state.session_data.session_id
-        file_id = str(uuid4())
-        blob_name = f"session-{session_id}/{file_id}"
-        file_storage.upload_blob_from_file(blob_name, file)
-        chat_message_file = ChatMessageFile(
-            name=file.filename,
-            url=f"gs://{file_storage.bucket_name}/{blob_name}",
-            mime_type=file.content_type,
-        )
-        request.state.session_data.files.append(chat_message_file)
-    return JSONResponse(
-        content={"message": "Files uploaded successfully"}, status_code=200
-    )
+        request.state.session_data.upload_file(file)
 
 
 # Angular static files - it have to be at the end of file

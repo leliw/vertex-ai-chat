@@ -90,9 +90,8 @@ class ChatService:
             parts = []
             parts.append(Part.from_text(message.content))
             for file in files:
-                session_blob_name = "/".join(file.url.split("/")[3:])
                 chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
-                self.file_storage.move_blob(session_blob_name, chat_blob_name)
+                self.file_storage.move_blob(file.url, chat_blob_name)
                 uri = f"gs://{self.file_storage.bucket_name}/{chat_blob_name}"
                 parts.append(Part.from_uri(uri, mime_type=file.mime_type))
             content = Content(role="user", parts=parts)

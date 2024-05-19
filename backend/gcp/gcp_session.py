@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Type, TypeVar
 from uuid import uuid4
-from fastapi import HTTPException, Request, Response
+from fastapi import HTTPException, Request, Response, UploadFile
 
 from fastapi_sessions.backends.session_backend import SessionBackend
 from pydantic import BaseModel, Field, PrivateAttr
@@ -13,17 +13,32 @@ from .gcp_oauth import OAuth, UserData
 from base import InvalidSessionException, BasicSessionManager
 
 
+class SessionFile(BaseModel):
+    file_id: str = Field(default_factory=lambda: str(uuid4()))
+    name: str
+    mime_type: str
+
+
 class SessionData(BaseModel):
     session_id: str = Field(default_factory=lambda: str(uuid4()))
     timestamp: Optional[datetime.datetime] = Field(
         default_factory=datetime.datetime.now
     )
     user: UserData
+    files: list[SessionFile] = Field(default_factory=list)
 
     _session_manager: BasicSessionManager = PrivateAttr(default=None)
 
+    def upload_file(self, file: UploadFile):
+        self._session_manager.upload_file(self.session_id, file)
+        session_file = SessionFile(name=file.filename, mime_type=file.content_type)
+        self.files.append(session_file)
+
     async def delete_session(self, request: Request, response: Response):
-        await self._session_manager.delete_session(request, response, session_id=self.session_id)
+        await self._session_manager.delete_session(
+            request, response, session_id=self.session_id
+        )
+
 
 SessionModel = TypeVar("SessionModel", bound=SessionData)
 
@@ -100,11 +115,15 @@ class SessionManager(BasicSessionManager[SessionModel]):
             return response
         else:
             return await call_next(request)
-        
 
-    async def delete_session(self, request: Request, response: Response, session_id: str = None):
+    def upload_file(self, session_id: str, file: UploadFile):
+        blob_name = f"session-{session_id}/{file.filename}"
+        self.file_storage.upload_blob_from_file(blob_name, file)
+
+    async def delete_session(
+        self, request: Request, response: Response, session_id: str = None
+    ):
         session_id = session_id or request.state.session_data.session_id
         blob_name = f"session-{session_id}"
         self.file_storage.delete_folder(blob_name)
         await super().delete_session(request, response)
-
