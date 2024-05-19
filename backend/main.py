@@ -51,7 +51,7 @@ async def auth_google(request: Request, response: Response):
 
 @app.post("/api/logout")
 async def logout(request: Request, response: Response):
-    session_id = request.state.session_id
+    session_id = request.state.session_data.session_id
     blob_name = f"session-{session_id}"
     file_storage.delete_folder(blob_name)
     await session_manager.delete_session(request, response)
@@ -148,7 +148,7 @@ async def chat_delete(chat_id: str, request: Request) -> None:
 @app.post("/api/chat/upload")
 def upload_files(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
-        session_id = request.state.session_id
+        session_id = request.state.session_data.session_id
         file_id = str(uuid4())
         blob_name = f"session-{session_id}/{file_id}"
         file_storage.upload_blob_from_file(blob_name, file)

@@ -12,9 +12,11 @@ from base import InvalidSessionException, BasicSessionManager
 
 
 class SessionData(BaseModel):
+    session_id: Optional[str] = None
     timestamp: Optional[datetime.datetime] = Field(
         default_factory=datetime.datetime.now
     )
+
     user: UserData
 
 
@@ -74,7 +76,6 @@ class SessionManager(BasicSessionManager[SessionModel]):
                 session_in = await self.get_session(request)
                 if not session_in:
                     raise InvalidSessionException()
-                request.state.session_id = self.get_session_id(request)
                 request.state.session_data = session_in.model_copy(deep=True)
             except (InvalidSessionException, HTTPException):
                 session_in = None

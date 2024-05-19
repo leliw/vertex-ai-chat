@@ -113,6 +113,9 @@ class BasicSessionManager(Generic[SessionModel]):
         """Create a new session and attach it to the response and
         to the request (if it wasn't already attached)."""
         session_id = uuid4()
+        if hasattr(data, 'session_id'):
+            # If the session model has a session_id attribute, use it
+            data.session_id = str(session_id)
         await self.backend.create(session_id, data)
         self.cookie.attach_to_response(response, session_id)
         request.cookies[self.cookie.model.name] = str(
