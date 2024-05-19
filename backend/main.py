@@ -30,8 +30,8 @@ load_dotenv()
 app = FastAPI()
 config: dict = parse_config("./config.yaml")
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-session_manager = SessionManager(session_class=SessionData)
 file_storage = FileStorage("vertex-ai-chat-dev-session-files")
+session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
 
 @app.middleware("http")
@@ -51,10 +51,7 @@ async def auth_google(request: Request, response: Response):
 
 @app.post("/api/logout")
 async def logout(request: Request, response: Response):
-    session_id = request.state.session_data.session_id
-    blob_name = f"session-{session_id}"
-    file_storage.delete_folder(blob_name)
-    await session_manager.delete_session(request, response)
+    await request.state.session_data.delete_session(request, response)
 
 
 @app.get("/api/user")

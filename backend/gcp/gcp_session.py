@@ -1,24 +1,29 @@
 import datetime
 from typing import Optional, Type, TypeVar
+from uuid import uuid4
 from fastapi import HTTPException, Request, Response
 
 from fastapi_sessions.backends.session_backend import SessionBackend
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from base.session_manager import BasicSessionBackend
+from gcp.gcp_file_storage import FileStorage
 from gcp.gcp_storage import Storage
 from .gcp_oauth import OAuth, UserData
 from base import InvalidSessionException, BasicSessionManager
 
 
 class SessionData(BaseModel):
-    session_id: Optional[str] = None
+    session_id: str = Field(default_factory=lambda: str(uuid4()))
     timestamp: Optional[datetime.datetime] = Field(
         default_factory=datetime.datetime.now
     )
-
     user: UserData
 
+    _session_manager: BasicSessionManager = PrivateAttr(default=None)
+
+    async def delete_session(self, request: Request, response: Response):
+        await self._session_manager.delete_session(request, response, session_id=self.session_id)
 
 SessionModel = TypeVar("SessionModel", bound=SessionData)
 
@@ -31,6 +36,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
         o_auth: OAuth = None,
         backend: SessionBackend = None,
         session_class: Type[SessionModel] = SessionData,
+        file_storage: FileStorage = None,
     ):
         if not backend:
             storage = Storage("sessions", session_class)
@@ -38,6 +44,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
         super().__init__(backend=backend)
         self.o_auth = o_auth or OAuth()
         self.session_class = session_class
+        self.file_storage = file_storage
 
     def redirect_login(self, request):
         return self.o_auth.redirect_login(request)
@@ -81,7 +88,9 @@ class SessionManager(BasicSessionManager[SessionModel]):
                 session_in = None
                 user_data = self.o_auth.verify_token(request)
                 request.state.session_data = self.create_session_for_user(user_data)
+            request.state.session_data._session_manager = self
             response = await call_next(request)
+            request.state.session_data._session_manager = None
             session_out = request.state.session_data
             if session_in != session_out:
                 if not session_in:
@@ -91,3 +100,11 @@ class SessionManager(BasicSessionManager[SessionModel]):
             return response
         else:
             return await call_next(request)
+        
+
+    async def delete_session(self, request: Request, response: Response, session_id: str = None):
+        session_id = session_id or request.state.session_data.session_id
+        blob_name = f"session-{session_id}"
+        self.file_storage.delete_folder(blob_name)
+        await super().delete_session(request, response)
+
