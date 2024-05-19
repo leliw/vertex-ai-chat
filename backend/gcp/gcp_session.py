@@ -34,6 +34,11 @@ class SessionData(BaseModel):
         session_file = SessionFile(name=file.filename, mime_type=file.content_type)
         self.files.append(session_file)
 
+    def delete_file(self, name: str):
+        file = next((f for f in self.files if f.name == name), None)
+        self._session_manager.delete_file(self.session_id, file)
+        self.files = [f for f in self.files if f.name != name]
+
     async def delete_session(self, request: Request, response: Response):
         await self._session_manager.delete_session(
             request, response, session_id=self.session_id
@@ -120,6 +125,10 @@ class SessionManager(BasicSessionManager[SessionModel]):
         blob_name = f"session-{session_id}/{file.filename}"
         self.file_storage.upload_blob_from_file(blob_name, file)
 
+    def delete_file(self, session_id: str, file: SessionFile):
+        blob_name = f"session-{session_id}/{file.name}"
+        self.file_storage.delete(blob_name)
+        
     async def delete_session(
         self, request: Request, response: Response, session_id: str = None
     ):

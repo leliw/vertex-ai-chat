@@ -119,4 +119,8 @@ export class ChatService {
     uploadFiles(formData: FormData): Observable<void> {
         return this.httpClient.post<void>(`${this.endpoint}/upload`, formData);
     }
+
+    deleteFile(filename: string): Observable<void> {
+        return this.httpClient.delete<void>(`/api/files/${filename}`);
+    }
 }

@@ -151,6 +151,10 @@ def upload_files(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
         request.state.session_data.upload_file(file)
 
+@app.delete("/api/files/{name}")
+def delete_file(name: str, request: Request):
+    request.state.session_data.delete_file(name)
+
 
 # Angular static files - it have to be at the end of file
 @app.get("/{full_path:path}", response_class=HTMLResponse)

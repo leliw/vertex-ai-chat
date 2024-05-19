@@ -233,7 +233,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     removeFile(index: number): void {
-        this.selectedFiles.splice(index, 1);
+        const fileName = this.selectedFiles[index].name;
+        this.chatService.deleteFile(fileName).subscribe(() => this.selectedFiles.splice(index, 1));
     }
 
     uploadFiles(files: FileList) {
