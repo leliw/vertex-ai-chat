@@ -66,15 +66,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
-        this.newChat()
         this.chatService.get_models().subscribe(models => {
             this.models = models;
             this.model = models[0];
-        });
-        this.chatService.get_all().subscribe(history => {
-            this.newChat()
-            this.history = history;
-            setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
+            this.chatService.get_all().subscribe(history => {
+                this.newChat()
+                this.history = history;
+                setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
+            });
         });
         this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }
@@ -91,7 +90,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     setModel(model: string) {
         this.model = model;
     }
-    
+
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
