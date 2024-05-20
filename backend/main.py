@@ -153,19 +153,19 @@ async def chat_delete(chat_id: str, request: Request) -> None:
     await chat_service.delete_chat(chat_id, request.state.session_data.user.email)
 
 
-@app.post("/api/chat/upload")
-def upload_files(request: Request, files: List[UploadFile] = File(...)):
+@app.post("/api/files", tags=["files"])
+def files_post(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
         request.state.session_data.upload_file(file)
 
 
-@app.delete("/api/files/{name}")
-def delete_file(name: str, request: Request):
+@app.delete("/api/files/{name}", tags=["files"])
+def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
 
 
 # Angular static files - it have to be at the end of file
-@app.get("/{full_path:path}", response_class=HTMLResponse)
+@app.get("/{full_path:path}", response_class=HTMLResponse, tags=["static"])
 async def catch_all(_: Request, full_path: str):
     """Catch all for Angular routing"""
     return static_file_response("static/browser", full_path)

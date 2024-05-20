@@ -123,7 +123,7 @@ export class ChatService {
     }
 
     uploadFiles(formData: FormData): Observable<HttpEvent<void>> {
-        return this.httpClient.post<void>(`${this.endpoint}/upload`, formData, {
+        return this.httpClient.post<void>(`/api/files`, formData, {
             reportProgress: true,
             observe: 'events'
         });
