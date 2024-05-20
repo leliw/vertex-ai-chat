@@ -2,7 +2,8 @@ import unittest
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
-from session_manager import SessionManager
+
+from base import BasicSessionManager
 
 
 class SessionData(BaseModel):
@@ -15,7 +16,7 @@ class TestSessionManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.app = FastAPI()
-        session_manager = SessionManager[SessionData]()
+        session_manager = BasicSessionManager[SessionData]()
 
         @cls.app.post("/create_session/{name}")
         async def create_session(name: str, request: Request, response: Response):

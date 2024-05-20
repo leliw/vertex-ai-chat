@@ -2,7 +2,7 @@ import unittest
 
 from pydantic import BaseModel
 
-from gcp_storage import Storage
+from gcp import Storage
 
 
 class TC(BaseModel):
