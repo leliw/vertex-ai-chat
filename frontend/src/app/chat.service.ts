@@ -35,7 +35,7 @@ export interface StreamedEvent {
 })
 export class ChatService {
 
-    private endpoint = '/api/chat';
+    private endpoint = '/api/chats';
     private connected$ = new BehaviorSubject<boolean>(false);
     private pingIntervalId: any;
 

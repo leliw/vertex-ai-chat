@@ -76,12 +76,12 @@ def models_get_all() -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-@app.get("/api/chat")
+@app.get("/api/chats", tags=["chat sessions"])
 async def chat_get_all(request: Request) -> list[ChatSessionHeader]:
     return await chat_service.get_all(request.state.session_data.user.email)
 
 
-@app.get("/api/chat/{chat_id}")
+@app.get("/api/chats/{chat_id}", tags=["chat sessions"])
 async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
     chat_session = await chat_service.get_chat(
         chat_id, request.state.session_data.user.email
@@ -91,7 +91,7 @@ async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
     return chat_session
 
 
-@app.post("/api/chat/message")
+@app.post("/api/chats/message", tags=["chat sessions"])
 def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
     chat_session = request.state.session_data.chat_session
@@ -130,7 +130,7 @@ def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     )
 
 
-@app.put("/api/chat/{chat_session_id}")
+@app.put("/api/chats/{chat_session_id}", tags=["chat sessions"])
 async def chat_session_update(
     chat_session_id: str,
     chat_session: ChatSession,
@@ -148,7 +148,7 @@ async def chat_session_update(
     )
 
 
-@app.delete("/api/chat/{chat_id}")
+@app.delete("/api/chats/{chat_id}", tags=["chat sessions"])
 async def chat_delete(chat_id: str, request: Request) -> None:
     await chat_service.delete_chat(chat_id, request.state.session_data.user.email)
 

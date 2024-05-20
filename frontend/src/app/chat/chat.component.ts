@@ -13,7 +13,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { BehaviorSubject, Observable, Subscription, filter, first, firstValueFrom, map, shareReplay } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
