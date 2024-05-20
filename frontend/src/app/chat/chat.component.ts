@@ -279,15 +279,4 @@ export class ChatComponent implements OnInit, OnDestroy {
         });
     }
 
-    async uploadFiles_old() {
-        // Upload files to the server
-        if (this.selectedFiles.length === 0) {
-            return;
-        }
-        const formData = new FormData();
-        for (let i = 0; i < this.selectedFiles.length; i++) {
-            formData.append('files', this.selectedFiles[i]);
-        }
-        await firstValueFrom(this.chatService.uploadFiles(formData));
-    }
 }
