@@ -1,4 +1,4 @@
-import { HttpClient, HttpDownloadProgressEvent, HttpEventType, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpDownloadProgressEvent, HttpEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter } from 'rxjs';
 
@@ -32,7 +32,7 @@ export class ChatService {
     private endpoint = '/api/chat';
     private connected$ = new BehaviorSubject<boolean>(false);
     private pingIntervalId: any;
-    
+
 
     constructor(private httpClient: HttpClient) { }
 
@@ -68,35 +68,35 @@ export class ChatService {
                 reportProgress: true,
                 observe: 'events'
             })
-            .pipe(filter(event => event.type === HttpEventType.DownloadProgress && (event as HttpDownloadProgressEvent).partialText != undefined))
-            .subscribe({
-                next: (data) => {
-                    let buffer = (data as HttpDownloadProgressEvent).partialText ?? '';
-                    let i;
-                    while ((i  = buffer.indexOf('\n', lastCommaIndex+1)) > -1) {
-                        try {
-                            let jsonStr = buffer.substring(lastCommaIndex, i);
-                            if (jsonStr.startsWith(","))
-                                jsonStr = jsonStr.substring(1)
-                            const item = JSON.parse(jsonStr) as StreamedEvent;
-                            observer.next(item);
-                            lastCommaIndex = i +1;
-                        } catch (e) {
+                .pipe(filter(event => event.type === HttpEventType.DownloadProgress && (event as HttpDownloadProgressEvent).partialText != undefined))
+                .subscribe({
+                    next: (data) => {
+                        let buffer = (data as HttpDownloadProgressEvent).partialText ?? '';
+                        let i;
+                        while ((i = buffer.indexOf('\n', lastCommaIndex + 1)) > -1) {
+                            try {
+                                let jsonStr = buffer.substring(lastCommaIndex, i);
+                                if (jsonStr.startsWith(","))
+                                    jsonStr = jsonStr.substring(1)
+                                const item = JSON.parse(jsonStr) as StreamedEvent;
+                                observer.next(item);
+                                lastCommaIndex = i + 1;
+                            } catch (e) {
+                            }
                         }
-                    }
-                },
-                error: (err) => observer.error(err),
-                complete: () => {
-                    if (buffer) {
-                        try {
-                            const item = JSON.parse(buffer) as StreamedEvent;
-                            observer.next(item);
-                        } catch (e) {
+                    },
+                    error: (err) => observer.error(err),
+                    complete: () => {
+                        if (buffer) {
+                            try {
+                                const item = JSON.parse(buffer) as StreamedEvent;
+                                observer.next(item);
+                            } catch (e) {
+                            }
                         }
-                    }
-                    observer.complete();
-                },
-            });
+                        observer.complete();
+                    },
+                });
         });
     }
 
@@ -116,8 +116,11 @@ export class ChatService {
         return this.httpClient.put<void>(`${this.endpoint}/${chatSession.chat_session_id}`, chatSession);
     }
 
-    uploadFiles(formData: FormData): Observable<void> {
-        return this.httpClient.post<void>(`${this.endpoint}/upload`, formData);
+    uploadFiles(formData: FormData): Observable<HttpEvent<void>> {
+        return this.httpClient.post<void>(`${this.endpoint}/upload`, formData, {
+            reportProgress: true,
+            observe: 'events'
+        });
     }
 
     deleteFile(filename: string): Observable<void> {

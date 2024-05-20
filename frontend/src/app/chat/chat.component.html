@@ -92,7 +92,7 @@
             <div class="input-area" (drop)="onFileDropped($event)" (dragover)="$event.preventDefault()">
                 <mat-chip-set class="files-bar">
                     @for (file of selectedFiles; track file; let index=$index) {
-                    <mat-chip-row (removed)="removeFile(index)">
+                    <mat-chip-row (removed)="removeFile(index)" [class]="'background-progress-' + uploadProgress[index]">
                         {{file.name}}
                         <button matChipRemove>
                             <mat-icon>cancel</mat-icon>

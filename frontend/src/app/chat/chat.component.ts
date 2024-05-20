@@ -17,6 +17,7 @@ import { BehaviorSubject, Observable, Subscription, filter, first, firstValueFro
 import { AuthService } from '../shared/auth/auth.service';
 import { ConfigService } from '../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { HttpEventType } from '@angular/common/http';
 
 
 @Component({
@@ -178,6 +179,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.progressSpinner = false;
             this.newMessage = '';
             this.selectedFiles = [];
+            this.uploadProgress = [];
             this.sessionChanged = false;
         });
 
@@ -213,6 +215,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     selectedFiles: File[] = [];
+    uploadProgress: number[] = [];
 
     openFileDialog(): void {
         const input = document.createElement('input');
@@ -235,18 +238,35 @@ export class ChatComponent implements OnInit, OnDestroy {
     removeFile(index: number): void {
         const fileName = this.selectedFiles[index].name;
         this.chatService.deleteFile(fileName).subscribe(() => this.selectedFiles.splice(index, 1));
+        this.uploadProgress.splice(index, 1)
     }
 
-    uploadFiles(files: FileList) {
+    uploadFiles(files: FileList, index: number = 0, offset: number = -1) {
+        if (offset == -1)
+            offset = this.selectedFiles.length;
+        if (index == 0) {
+            this.isUploading$.next(true);
+            Array.from(files).forEach(file => this.selectedFiles.push(file));
+        }
+        if (index >= files.length) {
+            this.isUploading$.next(false);
+            return;
+        }
+        const file = files[index];
         const formData = new FormData();
-        Array.from(files).forEach(
-            file => {
-                formData.append('files', file);
-                this.selectedFiles.push(file);
+        formData.append('files', file);
+        this.chatService.uploadFiles(formData).subscribe({
+            next: event => {
+                if (event.type === HttpEventType.UploadProgress && event.total) {
+                    this.uploadProgress[offset + index] = Math.round(10 * event.loaded / event.total) * 10;
+                    console.log(this.uploadProgress)
+                }
+            },
+            complete: () => {
+                this.uploadProgress[offset + index] = 100;
+                this.uploadFiles(files, index + 1, offset);
             }
-        );
-        this.isUploading$.next(true);
-        this.chatService.uploadFiles(formData).subscribe(() => this.isUploading$.next(false));
+        });
     }
 
     async uploadFiles_old() {
