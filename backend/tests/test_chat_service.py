@@ -1,6 +1,7 @@
 import datetime
 import unittest
 
+from gcp import FileStorage
 from chat_service import ChatHistoryException, ChatMessage, ChatService, ChatSession
 
 model_name = "gemini-1.0-pro-002"
@@ -9,7 +10,8 @@ model_name = "gemini-1.0-pro-002"
 class TestChatService(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.service = ChatService()
+        file_storage = FileStorage("vertex-ai-chat-dev-session-files")
+        cls.service = ChatService(file_storage)
 
     def test_get_answer(self):
         history = []
@@ -32,7 +34,7 @@ class TestChatService(unittest.TestCase):
         message = ChatMessage(author="user", content="Hello")
         text = ""
         try:
-            for p in self.service.get_answer_async(model_name, session, message):
+            for p in self.service.get_answer_async(model_name, session, message, []):
                 text += p.value
         except ChatHistoryException as e:
             chat_history = e.chat_session.history
