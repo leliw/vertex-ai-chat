@@ -98,7 +98,9 @@ def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     session_id = request.state.session_data.session_id
     files: list[ChatMessageFile] = [
         ChatMessageFile(
-            name=sf.name, url=f"session-{session_id}/{sf.name}", mime_type=sf.mime_type
+            name=sf.name,
+            url=sf.url or f"session-{session_id}/{sf.name}",
+            mime_type=sf.mime_type,
         )
         for sf in request.state.session_data.files
     ]
@@ -135,7 +137,12 @@ async def chat_session_update(
     request: Request,
 ):
     """Update chat session."""
+    message_index = len(chat_session.history)
+    files = request.state.session_data.chat_session.history[message_index].files
     request.state.session_data.chat_session = chat_session
+    request.state.session_data.files = files
+    for file in files:
+        file.url = "/".join(file.url.split("/")[-2:])
     await chat_service.update_chat(
         chat_session_id, chat_session, request.state.session_data.user.email
     )
@@ -150,6 +157,7 @@ async def chat_delete(chat_id: str, request: Request) -> None:
 def upload_files(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
         request.state.session_data.upload_file(file)
+
 
 @app.delete("/api/files/{name}")
 def delete_file(name: str, request: Request):

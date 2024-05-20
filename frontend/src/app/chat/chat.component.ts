@@ -96,14 +96,16 @@ export class ChatComponent implements OnInit, OnDestroy {
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
-            if (this.session.history.length == 0)
+            if (this.session.history.length == 0 && !this.sessionChanged)
                 this.history.unshift({
                     chat_session_id: this.session.chat_session_id,
                     user: "",
                     created: new Date(),
                     summary: this.newMessage
                 });
-            const message = { author: "user", content: this.newMessage }
+            const files = this.selectedFiles.map(file => { return { name: file.name, mime_type: file.type } })
+            const message = { author: "user", content: this.newMessage, files: files };
+
             if (this.sessionChanged) {
                 await firstValueFrom(this.chatService.putChatSession(this.session));
                 this.sessionChanged = false;
@@ -111,14 +113,16 @@ export class ChatComponent implements OnInit, OnDestroy {
             if (this.isUploading$.value)
                 await firstValueFrom(this.isUploading$.pipe(filter(ul => !ul)));
             this.selectedFiles = [];
+            this.uploadProgress = [];
             this.session.history.push(message);
+            const newMessage = { author: "user", content: this.newMessage }
             this.scrollBottom();
             this.newMessage = '';
             this.waitingForResponse = true;
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
             this.session.history.push({ author: "ai", content: "" });
-            this.dataSubscription = this.chatService.send_async(this.model, message).subscribe({
+            this.dataSubscription = this.chatService.send_async(this.model, newMessage).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
                         this.currentAnswer += chunk.value;
@@ -207,15 +211,22 @@ export class ChatComponent implements OnInit, OnDestroy {
         );
     }
 
+
+    selectedFiles: File[] = [];
+    uploadProgress: number[] = [];
+
+
     changeMessage(index: number) {
         this.newMessage = this.session.history[index].content?.trim() ?? '';
+        this.selectedFiles = [];
+        this.session.history[index].files?.forEach(file => {
+            this.selectedFiles.push(new File([], file.name));
+            this.uploadProgress.push(100);
+        });
         const newHistory = this.session.history.slice(0, index);
         this.session.history = newHistory;
         this.sessionChanged = true;
     }
-
-    selectedFiles: File[] = [];
-    uploadProgress: number[] = [];
 
     openFileDialog(): void {
         const input = document.createElement('input');
@@ -259,7 +270,6 @@ export class ChatComponent implements OnInit, OnDestroy {
             next: event => {
                 if (event.type === HttpEventType.UploadProgress && event.total) {
                     this.uploadProgress[offset + index] = Math.round(10 * event.loaded / event.total) * 10;
-                    console.log(this.uploadProgress)
                 }
             },
             complete: () => {

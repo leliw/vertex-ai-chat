@@ -14,8 +14,8 @@ from base import InvalidSessionException, BasicSessionManager
 
 
 class SessionFile(BaseModel):
-    file_id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
+    url: Optional[str] = None
     mime_type: str
 
 

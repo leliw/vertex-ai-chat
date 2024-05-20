@@ -2,9 +2,15 @@ import { HttpClient, HttpDownloadProgressEvent, HttpEvent, HttpEventType, HttpPa
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter } from 'rxjs';
 
+export interface ChatMessageFile {
+    name: string;
+    mime_type: string;
+}
+
 export interface ChatMessage {
     author: string;
     content?: string;
+    files?: ChatMessageFile[];
 }
 
 export interface ChatSessionHeader {
