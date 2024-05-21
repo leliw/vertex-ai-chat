@@ -128,7 +128,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
     def delete_file(self, session_id: str, file: SessionFile):
         blob_name = f"session-{session_id}/{file.name}"
         self.file_storage.delete(blob_name)
-        
+
     async def delete_session(
         self, request: Request, response: Response, session_id: str = None
     ):

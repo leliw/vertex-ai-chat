@@ -26,7 +26,7 @@ class TestMainFiles(unittest.TestCase):
             ("files", ("test3.txt", b"File content 3", "text/plain")),
         ]
         self.client.post("/api/files", files=files)
-        
+
         response = self.client.delete("/api/files/test3.txt")
 
         self.assertEqual(response.status_code, 200)
