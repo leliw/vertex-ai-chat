@@ -1,5 +1,5 @@
 import unittest
-from fastapi.testclient import TestClient
+from .app_test_client import app_test_client
 
 
 class TestMainApp(unittest.TestCase):
@@ -7,9 +7,7 @@ class TestMainApp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from main import app
-
-        cls.client = TestClient(app)
+        cls.client = app_test_client
 
     def test_config_get(self):
         """Test the /api/config endpoint."""
