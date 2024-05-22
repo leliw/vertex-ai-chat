@@ -53,6 +53,15 @@
                 @if (message.content) {
                 <div class="message {{message.author}}" (mouseover)="actionButtons=index"
                     (mouseleave)="actionButtons=undefined" (focus)="actionButtons=index">
+                    @if(message.files && message.files.length > 0) {
+                    <mat-chip-set>
+                        @for (file of message.files; track file; let index=$index) {
+                        <mat-chip-set>
+                            <mat-chip>{{file.name}}</mat-chip>
+                        </mat-chip-set>
+                        }
+                    </mat-chip-set>
+                    }
                     <div [innerHTML]="message.content | markdown"></div>
                     @if(actionButtons==index && message.author == 'user') {
                     <div class="action-buttons">
@@ -82,14 +91,37 @@
                 <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
             </div>
             }
-            <textarea class="input-area" matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
-                [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
             @if(waitingForResponse) {
-            <button class="cancel-generating" mat-icon-button (click)="cancelGenerating()"
+            <button class="cancel-generating" mat-mini-fab (click)="cancelGenerating()"
                 matTooltip="Cancel generating" color="warn">
                 <mat-icon>cancel</mat-icon>
             </button>
             }
+
+            <div class="input-area" (drop)="onFileDropped($event)" (dragover)="$event.preventDefault()">
+                <mat-chip-set class="files-bar">
+                    @for (file of selectedFiles; track file; let index=$index) {
+                    <mat-chip-row (removed)="removeFile(index)"
+                        [class]="'background-progress-' + uploadProgress[index]">
+                        {{file.name}}
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    }
+                </mat-chip-set>
+                <div class="input-bar">
+                    <button mat-icon-button matTooltip="Select file or drop here" (click)="openFileDialog()">
+                        <mat-icon>attach_file</mat-icon>
+                    </button>
+                    <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
+                        [disabled]="isLoading || waitingForResponse" placeholder="Type a message..."></textarea>
+                    <button mat-icon-button matTooltip="Send message" (click)="sendMessageAsync()"
+                        [disabled]="isLoading || waitingForResponse">
+                        <mat-icon>send</mat-icon>
+                    </button>
+                </div>
+            </div>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

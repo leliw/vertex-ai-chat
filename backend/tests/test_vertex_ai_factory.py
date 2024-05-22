@@ -64,7 +64,9 @@ class TestVertexAiFactoryBison(unittest.TestCase):
         chat = self.factory.get_chat(self.model_name)
         resp = chat.send_message("Who was the first president of the United States?")
         self.assertIsInstance(chat.message_history, list)
-        self.assertIsInstance(chat.message_history[0], vertexai.language_models.ChatMessage)
+        self.assertIsInstance(
+            chat.message_history[0], vertexai.language_models.ChatMessage
+        )
         self.assertIsInstance(resp.text, str)
 
 

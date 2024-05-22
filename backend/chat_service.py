@@ -3,7 +3,9 @@ from typing import Iterator, Literal, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
 
+from google.api_core import exceptions
 from google.cloud import firestore
+from gcp.gcp_file_storage import FileStorage
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
@@ -17,9 +19,16 @@ class ChatSessionHeader(BaseModel):
     summary: Optional[str] = Field("")
 
 
+class ChatMessageFile(BaseModel):
+    name: Optional[str] = Field("")
+    url: str
+    mime_type: str
+
+
 class ChatMessage(BaseModel):
     author: Literal["user", "ai"]
     content: str
+    files: Optional[list[ChatMessageFile]] = Field([])
 
 
 class ChatSession(ChatSessionHeader):
@@ -46,9 +55,10 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
-    def __init__(self):
+    def __init__(self, file_storage: FileStorage):
         self.factory = VertexAiFactory()
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
+        self.file_storage = file_storage
 
     def get_answer(
         self, model_name: str, history: list[ChatMessage], message: ChatMessage
@@ -58,7 +68,7 @@ class ChatService:
         chat = self.factory.get_chat(model_name=model_name, history=in_history)
         response: GenerationResponse = chat.send_message(message.content, stream=False)
         ret = ChatMessage(author="ai", content=response.text)
-        out_history = [self._content_to_chat_message(m) for m in chat.history]
+        out_history = [self._content_to_chat_message(m, {}) for m in chat.history]
         return (ret, out_history)
 
     def get_answer_async(
@@ -66,22 +76,37 @@ class ChatService:
         model_name: str,
         chat_session: ChatSession,
         message: ChatMessage,
-    ) -> Iterator[StreamedEvent]:
+        files: list[ChatMessageFile],
+    ) -> Iterator[str]:
         """Get an answer from the model."""
+        file_names = {}
         if chat_session and chat_session.history:
-            in_history = [
-                self._chat_message_to_content(m) for m in chat_session.history
-            ]
+            in_history = []
+            for m in chat_session.history:
+                in_history.append(self._chat_message_to_content(m))
+                for f in m.files:
+                    file_names[f.url] = f.name
         else:
             in_history = []
         try:
             chat = self.factory.get_chat(model_name=model_name, history=in_history)
-            responses = chat.send_message(message.content, stream=True)
+            parts = []
+            parts.append(Part.from_text(message.content))
+            for file in files:
+                chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
+                self.file_storage.move_blob(file.url, chat_blob_name)
+                uri = f"gs://{self.file_storage.bucket_name}/{chat_blob_name}"
+                parts.append(Part.from_uri(uri, mime_type=file.mime_type))
+                file_names[uri] = file.name
+            content = Content(role="user", parts=parts)
+            responses = chat.send_message(content, stream=True)
             for response in responses:
                 if response.text:
                     yield StreamedEvent(type="text", value=response.text)
                 # await asyncio.sleep(0.1)
-            out_history = [self._content_to_chat_message(m) for m in chat.history]
+            out_history = [
+                self._content_to_chat_message(m, file_names) for m in chat.history
+            ]
             chat_session.history = out_history
             if not chat_session.summary:
                 chat_session.summary = out_history[0].content
@@ -93,16 +118,38 @@ class ChatService:
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""
+        parts = [Part.from_text(message.content)]
+        for file in message.files:
+            parts.append(
+                Part.from_uri(
+                    uri=file.url,
+                    mime_type=file.mime_type,
+                )
+            )
         return Content(
             role=message.author if message.author == "user" else "model",
-            parts=[Part.from_text(message.content)],
+            parts=parts,
         )
 
-    def _content_to_chat_message(self, content: Content) -> ChatMessage:
+    def _content_to_chat_message(
+        self, content: Content, file_names: dict[str, str]
+    ) -> ChatMessage:
         """Convert Content to ChatMessage."""
+        print(content)
+        files = []
+        for part in content.parts:
+            if part.file_data:
+                files.append(
+                    ChatMessageFile(
+                        name=file_names.get(part.file_data.file_uri, ""),
+                        url=part.file_data.file_uri,
+                        mime_type=part.file_data.mime_type,
+                    )
+                )
         return ChatMessage(
             author=content.role if content.role == "user" else "ai",
             content=content.parts[0].text,
+            files=files,
         )
 
     async def get_all(self, user: str) -> list[ChatSessionHeader]:
@@ -149,4 +196,11 @@ class ChatService:
         chat_session = self.storage.get(chat_session_id)
         if chat_session.user != user:
             raise ChatSessionUserError()
+        chat_session = self.storage.get(chat_session_id)
+        for message in chat_session.history:
+            for file in message.files:
+                try:
+                    self.file_storage.delete("/".join(file.url.split("/")[3:]))
+                except exceptions.NotFound:
+                    pass
         return self.storage.delete(chat_session_id)

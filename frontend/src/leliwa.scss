@@ -27,3 +27,47 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,
 .message.user {
     background-color: mat.get-theme-color($my-theme, primary, lighter);
 }
+
+.background-progress-0 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 0%, transparent 0%)
+}
+
+.background-progress-10 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 10%, transparent 10%)
+}
+
+.background-progress-20 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 20%, transparent 20%)
+}
+
+.background-progress-30 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 30%, transparent 30%)
+}
+
+.background-progress-40 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 40%, transparent 40%)
+}
+
+.background-progress-50 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 50%, transparent 50%)
+}
+
+.background-progress-60 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 60%, transparent 60%)
+}
+
+.background-progress-70 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 70%, transparent 70%)
+}
+
+.background-progress-80 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 80%, transparent 80%)
+}
+
+.background-progress-90 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 90%, transparent 90%)
+}
+
+.background-progress-100 {
+    background: linear-gradient(to right, mat.get-theme-color($my-theme, primary, lighter) 100%, transparent 100%)
+}

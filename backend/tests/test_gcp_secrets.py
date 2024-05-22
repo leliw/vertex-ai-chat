@@ -1,5 +1,5 @@
 import unittest
-from gcp_secrets import GcpSecrets
+from gcp import GcpSecrets
 
 
 class TestGcpSecrets(unittest.TestCase):
