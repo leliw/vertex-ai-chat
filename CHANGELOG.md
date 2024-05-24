@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.3.0
+## Version 0.3.0 - 2024-05-24
 
 * Files can be attached to the message and send to the AI model
 
