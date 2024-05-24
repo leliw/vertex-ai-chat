@@ -135,7 +135,6 @@ class ChatService:
         self, content: Content, file_names: dict[str, str]
     ) -> ChatMessage:
         """Convert Content to ChatMessage."""
-        print(content)
         files = []
         for part in content.parts:
             if part.file_data:
