@@ -5,4 +5,11 @@ from .gcp_secrets import GcpSecrets
 from .gcp_file_storage import FileStorage
 
 
-__all__ = ["OAuth", "SessionManager", "SessionData", "Storage", "GcpSecrets", "FileStorage"]
+__all__ = [
+    "OAuth",
+    "SessionManager",
+    "SessionData",
+    "Storage",
+    "GcpSecrets",
+    "FileStorage",
+]

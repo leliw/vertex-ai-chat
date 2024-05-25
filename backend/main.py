@@ -31,7 +31,7 @@ load_dotenv()
 app = FastAPI()
 config: dict = parse_config("./config.yaml")
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-file_storage = FileStorage("vertex-ai-chat-dev-session-files")
+file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
 

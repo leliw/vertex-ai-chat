@@ -112,7 +112,7 @@ class BasicSessionManager(Generic[SessionModel]):
     ):
         """Create a new session and attach it to the response and
         to the request (if it wasn't already attached)."""
-        if hasattr(data, 'session_id') and data.session_id:
+        if hasattr(data, "session_id") and data.session_id:
             # If the session model has a session_id attribute, use it
             session_id = UUID(data.session_id)
         else:
