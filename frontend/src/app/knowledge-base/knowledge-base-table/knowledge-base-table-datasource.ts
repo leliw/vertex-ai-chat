@@ -31,7 +31,9 @@ export class KnowledgeBaseTableDataSource extends DataSource<KnowledgeBaseItem> 
         }
     }
 
-    disconnect(): void { }
+    disconnect(): void {
+        // Pass
+    }
 
     private getData(): Observable<KnowledgeBaseItem[]> {
         return observableOf(this.data);
