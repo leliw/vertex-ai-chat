@@ -22,6 +22,11 @@ export const routes: Routes = [
                     import('./knowledge-base/knowledge-base-form/knowledge-base-form.component')
                         .then(mod => mod.KnowledgeBaseFormComponent)
             },
+            {
+                path: ':id/edit', canActivate: [authGuard], loadComponent: () =>
+                    import('./knowledge-base/knowledge-base-form/knowledge-base-form.component')
+                        .then(mod => mod.KnowledgeBaseFormComponent)
+            },
         ]
     }
 ];

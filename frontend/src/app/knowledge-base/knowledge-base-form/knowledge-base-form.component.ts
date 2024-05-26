@@ -37,6 +37,32 @@ export class KnowledgeBaseFormComponent {
     constructor(private knowledgeBaseService: KnowledgeBaseService, private route: ActivatedRoute,
         private router: Router,) { }
 
+    ngOnInit(): void {
+        this.route.params.subscribe(params => {
+            if (params['id']) {
+                this.itemId = +params['id'];
+                this.editMode = true;
+                this.fetchItemData(this.itemId);
+            }
+        });
+    }
+
+    fetchItemData(itemId: number) {
+        this.knowledgeBaseService.getItem(itemId).subscribe({
+            next: (item) => {
+                this.form.patchValue({
+                    title: item.title,
+                    content: item.content,
+                    keywords: item?.keywords ? item.keywords.join(', ') : '',
+                });
+            },
+            error: (error) => {
+                console.error('Error fetching item data:', error);
+                // Handle error, e.g., display an error message
+            }
+        });
+    }
+
     onSubmit(): void {
         if (this.form.invalid) {
             return;
