@@ -2,19 +2,17 @@ import { DataSource } from '@angular/cdk/collections';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { map } from 'rxjs/operators';
-import { Observable, of as observableOf, merge } from 'rxjs';
+import { Observable, merge } from 'rxjs';
+import { KnowledgeBaseItem, KnowledgeBaseService } from '../knowledge-base.service';
 
-export interface KnowledgeBaseItem {
-    name: string;
-    id: number;
-}
 
 export class KnowledgeBaseTableDataSource extends DataSource<KnowledgeBaseItem> {
     data: KnowledgeBaseItem[] = [];
     paginator: MatPaginator | undefined;
     sort: MatSort | undefined;
 
-    constructor() {
+
+    constructor(private knowledgeBaseService: KnowledgeBaseService) {
         super();
     }
 
@@ -36,7 +34,8 @@ export class KnowledgeBaseTableDataSource extends DataSource<KnowledgeBaseItem> 
     }
 
     private getData(): Observable<KnowledgeBaseItem[]> {
-        return observableOf(this.data);
+        return this.knowledgeBaseService.getItems()
+            .pipe(map(data => { this.data = data; return data; }));
     }
 
     private getPagedData(data: KnowledgeBaseItem[]): KnowledgeBaseItem[] {
@@ -56,8 +55,8 @@ export class KnowledgeBaseTableDataSource extends DataSource<KnowledgeBaseItem> 
         return data.sort((a, b) => {
             const isAsc = this.sort?.direction === 'asc';
             switch (this.sort?.active) {
-                case 'name': return compare(a.name, b.name, isAsc);
-                case 'id': return compare(+a.id, +b.id, isAsc);
+                case 'name': return compare(a.title, b.title, isAsc);
+                case 'id': return compare(a.id ?? -1, b.id ?? -1, isAsc);
                 default: return 0;
             }
         });
@@ -67,3 +66,5 @@ export class KnowledgeBaseTableDataSource extends DataSource<KnowledgeBaseItem> 
 function compare(a: string | number, b: string | number, isAsc: boolean): number {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
 }
+export { KnowledgeBaseItem };
+
