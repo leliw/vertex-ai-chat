@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatTableModule, MatTable } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-import { KnowledgeBaseTableDataSource, KnowledgeBaseTableItem } from './knowledge-base-table-datasource';
+import { KnowledgeBaseTableDataSource, KnowledgeBaseItem } from './knowledge-base-table-datasource';
 
 @Component({
   selector: 'app-knowledge-base-table',
@@ -14,7 +14,7 @@ import { KnowledgeBaseTableDataSource, KnowledgeBaseTableItem } from './knowledg
 export class KnowledgeBaseTableComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<KnowledgeBaseTableItem>;
+  @ViewChild(MatTable) table!: MatTable<KnowledgeBaseItem>;
   dataSource = new KnowledgeBaseTableDataSource();
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
