@@ -53,7 +53,7 @@ export class KnowledgeBaseFormComponent {
     }
 
     onCancel(): void {
-        alert('Cancelled');
+        this.router.navigate(['/knowledge-base']);
     }
 
     createItem(itemData: KnowledgeBaseItem) {
