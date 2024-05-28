@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { MatTableModule, MatTable } from '@angular/material/table';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-import { KnowledgeBaseItem, KnowledgeBaseTableDataSource } from './knowledge-base-table-datasource';
-import { KnowledgeBaseService } from '../knowledge-base.service';
+import { KnowledgeBaseItem, KnowledgeBaseService } from '../knowledge-base.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,23 +19,23 @@ import { MatDialog } from '@angular/material/dialog';
     imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatToolbarModule, MatButtonModule, MatIconModule, RouterModule, MatMenuModule],
     providers: [KnowledgeBaseService]
 })
-export class KnowledgeBaseTableComponent implements AfterViewInit {
+export class KnowledgeBaseTableComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild(MatTable) table!: MatTable<KnowledgeBaseItem>;
-    dataSource: KnowledgeBaseTableDataSource
+    dataSource: MatTableDataSource<KnowledgeBaseItem> = new MatTableDataSource();
 
     displayedColumns = ['id', 'title', 'actions'];
 
 
-    constructor(private router: Router, public dialog: MatDialog, private knowledgeBaseService: KnowledgeBaseService) {
-        this.dataSource = new KnowledgeBaseTableDataSource(knowledgeBaseService);
-    }
+    constructor(private router: Router, public dialog: MatDialog, private knowledgeBaseService: KnowledgeBaseService) { }
 
-    ngAfterViewInit(): void {
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-        this.table.dataSource = this.dataSource;
+    ngOnInit(): void {
+        this.knowledgeBaseService.getItems().subscribe(data => {
+            this.dataSource = new MatTableDataSource(data);
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+        });
     }
 
     editRow(row: KnowledgeBaseItem) {
