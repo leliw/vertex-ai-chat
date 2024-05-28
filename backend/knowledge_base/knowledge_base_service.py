@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 
-from .knowledge_base import KnowledgeBaseItem
+from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 
 
 class KnowledgeBaseService:
@@ -36,11 +36,11 @@ class KnowledgeBaseService:
                 return item
         return None
 
-    def get_items(self) -> List[KnowledgeBaseItem]:
+    def get_items(self) -> List[KnowledgeBaseItemHeader]:
         """
         Returns all knowledge base items.
         """
-        return self.items
+        return [KnowledgeBaseItemHeader(**i.model_dump()) for i in self.items]
 
     def update_item(
         self, item_id: int, updated_item: KnowledgeBaseItem

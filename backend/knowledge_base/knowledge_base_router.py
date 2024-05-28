@@ -1,7 +1,7 @@
 from fastapi import HTTPException, APIRouter
 from typing import List
 
-from .knowledge_base import KnowledgeBaseItem
+from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 from .knowledge_base_service import KnowledgeBaseService
 
 
@@ -29,7 +29,7 @@ class KnowledgeBaseRouter:
         )
         self.router.post("", response_model=KnowledgeBaseItem)(self.create_item)
         self.router.get(ITEM_ID_PATH, response_model=KnowledgeBaseItem)(self.get_item)
-        self.router.get("", response_model=List[KnowledgeBaseItem])(self.get_items)
+        self.router.get("", response_model=List[KnowledgeBaseItemHeader])(self.get_items)
         self.router.put(ITEM_ID_PATH, response_model=KnowledgeBaseItem)(
             self.update_item
         )
