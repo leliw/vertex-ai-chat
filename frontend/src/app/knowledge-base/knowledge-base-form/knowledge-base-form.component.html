@@ -7,6 +7,7 @@
             <div class="row">
                 <div class="col">
                     <mat-form-field class="full-width">
+                        <mat-label>Title</mat-label>
                         <input matInput placeholder="Title" formControlName="title">
                         @if (form.controls['title'].hasError('required')) {
                         <mat-error>Title is <strong>required</strong></mat-error>
@@ -17,7 +18,8 @@
             <div class="row">
                 <div class="col">
                     <mat-form-field class="full-width">
-                        <textarea matInput placeholder="Content" formControlName="content"></textarea>
+                        <mat-label>Content</mat-label>
+                        <textarea matInput rows=25 placeholder="Content" formControlName="content"></textarea>
                         @if (form.controls['content'].hasError('required')) {
                         <mat-error>Content is <strong>required</strong></mat-error>
                         }
@@ -27,6 +29,7 @@
             <div class="row">
                 <div class="col">
                     <mat-form-field class="full-width">
+                        <mat-label>Keywords</mat-label>
                         <input matInput placeholder="Keywords" formControlName="keywords">
                         @if (form.controls['keywords'].hasError('required')) {
                         <mat-error>Keywords are <strong>required</strong></mat-error>
