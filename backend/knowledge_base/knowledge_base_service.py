@@ -1,4 +1,7 @@
 from typing import List, Optional
+from uuid import uuid4
+
+from gcp.gcp_storage import Storage
 
 
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
@@ -10,37 +13,27 @@ class KnowledgeBaseService:
     """
 
     def __init__(self):
-        """
-        Initializes the KnowledgeBaseService.
-        For simplicity, we'll use an in-memory list to store the items.
-        In a real-world application, you'd likely use a database.
-        """
-        self.items: List[KnowledgeBaseItem] = []
-        self.next_id = 1
+        self.storage = Storage("KnowledgeBase", KnowledgeBaseItem, key_name="item_id")
 
     def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
         """
         Creates a new knowledge base item.
         """
-        item.id = self.next_id
-        self.next_id += 1
-        self.items.append(item)
+        item.item_id = str(uuid4())
+        self.storage.save(item)
         return item
 
-    def get_item(self, item_id: int) -> Optional[KnowledgeBaseItem]:
+    def get_item(self, item_id: str) -> Optional[KnowledgeBaseItem]:
         """
         Retrieves a knowledge base item by its ID.
         """
-        for item in self.items:
-            if item.id == item_id:
-                return item
-        return None
+        return self.storage.get(item_id)
 
     def get_items(self) -> List[KnowledgeBaseItemHeader]:
         """
         Returns all knowledge base items.
         """
-        return [KnowledgeBaseItemHeader(**i.model_dump()) for i in self.items]
+        return [KnowledgeBaseItemHeader(**i.model_dump()) for i in self.storage.get_all()]
 
     def update_item(
         self, item_id: int, updated_item: KnowledgeBaseItem

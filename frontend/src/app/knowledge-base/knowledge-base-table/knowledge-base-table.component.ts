@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-import { KnowledgeBaseItem, KnowledgeBaseService } from '../knowledge-base.service';
+import { KnowledgeBaseItem, KnowledgeBaseItemHeader, KnowledgeBaseService } from '../knowledge-base.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,10 +22,10 @@ import { MatDialog } from '@angular/material/dialog';
 export class KnowledgeBaseTableComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
-    @ViewChild(MatTable) table!: MatTable<KnowledgeBaseItem>;
-    dataSource: MatTableDataSource<KnowledgeBaseItem> = new MatTableDataSource();
+    @ViewChild(MatTable) table!: MatTable<KnowledgeBaseItemHeader>;
+    dataSource: MatTableDataSource<KnowledgeBaseItemHeader> = new MatTableDataSource();
 
-    displayedColumns = ['id', 'title', 'actions'];
+    displayedColumns = ['item_id', 'title', 'actions'];
 
 
     constructor(private router: Router, public dialog: MatDialog, private knowledgeBaseService: KnowledgeBaseService) { }
@@ -39,7 +39,7 @@ export class KnowledgeBaseTableComponent implements OnInit {
     }
 
     editRow(row: KnowledgeBaseItem) {
-        this.router.navigate(['knowledge-base', row.id, 'edit']);
+        this.router.navigate(['knowledge-base', row.item_id, 'edit']);
     }
 
     deleteRow(row: KnowledgeBaseItem) {
@@ -52,10 +52,10 @@ export class KnowledgeBaseTableComponent implements OnInit {
                 }
             })
             .afterClosed().subscribe(result => {
-                if (result && row.id)
-                    this.knowledgeBaseService.deleteItem(row.id).subscribe(res => {
+                if (result && row.item_id)
+                    this.knowledgeBaseService.deleteItem(row.item_id).subscribe(res => {
                         console.log(this.dataSource.data);
-                        this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+                        this.dataSource.data = this.dataSource.data.filter(item => item.item_id !== row.item_id);
                         console.log(this.dataSource.data);
                         this.table.renderRows();
                         this.dialog

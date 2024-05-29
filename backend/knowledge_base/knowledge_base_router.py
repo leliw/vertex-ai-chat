@@ -41,7 +41,7 @@ class KnowledgeBaseRouter:
         """
         return self.service.create_item(item)
 
-    def get_item(self, item_id: int):
+    def get_item(self, item_id: str):
         """
         Get a knowledge base item by ID.
         """
@@ -56,7 +56,7 @@ class KnowledgeBaseRouter:
         """
         return self.service.get_items()
 
-    def update_item(self, item_id: int, updated_item: KnowledgeBaseItem):
+    def update_item(self, item_id: str, updated_item: KnowledgeBaseItem):
         """
         Update a knowledge base item.
         """
@@ -65,7 +65,7 @@ class KnowledgeBaseRouter:
             raise NotFoundError
         return updated_item
 
-    def delete_item(self, item_id: int):
+    def delete_item(self, item_id: str):
         """
         Delete a knowledge base item.
         """

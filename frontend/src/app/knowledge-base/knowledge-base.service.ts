@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface KnowledgeBaseItem {
-    id: number | undefined;
+export interface KnowledgeBaseItemHeader {
+    item_id: string | undefined;
     title: string;
-    content: string;
     keywords: string[] | undefined;
+}
+
+export interface KnowledgeBaseItem extends KnowledgeBaseItemHeader {
+    content: string;
     metadata: { [key: string]: string } | undefined;
 }
 
@@ -24,22 +27,22 @@ export class KnowledgeBaseService {
     }
 
     // Get a knowledge base item by ID
-    getItem(itemId: number): Observable<KnowledgeBaseItem> {
+    getItem(itemId: string): Observable<KnowledgeBaseItem> {
         return this.http.get<KnowledgeBaseItem>(`${this.apiUrl}/${itemId}`);
     }
 
     // Get all knowledge base items
-    getItems(): Observable<KnowledgeBaseItem[]> {
-        return this.http.get<KnowledgeBaseItem[]>(this.apiUrl);
+    getItems(): Observable<KnowledgeBaseItemHeader[]> {
+        return this.http.get<KnowledgeBaseItemHeader[]>(this.apiUrl);
     }
 
     // Update a knowledge base item
-    updateItem(itemId: number, updatedItem: KnowledgeBaseItem): Observable<KnowledgeBaseItem> {
+    updateItem(itemId: string, updatedItem: KnowledgeBaseItem): Observable<KnowledgeBaseItem> {
         return this.http.put<KnowledgeBaseItem>(`${this.apiUrl}/${itemId}`, updatedItem);
     }
 
     // Delete a knowledge base item
-    deleteItem(itemId: number): Observable<boolean> {
+    deleteItem(itemId: string): Observable<boolean> {
         return this.http.delete<boolean>(`${this.apiUrl}/${itemId}`);
     }
 }

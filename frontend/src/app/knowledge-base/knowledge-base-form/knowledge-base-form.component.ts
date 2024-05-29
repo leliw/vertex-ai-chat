@@ -31,7 +31,7 @@ export class KnowledgeBaseFormComponent {
         content: ['', Validators.required],
         keywords: [''],
     });
-    itemId: number = 0;
+    itemId: string = '';
     editMode: boolean = false;
 
     constructor(private knowledgeBaseService: KnowledgeBaseService, private route: ActivatedRoute,
@@ -40,14 +40,14 @@ export class KnowledgeBaseFormComponent {
     ngOnInit(): void {
         this.route.params.subscribe(params => {
             if (params['id']) {
-                this.itemId = +params['id'];
+                this.itemId = params['id'];
                 this.editMode = true;
                 this.fetchItemData(this.itemId);
             }
         });
     }
 
-    fetchItemData(itemId: number) {
+    fetchItemData(itemId: string) {
         this.knowledgeBaseService.getItem(itemId).subscribe({
             next: (item) => {
                 this.form.patchValue({

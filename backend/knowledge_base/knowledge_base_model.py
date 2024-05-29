@@ -5,7 +5,7 @@ from typing import List, Dict, Optional
 class KnowledgeBaseItemHeader(BaseModel):
     """Represents the header of a knowledge base item."""
 
-    id: Optional[int] = Field(
+    item_id: Optional[str] = Field(
         None, description="Unique identifier for the knowledge base item."
     )
     title: str = Field(..., description="Title of the knowledge base item.")
