@@ -1,5 +1,5 @@
-version: 0.3.0
-
-models: gemini-1.5-pro-preview-0409, gemini-1.0-pro-002
-default_model: gemini-1.5-pro-preview-0409
+version: 0.3.1
+# https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
+models: gemini-1.5-flash, gemini-1.5-pro, gemini-1.0-pro
+default_model: gemini-1.5-flash
 oauth_client_id:
