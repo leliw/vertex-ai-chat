@@ -54,9 +54,7 @@ export class KnowledgeBaseTableComponent implements OnInit {
             .afterClosed().subscribe(result => {
                 if (result && row.item_id)
                     this.knowledgeBaseService.deleteItem(row.item_id).subscribe(res => {
-                        console.log(this.dataSource.data);
                         this.dataSource.data = this.dataSource.data.filter(item => item.item_id !== row.item_id);
-                        console.log(this.dataSource.data);
                         this.table.renderRows();
                         this.dialog
                             .open(SimpleDialogComponent, {
