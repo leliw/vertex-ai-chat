@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.3.1 - 2024-05-30
+
+* Updated AI models, default is `gemini-1.5-flash`
+
 ## Version 0.3.0 - 2024-05-24
 
 * Files can be attached to the message and send to the AI model
