@@ -1,9 +1,9 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from gcp.gcp_storage import Storage
+from verrtex_ai.vertex_ai_factory import VertexAiFactory
 
-
+from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 
 
@@ -13,7 +13,8 @@ class KnowledgeBaseService:
     """
 
     def __init__(self):
-        self.storage = Storage("KnowledgeBase", KnowledgeBaseItem, key_name="item_id")
+        self.vertex_ai_fatory = VertexAiFactory()
+        self.storage = KnowledgeBaseStorage(self.vertex_ai_fatory)
 
     def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
         """
@@ -33,7 +34,9 @@ class KnowledgeBaseService:
         """
         Returns all knowledge base items.
         """
-        return [KnowledgeBaseItemHeader(**i.model_dump()) for i in self.storage.get_all()]
+        return [
+            KnowledgeBaseItemHeader(**i.model_dump()) for i in self.storage.get_all()
+        ]
 
     def update_item(
         self, item_id: str, updated_item: KnowledgeBaseItem

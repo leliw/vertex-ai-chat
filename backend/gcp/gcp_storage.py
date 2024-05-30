@@ -22,11 +22,19 @@ class Storage(BaseStorage[T], Generic[T]):
         self._collection = collection
         self._coll_ref = self._db.collection(self._collection)
 
+    def on_before_save(self, data: dict) -> dict:
+        """
+        This method is called before saving data to Firestore.
+        You can use it to modify the data dictionary before saving it.
+        For example, you can add a timestamp or remove sensitive data.
+        """
+        return data
+    
     def put(self, key: str, data: T) -> None:
         """Put a document in the collection."""
-        self._coll_ref.document(key).set(
-            data.model_dump(by_alias=True, exclude_none=True)
-        )
+        data_dict = data.model_dump(by_alias=True, exclude_none=True)
+        data_dict = self.on_before_save(data_dict)  # Preprocess data
+        self._coll_ref.document(key).set(data_dict)
 
     def get(self, key: str) -> T:
         """Get a document from the collection."""

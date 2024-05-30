@@ -126,6 +126,8 @@ def chat_post_message_async(model: str, message: ChatMessage, request: Request):
             session_data.chat_session = e.chat_session
             session_data.files = []
             await session_manager.update_session(request, session_data)
+            if e.exception:
+                raise e.exception
 
     return StreamingResponse(
         handle_history(responses),
