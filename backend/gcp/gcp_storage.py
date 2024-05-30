@@ -1,7 +1,7 @@
 """A simple wrapper around Google Cloud Firestore."""
 
 from typing import Generic, Iterator, Type
-from google.cloud import firestore
+from google.cloud import firestore, exceptions
 
 from base import T, BaseStorage
 
@@ -52,9 +52,13 @@ class Storage(BaseStorage[T], Generic[T]):
         for doc in self._coll_ref.stream():
             yield doc.id
 
-    def delete(self, key: str) -> None:
+    def delete(self, key: str) -> bool:
         """Delete a document from the collection."""
-        self._coll_ref.document(key).delete()
+        try:
+            self._coll_ref.document(key).delete()
+            return True
+        except exceptions.NotFound:
+            return False
 
     def drop(self) -> None:
         """Delete all documents from the collection."""

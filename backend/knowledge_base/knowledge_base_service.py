@@ -36,24 +36,18 @@ class KnowledgeBaseService:
         return [KnowledgeBaseItemHeader(**i.model_dump()) for i in self.storage.get_all()]
 
     def update_item(
-        self, item_id: int, updated_item: KnowledgeBaseItem
+        self, item_id: str, updated_item: KnowledgeBaseItem
     ) -> Optional[KnowledgeBaseItem]:
         """
         Updates an existing knowledge base item.
         """
-        for i, item in enumerate(self.items):
-            if item.id == item_id:
-                updated_item.id = item_id  # Ensure ID is not changed
-                self.items[i] = updated_item
-                return updated_item
-        return None
+        if not updated_item.item_id:
+            updated_item.item_id = item_id
+        self.storage.put(item_id, updated_item)
+        return updated_item
 
-    def delete_item(self, item_id: int) -> bool:
+    def delete_item(self, item_id: str) -> bool:
         """
         Deletes a knowledge base item.
         """
-        for i, item in enumerate(self.items):
-            if item.id == item_id:
-                del self.items[i]
-                return True
-        return False
+        return self.storage.delete(item_id)
