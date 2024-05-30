@@ -16,14 +16,15 @@ class VertexAiFactory:
 
     def get_model(self, model_name: str, context: str = None) -> GenerativeModel | ChatModel:
         """Get the generative model."""
-        # if model_name in self.models:
-        #     return self.models[model_name]
-        system_instruction = context if context else None
+        if context and model_name in self.models:
+            return self.models[model_name]
+        system_instruction = context
         if "gemini" in model_name:
             model = self._create_gemini_model(model_name, system_instruction=system_instruction)
         else:
             model = self._create_chat_model(model_name)
-        self.models[model_name] = model
+        if not context:
+            self.models[model_name] = model
         return model
 
     def _create_gemini_model(self, model_name: str, system_instruction: str = None) -> GenerativeModel:
