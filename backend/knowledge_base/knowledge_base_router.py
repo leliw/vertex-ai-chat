@@ -1,5 +1,7 @@
-from fastapi import HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter
 from typing import List
+
+from dependencies import Authorize
 
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 from .knowledge_base_service import KnowledgeBaseService
@@ -26,10 +28,13 @@ class KnowledgeBaseRouter:
         self.router = APIRouter(
             prefix="/knowledge-base",
             tags=["Knowledge Base"],
+            dependencies=[Depends(Authorize("admin"))],
         )
         self.router.post("", response_model=KnowledgeBaseItem)(self.create_item)
         self.router.get(ITEM_ID_PATH, response_model=KnowledgeBaseItem)(self.get_item)
-        self.router.get("", response_model=List[KnowledgeBaseItemHeader])(self.get_items)
+        self.router.get("", response_model=List[KnowledgeBaseItemHeader])(
+            self.get_items
+        )
         self.router.put(ITEM_ID_PATH, response_model=KnowledgeBaseItem)(
             self.update_item
         )
