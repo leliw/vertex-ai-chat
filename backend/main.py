@@ -7,6 +7,7 @@ from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 
 
+from app.chat.chat_router import ChatRouter
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
@@ -19,7 +20,6 @@ from app.chat.chat_service import (
     ChatService,
     ChatMessage,
     ChatSession,
-    ChatSessionHeader,
 )
 
 
@@ -70,17 +70,14 @@ def ping():
     """Just for keep container alive"""
 
 
-chat_service = ChatService(file_storage)
-
-
 @app.get("/api/models")
 def models_get_all() -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-@app.get("/api/chats", tags=["chat sessions"])
-async def chat_get_all(request: Request) -> list[ChatSessionHeader]:
-    return await chat_service.get_all(request.state.session_data.user.email)
+chat_service = ChatService(file_storage)
+chat_router = ChatRouter(chat_service)
+app.include_router(chat_router.router, prefix="/api")
 
 
 @app.get("/api/chats/{chat_id}", tags=["chat sessions"])
