@@ -14,20 +14,26 @@ class VertexAiFactory:
         vertexai.init()
         self.models = {}
 
-    def get_model(self, model_name: str, context: str = None) -> GenerativeModel | ChatModel:
+    def get_model(
+        self, model_name: str, context: str = None
+    ) -> GenerativeModel | ChatModel:
         """Get the generative model."""
         if context and model_name in self.models:
             return self.models[model_name]
         system_instruction = context
         if "gemini" in model_name:
-            model = self._create_gemini_model(model_name, system_instruction=system_instruction)
+            model = self._create_gemini_model(
+                model_name, system_instruction=system_instruction
+            )
         else:
             model = self._create_chat_model(model_name)
         if not context:
             self.models[model_name] = model
         return model
 
-    def _create_gemini_model(self, model_name: str, system_instruction: str = None) -> GenerativeModel:
+    def _create_gemini_model(
+        self, model_name: str, system_instruction: str = None
+    ) -> GenerativeModel:
         """Create a Gemini model."""
         return GenerativeModel(
             model_name=model_name,
@@ -49,7 +55,9 @@ class VertexAiFactory:
         """Create a chat model."""
         return ChatModel.from_pretrained(model_name)
 
-    def get_chat(self, model_name: str, history: list[Content] = None, context: str = None) -> ChatSession:
+    def get_chat(
+        self, model_name: str, history: list[Content] = None, context: str = None
+    ) -> ChatSession:
         """Get a chat session.
 
         Parameters:

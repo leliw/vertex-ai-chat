@@ -29,7 +29,7 @@ class Storage(BaseStorage[T], Generic[T]):
         For example, you can add a timestamp or remove sensitive data.
         """
         return data
-    
+
     def put(self, key: str, data: T) -> None:
         """Put a document in the collection."""
         data_dict = data.model_dump(by_alias=True, exclude_none=True)

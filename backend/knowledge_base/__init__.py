@@ -8,5 +8,5 @@ __all__ = [
     "KnowledgeBaseItem",
     "KnowledgeBaseService",
     "KnowledgeBaseRouter",
-    "KnowledgeBaseStorage"
+    "KnowledgeBaseStorage",
 ]
