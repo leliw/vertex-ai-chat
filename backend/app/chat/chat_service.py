@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Iterator, Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Iterator
+from pydantic import BaseModel
 from uuid import uuid4
 
 from google.api_core import exceptions
@@ -12,28 +12,7 @@ from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
 
-
-class ChatSessionHeader(BaseModel):
-    chat_session_id: str
-    user: str
-    created: datetime
-    summary: Optional[str] = Field("")
-
-
-class ChatMessageFile(BaseModel):
-    name: Optional[str] = Field("")
-    url: str
-    mime_type: str
-
-
-class ChatMessage(BaseModel):
-    author: Literal["user", "ai"]
-    content: str
-    files: Optional[list[ChatMessageFile]] = Field([])
-
-
-class ChatSession(ChatSessionHeader):
-    history: list[ChatMessage]
+from .chat_model import ChatMessage, ChatMessageFile, ChatSessionHeader, ChatSession
 
 
 class ChatHistoryException(Exception):

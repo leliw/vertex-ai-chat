@@ -13,7 +13,7 @@ from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 from app.config import config
 from app.knowledge_base import KnowledgeBaseRouter
 
-from chat_service import (
+from app.chat.chat_service import (
     ChatHistoryException,
     ChatMessageFile,
     ChatService,
