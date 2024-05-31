@@ -6,6 +6,7 @@ from uuid import uuid4
 from google.api_core import exceptions
 from google.cloud import firestore
 from gcp.gcp_file_storage import FileStorage
+from knowledge_base import KnowledgeBaseStorage
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
@@ -38,8 +39,9 @@ class ChatSession(ChatSessionHeader):
 class ChatHistoryException(Exception):
     """Is't strange form of returning history."""
 
-    def __init__(self, chat_session: ChatSession):
+    def __init__(self, chat_session: ChatSession, exception: Exception = None):
         self.chat_session = chat_session
+        self.exception = exception
 
 
 class StreamedEvent(BaseModel):
@@ -58,6 +60,7 @@ class ChatService:
     def __init__(self, file_storage: FileStorage):
         self.factory = VertexAiFactory()
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
+        self.knowledge_base_storage = KnowledgeBaseStorage(self.factory)
         self.file_storage = file_storage
 
     def get_answer(
@@ -89,7 +92,10 @@ class ChatService:
         else:
             in_history = []
         try:
-            chat = self.factory.get_chat(model_name=model_name, history=in_history)
+            context = self.get_context(message.content)
+            chat = self.factory.get_chat(
+                model_name=model_name, history=in_history, context=context
+            )
             parts = []
             parts.append(Part.from_text(message.content))
             for file in files:
@@ -113,8 +119,16 @@ class ChatService:
             self.storage.save(chat_session)
         except Exception as e:
             yield StreamedEvent(type=f"error:{type(e).__name__}", value=str(e))
-        finally:
-            raise ChatHistoryException(chat_session)
+            raise ChatHistoryException(chat_session, e)
+        raise ChatHistoryException(chat_session)
+
+    def get_context(self, text: str) -> str:
+        """Get the context of the chat session."""
+        neartest = self.knowledge_base_storage.find_nearest(text)
+        context = ""
+        for n in neartest:
+            context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
+        return context
 
     def _chat_message_to_content(self, message: ChatMessage) -> Content:
         """Convert ChatMessage to Content."""

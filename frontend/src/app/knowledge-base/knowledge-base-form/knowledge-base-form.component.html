@@ -1,0 +1,46 @@
+<form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+    <mat-card class="shipping-card">
+        <mat-card-header>
+            <mat-card-title>Knowledge Base Item</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Title</mat-label>
+                        <input matInput placeholder="Title" formControlName="title">
+                        @if (form.controls['title'].hasError('required')) {
+                        <mat-error>Title is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Content</mat-label>
+                        <textarea matInput rows=25 placeholder="Content" formControlName="content"></textarea>
+                        @if (form.controls['content'].hasError('required')) {
+                        <mat-error>Content is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Keywords</mat-label>
+                        <input matInput placeholder="Keywords" formControlName="keywords">
+                        @if (form.controls['keywords'].hasError('required')) {
+                        <mat-error>Keywords are <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+        </mat-card-actions>
+    </mat-card>
+</form>

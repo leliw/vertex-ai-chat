@@ -10,6 +10,9 @@ from pyaml_env import parse_config
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
+
+from knowledge_base import KnowledgeBaseRouter
+
 from chat_service import (
     ChatHistoryException,
     ChatMessageFile,
@@ -123,6 +126,8 @@ def chat_post_message_async(model: str, message: ChatMessage, request: Request):
             session_data.chat_session = e.chat_session
             session_data.files = []
             await session_manager.update_session(request, session_data)
+            if e.exception:
+                raise e.exception
 
     return StreamingResponse(
         handle_history(responses),
@@ -162,6 +167,10 @@ def files_post(request: Request, files: List[UploadFile] = File(...)):
 @app.delete("/api/files/{name}", tags=["files"])
 def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
+
+
+knowledge_base_router = KnowledgeBaseRouter()
+app.include_router(knowledge_base_router.router, prefix="/api")
 
 
 # Angular static files - it have to be at the end of file
