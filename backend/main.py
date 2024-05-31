@@ -11,7 +11,7 @@ from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
 from app.config import config
-from knowledge_base import KnowledgeBaseRouter
+from app.knowledge_base import KnowledgeBaseRouter
 
 from chat_service import (
     ChatHistoryException,

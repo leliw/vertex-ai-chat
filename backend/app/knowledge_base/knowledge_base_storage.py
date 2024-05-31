@@ -1,6 +1,6 @@
 from typing import List
 from gcp import Storage
-from knowledge_base.knowledge_base_model import KnowledgeBaseItem
+from .knowledge_base_model import KnowledgeBaseItem
 from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from google.cloud.firestore_v1.vector import Vector
 from google.cloud.firestore_v1.vector_query import VectorQuery
