@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.0 - 2024-06-01
+
+* Knowldege Base & embedding search
+
 ## Version 0.3.1 - 2024-05-30
 
 * Updated AI models, default is `gemini-1.5-flash`

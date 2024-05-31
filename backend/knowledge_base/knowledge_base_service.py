@@ -6,6 +6,8 @@ from verrtex_ai.vertex_ai_factory import VertexAiFactory
 from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 
+from app.config import config
+
 
 class KnowledgeBaseService:
     """
@@ -14,7 +16,9 @@ class KnowledgeBaseService:
 
     def __init__(self):
         self.vertex_ai_fatory = VertexAiFactory()
-        self.storage = KnowledgeBaseStorage(self.vertex_ai_fatory)
+        self.storage = KnowledgeBaseStorage(
+            self.vertex_ai_fatory, **config.get("knowledge_base", {})
+        )
 
     def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
         """

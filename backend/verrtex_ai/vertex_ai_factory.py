@@ -83,7 +83,7 @@ class VertexAiFactory:
 
     def get_text_embedding_model(self, model_name: str = None):
         if not model_name:
-            model_name = "text-embedding-004"
+            model_name = "text-multilingual-embedding-002"
         if model_name in self.models:
             return self.models[model_name]
         else:
@@ -96,7 +96,7 @@ class VertexAiFactory:
         text: str,
         task: str = "RETRIEVAL_DOCUMENT",
         title: str = None,
-        model_name: str = "text-embedding-004",
+        model_name: str = "text-multilingual-embedding-002",
         dimensionality: Optional[int] = 256,
     ) -> List[float]:
         """Embeds texts with a pre-trained, foundational model."""

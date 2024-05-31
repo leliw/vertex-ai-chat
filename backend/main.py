@@ -5,12 +5,12 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pyaml_env import parse_config
+
 
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
-
+from app.config import config
 from knowledge_base import KnowledgeBaseRouter
 
 from chat_service import (
@@ -29,7 +29,6 @@ class SessionData(BaseSessionData):
 
 load_dotenv()
 app = FastAPI()
-config: dict = parse_config("./config.yaml")
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
