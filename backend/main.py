@@ -80,16 +80,6 @@ chat_router = ChatRouter(chat_service)
 app.include_router(chat_router.router, prefix="/api")
 
 
-@app.get("/api/chats/{chat_id}", tags=["chat sessions"])
-async def chat_get_by_id(chat_id: str, request: Request) -> ChatSession:
-    chat_session = await chat_service.get_chat(
-        chat_id, request.state.session_data.user.email
-    )
-    request.state.session_data.chat_session = chat_session
-    request.state.session_data.files = []
-    return chat_session
-
-
 @app.post("/api/chats/message", tags=["chat sessions"])
 def chat_post_message_async(model: str, message: ChatMessage, request: Request):
     """Post message to chat and return async response"""
@@ -129,29 +119,6 @@ def chat_post_message_async(model: str, message: ChatMessage, request: Request):
         handle_history(responses),
         media_type="text/event-stream",
     )
-
-
-@app.put("/api/chats/{chat_session_id}", tags=["chat sessions"])
-async def chat_session_update(
-    chat_session_id: str,
-    chat_session: ChatSession,
-    request: Request,
-):
-    """Update chat session."""
-    message_index = len(chat_session.history)
-    files = request.state.session_data.chat_session.history[message_index].files
-    request.state.session_data.chat_session = chat_session
-    request.state.session_data.files = files
-    for file in files:
-        file.url = "/".join(file.url.split("/")[-2:])
-    await chat_service.update_chat(
-        chat_session_id, chat_session, request.state.session_data.user.email
-    )
-
-
-@app.delete("/api/chats/{chat_id}", tags=["chat sessions"])
-async def chat_delete(chat_id: str, request: Request) -> None:
-    await chat_service.delete_chat(chat_id, request.state.session_data.user.email)
 
 
 @app.post("/api/files", tags=["files"])
