@@ -26,7 +26,6 @@ class KnowledgeBaseRouter:
         self.service = KnowledgeBaseService()
 
         self.router = APIRouter(
-            prefix="/knowledge-base",
             tags=["Knowledge Base"],
             dependencies=[Depends(Authorize("admin"))],
         )

@@ -89,7 +89,7 @@ def files_delete(name: str, request: Request):
 
 
 knowledge_base_router = KnowledgeBaseRouter()
-app.include_router(knowledge_base_router.router, prefix="/api")
+app.include_router(knowledge_base_router.router, prefix="/api/knowledge-base")
 
 
 # Angular static files - it have to be at the end of file
