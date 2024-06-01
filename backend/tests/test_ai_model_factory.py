@@ -2,7 +2,7 @@ import unittest
 
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession, Content, Part
-from verrtex_ai.vertex_ai_factory import AIModelFactory
+from ai_model import AIModelFactory
 from vertexai.language_models import ChatModel
 
 

@@ -7,7 +7,7 @@ from google.api_core import exceptions
 from google.cloud import firestore
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
-from verrtex_ai.vertex_ai_factory import AIModelFactory
+from ai_model import AIModelFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
