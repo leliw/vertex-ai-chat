@@ -2,13 +2,13 @@
 
 from typing import List, Optional
 import vertexai
-from vertexai.generative_models import GenerativeModel, ChatSession, Content
+from vertexai.generative_models import GenerativeModel, ChatSession as VertexaiChatSession, Content
 import vertexai.preview.generative_models as generative_models
 from vertexai.language_models import ChatModel, TextEmbeddingInput, TextEmbeddingModel
 
 
-class VertexAiFactory:
-    """Factory for Vertex AI models."""
+class AIModelFactory:
+    """Factory for AI models."""
 
     def __init__(self):
         vertexai.init()
@@ -57,7 +57,7 @@ class VertexAiFactory:
 
     def get_chat(
         self, model_name: str, history: list[Content] = None, context: str = None
-    ) -> ChatSession:
+    ) -> VertexaiChatSession:
         """Get a chat session.
 
         Parameters:

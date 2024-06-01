@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from verrtex_ai.vertex_ai_factory import VertexAiFactory
+from verrtex_ai.vertex_ai_factory import AIModelFactory
 
 from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
@@ -15,7 +15,7 @@ class KnowledgeBaseService:
     """
 
     def __init__(self):
-        self.vertex_ai_fatory = VertexAiFactory()
+        self.vertex_ai_fatory = AIModelFactory()
         self.storage = KnowledgeBaseStorage(
             self.vertex_ai_fatory, **config.get("knowledge_base", {})
         )

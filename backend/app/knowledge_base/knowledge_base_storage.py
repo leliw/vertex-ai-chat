@@ -1,7 +1,7 @@
 from typing import List
 from gcp import Storage
 from .knowledge_base_model import KnowledgeBaseItem
-from verrtex_ai.vertex_ai_factory import VertexAiFactory
+from verrtex_ai.vertex_ai_factory import AIModelFactory
 from google.cloud.firestore_v1.vector import Vector
 from google.cloud.firestore_v1.vector_query import VectorQuery
 from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
@@ -12,13 +12,13 @@ class KnowledgeBaseStorage(Storage):
 
     def __init__(
         self,
-        vertex_ai_fatory: VertexAiFactory = None,
+        vertex_ai_fatory: AIModelFactory = None,
         embedding_model: str = "text-multilingual-embedding-002",
         embedding_search_limit: int = 5,
     ):
         super().__init__("KnowledgeBase", KnowledgeBaseItem, key_name="item_id")
         self.vertex_ai_fatory = (
-            vertex_ai_fatory if vertex_ai_fatory else VertexAiFactory()
+            vertex_ai_fatory if vertex_ai_fatory else AIModelFactory()
         )
         self.embedding_model = embedding_model
         self.embedding_search_limit = embedding_search_limit

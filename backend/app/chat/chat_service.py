@@ -7,7 +7,7 @@ from google.api_core import exceptions
 from google.cloud import firestore
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
-from verrtex_ai.vertex_ai_factory import VertexAiFactory
+from verrtex_ai.vertex_ai_factory import AIModelFactory
 from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
@@ -37,7 +37,7 @@ class ChatService:
     """Service for chat."""
 
     def __init__(self, file_storage: FileStorage):
-        self.factory = VertexAiFactory()
+        self.factory = AIModelFactory()
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
         self.knowledge_base_storage = KnowledgeBaseStorage(self.factory)
         self.file_storage = file_storage
