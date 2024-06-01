@@ -59,7 +59,7 @@ class ChatService:
         chat_session: ChatSession,
         message: ChatMessage,
         files: list[ChatMessageFile],
-    ) -> Iterator[str]:
+    ) -> Iterator[StreamedEvent]:
         """Get an answer from the model."""
         file_names = {}
         if chat_session and chat_session.history:
