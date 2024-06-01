@@ -111,7 +111,8 @@ class SessionManager(BasicSessionManager[SessionModel]):
             request.state.session_data._session_manager = self
             response = await call_next(request)
             request.state.session_data._session_manager = None
-            session_out = request.state.session_data
+            session_out = request.state.session_data.model_copy(deep=True)
+            request.state.session_data._session_manager = self
             if session_in != session_out:
                 if not session_in:
                     await self.create_session(request, response, session_out)
