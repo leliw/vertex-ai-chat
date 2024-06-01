@@ -1,16 +1,16 @@
-import datetime
+from datetime import datetime
 from typing import Optional, Type, TypeVar
 from uuid import uuid4
 from fastapi import HTTPException, Request, Response, UploadFile
-
 from fastapi_sessions.backends.session_backend import SessionBackend
 from pydantic import BaseModel, Field, PrivateAttr
 
-from base.session_manager import BasicSessionBackend
-from gcp.gcp_file_storage import FileStorage
-from gcp.gcp_storage import Storage
-from .gcp_oauth import OAuth, UserData
 from base import InvalidSessionException, BasicSessionManager
+from base.session_manager import BasicSessionBackend
+
+from .gcp_file_storage import FileStorage
+from .gcp_storage import Storage
+from .gcp_oauth import OAuth, UserData
 
 
 class SessionFile(BaseModel):
@@ -21,9 +21,7 @@ class SessionFile(BaseModel):
 
 class SessionData(BaseModel):
     session_id: str = Field(default_factory=lambda: str(uuid4()))
-    timestamp: Optional[datetime.datetime] = Field(
-        default_factory=datetime.datetime.now
-    )
+    timestamp: Optional[datetime] = Field(default_factory=datetime.now)
     user: UserData
     files: list[SessionFile] = Field(default_factory=list)
 
@@ -38,6 +36,9 @@ class SessionData(BaseModel):
         file = next((f for f in self.files if f.name == name), None)
         self._session_manager.delete_file(self.session_id, file)
         self.files = [f for f in self.files if f.name != name]
+
+    async def update_session(self, request: Request):
+        await self._session_manager.update_session(request, self)
 
     async def delete_session(self, request: Request, response: Response):
         await self._session_manager.delete_session(

@@ -18,7 +18,6 @@ class MessageRouter:
 
     def post_message_async(self, model: str, message: ChatMessage, request: Request):
         """Post message to chat and return async response"""
-        print(request.state.session_data)
         chat_session = request.state.session_data.chat_session
         session_id = request.state.session_data.session_id
         files: list[ChatMessageFile] = [
@@ -45,12 +44,9 @@ class MessageRouter:
                     yield f"{comma}{r.model_dump_json()}\n"
             except ChatHistoryException as e:
                 session_data = request.state.session_data
-                print(session_data)
                 session_data.chat_session = e.chat_session
                 session_data.files = []
-                await session_data._session_manager.update_session(
-                    request, session_data
-                )
+                await session_data.update_session(request)
                 if e.exception:
                     raise e.exception
 
