@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 
 
 from .chat_model import ChatSession, ChatSessionHeader
-from .message.message_router import MessageRouter
+from .message.message_router import ChatMessageRouter
 
 
 class ChatRouter:
@@ -10,13 +10,13 @@ class ChatRouter:
         self.service = chat_service
 
         ID_PATH = "/{chat_id}"
-        self.router = APIRouter(prefix="/chats", tags=["chat sessions"])
+        self.router = APIRouter(tags=["chat sessions"])
         self.router.get("", response_model=list[ChatSessionHeader])(self.get_all)
         self.router.get(ID_PATH, response_model=ChatSession)(self.get)
         self.router.put(ID_PATH)(self.chat_session_update)
         self.router.delete(ID_PATH)(self.chat_delete)
 
-        message_router = MessageRouter(chat_service)
+        message_router = ChatMessageRouter(chat_service)
         self.router.include_router(message_router.router, prefix="/message")
 
     async def get_all(self, request: Request) -> list[ChatSessionHeader]:

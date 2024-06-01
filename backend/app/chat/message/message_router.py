@@ -3,11 +3,11 @@ from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.config import config
-from ..chat_model import ChatMessage, ChatMessageFile
+from .message_model import ChatMessage, ChatMessageFile
 from ..chat_service import ChatHistoryException, ChatService, StreamedEvent
 
 
-class MessageRouter:
+class ChatMessageRouter:
     def __init__(self, chat_service: ChatService):
         self.service = chat_service
 

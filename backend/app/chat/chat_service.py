@@ -12,7 +12,8 @@ from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
 
-from .chat_model import ChatMessage, ChatMessageFile, ChatSessionHeader, ChatSession
+from .chat_model import ChatSessionHeader, ChatSession
+from .message import ChatMessage, ChatMessageFile
 
 
 class ChatHistoryException(Exception):

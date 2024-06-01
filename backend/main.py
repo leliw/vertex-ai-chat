@@ -74,7 +74,7 @@ def models_get_all() -> list[str]:
 
 chat_service = ChatService(file_storage)
 chat_router = ChatRouter(chat_service)
-app.include_router(chat_router.router, prefix="/api")
+app.include_router(chat_router.router, prefix="/api/chats")
 
 
 @app.post("/api/files", tags=["files"])
