@@ -4,7 +4,7 @@ import os
 from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse
 
 
 from app.chat.chat_router import ChatRouter
@@ -15,10 +15,7 @@ from app.config import config
 from app.knowledge_base import KnowledgeBaseRouter
 
 from app.chat.chat_service import (
-    ChatHistoryException,
-    ChatMessageFile,
     ChatService,
-    ChatMessage,
     ChatSession,
 )
 
@@ -78,47 +75,6 @@ def models_get_all() -> list[str]:
 chat_service = ChatService(file_storage)
 chat_router = ChatRouter(chat_service)
 app.include_router(chat_router.router, prefix="/api")
-
-
-@app.post("/api/chats/message", tags=["chat sessions"])
-def chat_post_message_async(model: str, message: ChatMessage, request: Request):
-    """Post message to chat and return async response"""
-    chat_session = request.state.session_data.chat_session
-    session_id = request.state.session_data.session_id
-    files: list[ChatMessageFile] = [
-        ChatMessageFile(
-            name=sf.name,
-            url=sf.url or f"session-{session_id}/{sf.name}",
-            mime_type=sf.mime_type,
-        )
-        for sf in request.state.session_data.files
-    ]
-    if not model:
-        model = config.get("default_model")
-    responses = chat_service.get_answer_async(
-        model_name=model,
-        chat_session=chat_session,
-        message=message,
-        files=files,
-    )
-
-    async def handle_history(responses):
-        try:
-            for i, r in enumerate(responses):
-                comma = "," if i > 0 else ""
-                yield f"{comma}{r.model_dump_json()}\n"
-        except ChatHistoryException as e:
-            session_data = request.state.session_data
-            session_data.chat_session = e.chat_session
-            session_data.files = []
-            await session_manager.update_session(request, session_data)
-            if e.exception:
-                raise e.exception
-
-    return StreamingResponse(
-        handle_history(responses),
-        media_type="text/event-stream",
-    )
 
 
 @app.post("/api/files", tags=["files"])
