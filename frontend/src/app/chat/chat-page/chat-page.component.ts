@@ -50,7 +50,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     isLoading = false;
     progressSpinner = false;
     waitingForResponse = false;
-    connected = false;
     currentAnswer = '';
     currentTypeIndex = 0;
     actionButtons?: number = undefined;
@@ -81,7 +80,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.chatService.connect();
-        this.chatService.connected().subscribe(connected => this.connected = connected);
     }
 
     ngOnDestroy(): void {
