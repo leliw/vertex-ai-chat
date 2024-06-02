@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
-import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
+import { ChatService, ChatSessionHeader, ChatSession } from '../../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
@@ -8,14 +8,14 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MarkdownPipe } from '../shared/markdown.pipe';
+import { MarkdownPipe } from '../../shared/markdown.pipe';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BehaviorSubject, Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
-import { AuthService } from '../shared/auth/auth.service';
-import { ConfigService } from '../shared/config/config.service';
+import { AuthService } from '../../shared/auth/auth.service';
+import { ConfigService } from '../../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpEventType } from '@angular/common/http';
 
@@ -32,11 +32,11 @@ import { HttpEventType } from '@angular/common/http';
         MatIconModule,
         AsyncPipe,
         FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule],
-    templateUrl: './chat.component.html',
-    styleUrl: './chat.component.css',
+    templateUrl: './chat-page.component.html',
+    styleUrl: './chat-page.component.css',
     encapsulation: ViewEncapsulation.None,
 })
-export class ChatComponent implements OnInit, OnDestroy {
+export class ChatPageComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
     @ViewChild('container') container!: ElementRef;
