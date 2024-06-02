@@ -41,7 +41,7 @@
             </button>
         </mat-toolbar>
         <div class="chat" [class.handset]="isHandset">
-            <app-chat-view  #container class="chat-container" (editMessageEvent)="changeMessage($event)">
+            <app-chat-view #container class="chat-container" (editMessageEvent)="changeMessage($event)">
             </app-chat-view>
             @if(progressSpinner) {
             <div class="spinner-overlay">
@@ -72,10 +72,9 @@
                         <mat-icon>attach_file</mat-icon>
                     </button>
                     <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
-                        [disabled]="isLoading || chatService.waitingForResponse"
-                        placeholder="Type a message..."></textarea>
+                        [disabled]="sendingMessageDisabled()" placeholder="Type a message..."></textarea>
                     <button mat-icon-button matTooltip="Send message" (click)="sendMessageAsync()"
-                        [disabled]="isLoading || chatService.waitingForResponse">
+                        [disabled]="sendingMessageDisabled()">
                         <mat-icon>send</mat-icon>
                     </button>
                 </div>

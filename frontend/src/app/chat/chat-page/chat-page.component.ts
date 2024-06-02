@@ -48,7 +48,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     sessionChanged = false;
     newMessage = '';
-    isLoading = false;
     progressSpinner = false;
 
 
@@ -130,20 +129,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         }
     }
 
-
     newChat() {
         this.loadChat('_NEW_');
     }
 
     loadChat(chat_session_id: string) {
-        this.isLoading = true;
-        setTimeout(() => this.progressSpinner = this.isLoading, 500);
-        this.chatService.get(chat_session_id).subscribe(session => {
-            this.chatService.chat = session;
+        setTimeout(() => this.progressSpinner = this.chatService.isLoading, 500);
+        this.chatService.get(chat_session_id).subscribe(() => {
             if (this.isHandset)
                 this.drawerContainer.close();
             setTimeout(() => this.container.scrollBottom(), 100);
-            this.isLoading = false;
             this.progressSpinner = false;
             this.newMessage = '';
             this.selectedFiles = [];
@@ -170,13 +165,10 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.newChat();
     }
 
-
     selectedFiles: File[] = [];
     uploadProgress: number[] = [];
 
-
     changeMessage(index: number) {
-        console.log(index);
         this.newMessage = this.chatService.chat.history[index].content?.trim() ?? '';
         this.selectedFiles = [];
         this.chatService.chat.history[index].files?.forEach(file => {
@@ -237,6 +229,10 @@ export class ChatPageComponent implements OnInit, OnDestroy {
                 this.uploadFiles(files, index + 1, offset);
             }
         });
+    }
+
+    sendingMessageDisabled(): boolean {
+        return this.chatService.isLoading || this.chatService.waitingForResponse;
     }
 
 }

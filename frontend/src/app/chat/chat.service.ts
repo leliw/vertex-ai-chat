@@ -37,6 +37,7 @@ export class ChatService {
 
     public chats: ChatSessionHeader[] = [];
     public chat!: ChatSession;
+    public isLoading = false;
     public waitingForResponse = false;
 
     private endpoint = '/api/chats';
@@ -63,12 +64,16 @@ export class ChatService {
     }
 
     get(chat_session_id: string): Observable<ChatSession> {
+        this.isLoading = true;
         return this.httpClient.get<ChatSession>(`${this.endpoint}/${chat_session_id}`)
-            .pipe(tap(chat => this.chat = chat));
+            .pipe(tap(chat => {
+                this.chat = chat;
+                this.isLoading = false;
+            }));
     }
 
     send_async(model: string, message: ChatMessage): Observable<StreamedEvent> {
-        if (this.chat &&  !this.chats.some(chat => chat.chat_session_id == this.chat.chat_session_id)) {
+        if (this.chat && !this.chats.some(chat => chat.chat_session_id == this.chat.chat_session_id)) {
             this.chats.unshift({
                 chat_session_id: this.chat.chat_session_id,
                 user: "",
