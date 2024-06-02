@@ -50,8 +50,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     newMessage = '';
     isLoading = false;
     progressSpinner = false;
-    currentAnswer = '';
-    currentTypeIndex = 0;
+
 
     private dataSubscription!: Subscription;
     private breakpointObserver = inject(BreakpointObserver);
@@ -108,17 +107,14 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.container.scrollBottom();
             this.newMessage = '';
             this.chatService.waitingForResponse = true;
-            this.currentAnswer = '';
-            this.currentTypeIndex = 0;
+            this.container.startTyping()
             this.chatService.chat.history.push({ author: "ai", content: "" });
             this.dataSubscription = this.chatService.send_async(this.model, newMessage).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
-                        this.currentAnswer += chunk.value;
-                        if (this.currentTypeIndex == 0)
-                            this.typeAnswer();
+                        this.container.addAnswerChunk(chunk.value);
                     } else if (chunk.type.startsWith("error")) {
-                        this.stopTyping()
+                        this.container.stopTyping()
                         if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
                             this.chatService.chat.history.pop();
                         const errorClass = chunk.type.split(":")[1];
@@ -134,22 +130,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         }
     }
 
-    typeAnswer() {
-        // Simulate typing effect
-        if (this.currentTypeIndex < this.currentAnswer.length) {
-            this.chatService.chat.history[this.chatService.chat.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
-            this.currentTypeIndex++;
-            this.container.scrollBottom();
-            setTimeout(() => this.typeAnswer(), 10);
-        } else if (this.chatService.waitingForResponse)
-            setTimeout(() => this.typeAnswer(), 10);
-    }
-
-    stopTyping() {
-        // Stop typing
-        this.currentTypeIndex = this.currentAnswer.length
-        this.chatService.waitingForResponse = false;
-    }
 
     newChat() {
         this.loadChat('_NEW_');
@@ -176,7 +156,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     cancelGenerating() {
         // Cancel the current request
         this.dataSubscription.unsubscribe();
-        this.stopTyping();
+        this.container.stopTyping();
         if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
             this.chatService.chat.history.pop();
         const question = this.chatService.chat.history.pop();

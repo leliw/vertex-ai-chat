@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
 import { ChatService } from '../chat.service';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MarkdownPipe } from '../../shared/markdown.pipe';
 @Component({
     selector: 'app-chat-view',
     standalone: true,
+    encapsulation: ViewEncapsulation.None,
     imports: [CommonModule, MatChipsModule, MatButtonModule, MatIconModule,
         MarkdownPipe
     ],
@@ -19,12 +20,40 @@ export class ChatViewComponent {
     @Output() editMessageEvent = new EventEmitter<number>();
 
     actionButtons?: number = undefined;
+    currentAnswer = '';
+    currentTypeIndex = 0;
 
     constructor(public chatService: ChatService, private rootElement: ElementRef) { }
 
     scrollBottom(): void {
-        // Scroll to the bottom of the chat container
-        console.log(this.rootElement);
         setTimeout(() => this.rootElement.nativeElement.scrollTop = this.rootElement.nativeElement.scrollHeight, 100);
     }
+
+    startTyping() {
+        this.currentAnswer = '';
+        this.currentTypeIndex = 0;
+        this.typeAnswer();
+    }
+
+    addAnswerChunk(chunk: string) {
+        this.currentAnswer += chunk;
+    }
+
+    stopTyping() {
+        // Stop typing
+        this.currentTypeIndex = this.currentAnswer.length
+        this.chatService.waitingForResponse = false;
+    }
+
+    private typeAnswer() {
+        // Simulate typing effect
+        if (this.currentTypeIndex < this.currentAnswer.length) {
+            this.chatService.chat.history[this.chatService.chat.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
+            this.currentTypeIndex++;
+            this.scrollBottom();
+            setTimeout(() => this.typeAnswer(), 10);
+        } else if (this.chatService.waitingForResponse)
+            setTimeout(() => this.typeAnswer(), 10);
+    }
+
 }
