@@ -13,13 +13,13 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { BehaviorSubject, Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
+import {  Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ConfigService } from '../../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HttpEventType } from '@angular/common/http';
 import { ChatListComponent } from "../chat-list/chat-list.component";
 import { ChatViewComponent } from "../chat-view/chat-view.component";
+import { SessionService } from '../../shared/session.service';
 
 
 @Component({
@@ -60,9 +60,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             shareReplay()
         );
     isHandset!: boolean;
-    isUploading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    constructor(public chatService: ChatService, public authService: AuthService, private config: ConfigService) {
+    constructor(public authService: AuthService, private config: ConfigService, public chatService: ChatService, public sessionService: SessionService) {
         // Get the initial messages from the server
         this.chatService.get_models().subscribe(models => {
             this.models = models;
@@ -90,17 +89,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
-            const files = this.selectedFiles.map(file => { return { name: file.name, mime_type: file.type } })
+            const files = this.sessionService.selectedFiles.map(file => { return { name: file.name, mime_type: file.type } })
             const message = { author: "user", content: this.newMessage, files: files };
 
             if (this.sessionChanged) {
                 await firstValueFrom(this.chatService.putChatSession(this.chatService.chat));
                 this.sessionChanged = false;
             }
-            if (this.isUploading$.value)
-                await firstValueFrom(this.isUploading$.pipe(filter(ul => !ul)));
-            this.selectedFiles = [];
-            this.uploadProgress = [];
+            if (this.sessionService.isUploading$.value)
+                await firstValueFrom(this.sessionService.isUploading$.pipe(filter(ul => !ul)));
+            this.sessionService.clearFiles()
             this.chatService.chat.history.push(message);
             const newMessage = { author: "user", content: this.newMessage }
             this.container.scrollBottom();
@@ -141,8 +139,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             setTimeout(() => this.container.scrollBottom(), 100);
             this.progressSpinner = false;
             this.newMessage = '';
-            this.selectedFiles = [];
-            this.uploadProgress = [];
+            this.sessionService.clearFiles()
             this.sessionChanged = false;
         });
 
@@ -151,7 +148,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     cancelGenerating() {
         // Cancel the current request
         this.dataSubscription.unsubscribe();
-        this.container.stopTyping();
         if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
             this.chatService.chat.history.pop();
         const question = this.chatService.chat.history.pop();
@@ -165,70 +161,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.newChat();
     }
 
-    selectedFiles: File[] = [];
-    uploadProgress: number[] = [];
-
     changeMessage(index: number) {
         this.newMessage = this.chatService.chat.history[index].content?.trim() ?? '';
-        this.selectedFiles = [];
+        this.sessionService.clearFiles()
         this.chatService.chat.history[index].files?.forEach(file => {
-            this.selectedFiles.push(new File([], file.name));
-            this.uploadProgress.push(100);
+            this.sessionService.selectedFiles.push(new File([], file.name));
+            this.sessionService.uploadProgress.push(100);
         });
         const newHistory = this.chatService.chat.history.slice(0, index);
         this.chatService.chat.history = newHistory;
         this.sessionChanged = true;
-    }
-
-    openFileDialog(): void {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.multiple = true;
-        input.click();
-        input.onchange = (event: any) => this.uploadFiles(event.target.files)
-    }
-
-    onFileSelected(event: any): void {
-        this.uploadFiles(event.target.files);
-    }
-
-    onFileDropped(event: DragEvent): void {
-        event.preventDefault();
-        if (event.dataTransfer?.files)
-            this.uploadFiles(event.dataTransfer.files);
-    }
-
-    removeFile(index: number): void {
-        const fileName = this.selectedFiles[index].name;
-        this.chatService.deleteFile(fileName).subscribe(() => this.selectedFiles.splice(index, 1));
-        this.uploadProgress.splice(index, 1)
-    }
-
-    uploadFiles(files: FileList, index: number = 0, offset: number = -1) {
-        if (offset == -1)
-            offset = this.selectedFiles.length;
-        if (index == 0) {
-            this.isUploading$.next(true);
-            Array.from(files).forEach(file => this.selectedFiles.push(file));
-        }
-        if (index >= files.length) {
-            this.isUploading$.next(false);
-            return;
-        }
-        const file = files[index];
-        const formData = new FormData();
-        formData.append('files', file);
-        this.chatService.uploadFiles(formData).subscribe({
-            next: event => {
-                if (event.type === HttpEventType.UploadProgress && event.total) {
-                    this.uploadProgress[offset + index] = Math.round(10 * event.loaded / event.total) * 10;
-                }
-            },
-            complete: () => {
-                this.uploadProgress[offset + index] = 100;
-                this.uploadFiles(files, index + 1, offset);
-            }
-        });
     }
 
     sendingMessageDisabled(): boolean {

@@ -9,7 +9,7 @@
     box-sizing: border-box;
 }
 
-.chat-container {
+app-chat-view {
     flex: auto;
 }
 

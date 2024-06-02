@@ -1,4 +1,4 @@
-import { HttpClient, HttpDownloadProgressEvent, HttpEvent, HttpEventType, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpDownloadProgressEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter, tap } from 'rxjs';
 
@@ -141,14 +141,4 @@ export class ChatService {
         return this.httpClient.put<void>(`${this.endpoint}/${chatSession.chat_session_id}`, chatSession);
     }
 
-    uploadFiles(formData: FormData): Observable<HttpEvent<void>> {
-        return this.httpClient.post<void>(`/api/files`, formData, {
-            reportProgress: true,
-            observe: 'events'
-        });
-    }
-
-    deleteFile(filename: string): Observable<void> {
-        return this.httpClient.delete<void>(`/api/files/${filename}`);
-    }
 }

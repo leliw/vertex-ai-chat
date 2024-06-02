@@ -41,25 +41,19 @@
             </button>
         </mat-toolbar>
         <div class="chat" [class.handset]="isHandset">
-            <app-chat-view #container class="chat-container" (editMessageEvent)="changeMessage($event)">
+            <app-chat-view #container (editMessageEvent)="changeMessage($event)"
+                (cancelGeneratingEvent)="cancelGenerating()">
             </app-chat-view>
             @if(progressSpinner) {
             <div class="spinner-overlay">
                 <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
             </div>
             }
-            @if(chatService.waitingForResponse) {
-            <button class="cancel-generating" mat-mini-fab (click)="cancelGenerating()" matTooltip="Cancel generating"
-                color="warn">
-                <mat-icon>cancel</mat-icon>
-            </button>
-            }
-
-            <div class="input-area" (drop)="onFileDropped($event)" (dragover)="$event.preventDefault()">
+            <div class="input-area" (drop)="sessionService.onFileDropped($event)" (dragover)="$event.preventDefault()">
                 <mat-chip-set class="files-bar">
-                    @for (file of selectedFiles; track file; let index=$index) {
-                    <mat-chip-row (removed)="removeFile(index)"
-                        [class]="'background-progress-' + uploadProgress[index]">
+                    @for (file of sessionService.selectedFiles; track file; let index=$index) {
+                    <mat-chip-row (removed)="sessionService.removeFile(index)"
+                        [class]="'background-progress-' + sessionService.uploadProgress[index]">
                         {{file.name}}
                         <button matChipRemove>
                             <mat-icon>cancel</mat-icon>
@@ -68,7 +62,8 @@
                     }
                 </mat-chip-set>
                 <div class="input-bar">
-                    <button mat-icon-button matTooltip="Select file or drop here" (click)="openFileDialog()">
+                    <button mat-icon-button matTooltip="Select file or drop here"
+                        (click)="sessionService.openFileDialog()">
                         <mat-icon>attach_file</mat-icon>
                     </button>
                     <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"

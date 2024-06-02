@@ -2,14 +2,14 @@
 There should be used :host, but it is not working when Encapsulation is set to None,
 so I have to use .chat-container which is set in parent
 */
-.chat-container, 
-:host {
+.chat-container{
     padding: 10px;
     overflow-y: scroll;
     position: relative;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    height: 100%;
 }
 
 .message {

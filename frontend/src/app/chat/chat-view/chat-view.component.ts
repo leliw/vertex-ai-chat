@@ -18,6 +18,7 @@ import { MarkdownPipe } from '../../shared/markdown.pipe';
 })
 export class ChatViewComponent {
     @Output() editMessageEvent = new EventEmitter<number>();
+    @Output() cancelGeneratingEvent = new EventEmitter<void>();
 
     actionButtons?: number = undefined;
     currentAnswer = '';
@@ -56,4 +57,9 @@ export class ChatViewComponent {
             setTimeout(() => this.typeAnswer(), 10);
     }
 
+    cancelGenerating() {
+        // Cancel the current request
+        this.stopTyping();
+        this.cancelGeneratingEvent.emit();
+    }
 }
