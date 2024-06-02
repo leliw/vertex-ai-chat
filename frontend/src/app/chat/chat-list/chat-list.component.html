@@ -1,7 +1,7 @@
 <mat-action-list>
-    @for( chat of chats; track chat) {
+    @for( chat of chatService.chats; track chat) {
     <mat-list-item>
-        <a class="side-menu-item" matLine (click)="loadEvent.emit(chat.chat_session_id)"
+        <a class="side-menu-item" matLine (click)="loadChat(chat.chat_session_id)"
             [matTooltip]="chat.summary ?? '(brak)'">{{ chat.summary }}</a>
         <button mat-icon-button (click)="deleteChat(chat.chat_session_id)" color="accent">
             <mat-icon>delete</mat-icon>

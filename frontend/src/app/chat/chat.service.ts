@@ -1,6 +1,6 @@
 import { HttpClient, HttpDownloadProgressEvent, HttpEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter } from 'rxjs';
+import { BehaviorSubject, Observable, filter, tap } from 'rxjs';
 
 export interface ChatMessageFile {
     name: string;
@@ -35,10 +35,12 @@ export interface StreamedEvent {
 })
 export class ChatService {
 
+    public chats: ChatSessionHeader[] = [];
+    public chat: ChatSession | undefined;
+
     private endpoint = '/api/chats';
     private connected$ = new BehaviorSubject<boolean>(false);
     private pingIntervalId: any;
-
 
     constructor(private httpClient: HttpClient) { }
 
@@ -60,7 +62,8 @@ export class ChatService {
     }
 
     get(chat_session_id: string): Observable<ChatSession> {
-        return this.httpClient.get<ChatSession>(`${this.endpoint}/${chat_session_id}`);
+        return this.httpClient.get<ChatSession>(`${this.endpoint}/${chat_session_id}`)
+            .pipe(tap(chat => this.chat = chat));
     }
 
     send_async(model: string, message: ChatMessage): Observable<StreamedEvent> {
@@ -111,11 +114,13 @@ export class ChatService {
     }
 
     get_all(): Observable<ChatSessionHeader[]> {
-        return this.httpClient.get<ChatSessionHeader[]>(this.endpoint);
+        return this.httpClient.get<ChatSessionHeader[]>(this.endpoint)
+            .pipe(tap(chats => this.chats = chats));
     }
 
     delete(chat_session_id: string): Observable<void> {
-        return this.httpClient.delete<void>(`${this.endpoint}/${chat_session_id}`);
+        return this.httpClient.delete<void>(`${this.endpoint}/${chat_session_id}`)
+            .pipe(tap(() => this.chats = this.chats.filter(chat => chat.chat_session_id !== chat_session_id)));
     }
 
     putChatSession(chatSession: ChatSession): Observable<void> {
