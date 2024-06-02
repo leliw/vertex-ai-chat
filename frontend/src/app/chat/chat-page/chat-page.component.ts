@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
-import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
+import { ChatService, ChatSession } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
@@ -18,11 +18,15 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { ConfigService } from '../../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpEventType } from '@angular/common/http';
+import { ChatListComponent } from "../chat-list/chat-list.component";
 
 
 @Component({
     selector: 'app-chat',
     standalone: true,
+    templateUrl: './chat-page.component.html',
+    styleUrl: './chat-page.component.css',
+    encapsulation: ViewEncapsulation.None,
     imports: [CommonModule,
         MatToolbarModule,
         MatChipsModule,
@@ -31,10 +35,7 @@ import { HttpEventType } from '@angular/common/http';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule],
-    templateUrl: './chat-page.component.html',
-    styleUrl: './chat-page.component.css',
-    encapsulation: ViewEncapsulation.None,
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent]
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
 
@@ -43,7 +44,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     models: string[] = [];
     model!: string;
-    history: ChatSessionHeader[] = [];
     session!: ChatSession;
     sessionChanged = false;
     newMessage = '';
@@ -71,9 +71,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         this.chatService.get_models().subscribe(models => {
             this.models = models;
             this.model = models[0];
-            this.chatService.get_all().subscribe(history => {
+            this.chatService.get_all().subscribe(chats => {
                 this.newChat()
-                this.history = history;
                 setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
             });
         });
@@ -96,13 +95,13 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
-            if (this.session.history.length == 0 && !this.sessionChanged)
-                this.history.unshift({
-                    chat_session_id: this.session.chat_session_id,
-                    user: "",
-                    created: new Date(),
-                    summary: this.newMessage
-                });
+            // if (this.session.history.length == 0 && !this.sessionChanged)
+            //     this.chats.unshift({
+            //         chat_session_id: this.session.chat_session_id,
+            //         user: "",
+            //         created: new Date(),
+            //         summary: this.newMessage
+            //     });
             const files = this.selectedFiles.map(file => { return { name: file.name, mime_type: file.type } })
             const message = { author: "user", content: this.newMessage, files: files };
 
@@ -202,13 +201,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
 
     deleteChat(chat_session_id: string) {
-        this.chatService.delete(chat_session_id).subscribe(
-            () => {
-                if (this.session.chat_session_id == chat_session_id)
-                    this.newChat();
-                this.chatService.get_all().subscribe(history => this.history = history);
-            }
-        );
+        if (this.session.chat_session_id == chat_session_id)
+            this.newChat();
     }
 
 
