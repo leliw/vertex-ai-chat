@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
-import { ChatService, ChatSession } from '../chat.service';
+import { ChatService } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
@@ -44,7 +44,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     models: string[] = [];
     model!: string;
-    session!: ChatSession;
+
     sessionChanged = false;
     newMessage = '';
     isLoading = false;
@@ -66,7 +66,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     isHandset!: boolean;
     isUploading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    constructor(private chatService: ChatService, public authService: AuthService, private config: ConfigService) {
+    constructor(public chatService: ChatService, public authService: AuthService, private config: ConfigService) {
         // Get the initial messages from the server
         this.chatService.get_models().subscribe(models => {
             this.models = models;
@@ -99,21 +99,21 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             const message = { author: "user", content: this.newMessage, files: files };
 
             if (this.sessionChanged) {
-                await firstValueFrom(this.chatService.putChatSession(this.session));
+                await firstValueFrom(this.chatService.putChatSession(this.chatService.chat));
                 this.sessionChanged = false;
             }
             if (this.isUploading$.value)
                 await firstValueFrom(this.isUploading$.pipe(filter(ul => !ul)));
             this.selectedFiles = [];
             this.uploadProgress = [];
-            this.session.history.push(message);
+            this.chatService.chat.history.push(message);
             const newMessage = { author: "user", content: this.newMessage }
             this.scrollBottom();
             this.newMessage = '';
             this.waitingForResponse = true;
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
-            this.session.history.push({ author: "ai", content: "" });
+            this.chatService.chat.history.push({ author: "ai", content: "" });
             this.dataSubscription = this.chatService.send_async(this.model, newMessage).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
@@ -122,11 +122,11 @@ export class ChatPageComponent implements OnInit, OnDestroy {
                             this.typeAnswer();
                     } else if (chunk.type.startsWith("error")) {
                         this.stopTyping()
-                        if (this.session.history[this.session.history.length - 1].author == "ai")
-                            this.session.history.pop();
+                        if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
+                            this.chatService.chat.history.pop();
                         const errorClass = chunk.type.split(":")[1];
                         const errorMessage = "```\n" + chunk.value + "\n```"
-                        this.session.history.push({ author: "error", content: `### ${errorClass}\n\n${errorMessage}` });
+                        this.chatService.chat.history.push({ author: "error", content: `### ${errorClass}\n\n${errorMessage}` });
                         setTimeout(() => this.scrollBottom(), 100);
                     }
                 },
@@ -140,7 +140,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     typeAnswer() {
         // Simulate typing effect
         if (this.currentTypeIndex < this.currentAnswer.length) {
-            this.session.history[this.session.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
+            this.chatService.chat.history[this.chatService.chat.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
             this.scrollBottom();
             setTimeout(() => this.typeAnswer(), 10);
@@ -167,7 +167,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         this.isLoading = true;
         setTimeout(() => this.progressSpinner = this.isLoading, 500);
         this.chatService.get(chat_session_id).subscribe(session => {
-            this.session = session;
+            this.chatService.chat = session;
             if (this.isHandset)
                 this.drawerContainer.close();
             setTimeout(() => this.scrollBottom(), 100);
@@ -185,16 +185,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         // Cancel the current request
         this.dataSubscription.unsubscribe();
         this.stopTyping();
-        if (this.session.history[this.session.history.length - 1].author == "ai")
-            this.session.history.pop();
-        const question = this.session.history.pop();
+        if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
+            this.chatService.chat.history.pop();
+        const question = this.chatService.chat.history.pop();
         if (question)
             this.newMessage = question.content ?? '';
-        this.chatService.putChatSession(this.session).subscribe();
+        this.chatService.putChatSession(this.chatService.chat).subscribe();
     }
 
     deleteChat(chat_session_id: string) {
-        if (this.session.chat_session_id == chat_session_id)
+        if (this.chatService.chat.chat_session_id == chat_session_id)
             this.newChat();
     }
 
@@ -204,14 +204,14 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
 
     changeMessage(index: number) {
-        this.newMessage = this.session.history[index].content?.trim() ?? '';
+        this.newMessage = this.chatService.chat.history[index].content?.trim() ?? '';
         this.selectedFiles = [];
-        this.session.history[index].files?.forEach(file => {
+        this.chatService.chat.history[index].files?.forEach(file => {
             this.selectedFiles.push(new File([], file.name));
             this.uploadProgress.push(100);
         });
-        const newHistory = this.session.history.slice(0, index);
-        this.session.history = newHistory;
+        const newHistory = this.chatService.chat.history.slice(0, index);
+        this.chatService.chat.history = newHistory;
         this.sessionChanged = true;
     }
 
