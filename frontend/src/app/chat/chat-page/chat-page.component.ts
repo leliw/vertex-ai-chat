@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
-import { ChatService, ChatSessionHeader, ChatSession } from '../../chat.service';
+import { ChatService, ChatSessionHeader, ChatSession } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
