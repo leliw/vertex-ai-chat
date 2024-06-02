@@ -95,13 +95,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     async sendMessageAsync() {
         // Send message to the server and process the response asynchronously
         if (this.newMessage.trim().length > 0) {
-            // if (this.session.history.length == 0 && !this.sessionChanged)
-            //     this.chats.unshift({
-            //         chat_session_id: this.session.chat_session_id,
-            //         user: "",
-            //         created: new Date(),
-            //         summary: this.newMessage
-            //     });
             const files = this.selectedFiles.map(file => { return { name: file.name, mime_type: file.type } })
             const message = { author: "user", content: this.newMessage, files: files };
 

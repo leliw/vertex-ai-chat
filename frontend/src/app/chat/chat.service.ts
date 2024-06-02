@@ -36,7 +36,7 @@ export interface StreamedEvent {
 export class ChatService {
 
     public chats: ChatSessionHeader[] = [];
-    public chat: ChatSession | undefined;
+    public chat!: ChatSession;
 
     private endpoint = '/api/chats';
     private connected$ = new BehaviorSubject<boolean>(false);
@@ -58,7 +58,7 @@ export class ChatService {
     }
 
     new(): Observable<ChatSession> {
-        return this.httpClient.get<ChatSession>(`${this.endpoint}/_NEW_`);
+        return this.get("_NEW_");
     }
 
     get(chat_session_id: string): Observable<ChatSession> {
@@ -67,6 +67,14 @@ export class ChatService {
     }
 
     send_async(model: string, message: ChatMessage): Observable<StreamedEvent> {
+        if (this.chat &&  !this.chats.some(chat => chat.chat_session_id == this.chat.chat_session_id)) {
+            this.chats.unshift({
+                chat_session_id: this.chat.chat_session_id,
+                user: "",
+                created: new Date(),
+                summary: message.content
+            });
+        }
         let lastCommaIndex = 0;
         return new Observable(observer => {
             let buffer = '';
