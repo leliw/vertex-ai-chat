@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { ChatService } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ import { ConfigService } from '../../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpEventType } from '@angular/common/http';
 import { ChatListComponent } from "../chat-list/chat-list.component";
+import { ChatViewComponent } from "../chat-view/chat-view.component";
 
 
 @Component({
@@ -35,12 +36,12 @@ import { ChatListComponent } from "../chat-list/chat-list.component";
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent]
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent]
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
-    @ViewChild('container') container!: ElementRef;
+    @ViewChild('container') container!: ChatViewComponent;
 
     models: string[] = [];
     model!: string;
@@ -49,10 +50,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     newMessage = '';
     isLoading = false;
     progressSpinner = false;
-    waitingForResponse = false;
     currentAnswer = '';
     currentTypeIndex = 0;
-    actionButtons?: number = undefined;
 
     private dataSubscription!: Subscription;
     private breakpointObserver = inject(BreakpointObserver);
@@ -106,9 +105,9 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.uploadProgress = [];
             this.chatService.chat.history.push(message);
             const newMessage = { author: "user", content: this.newMessage }
-            this.scrollBottom();
+            this.container.scrollBottom();
             this.newMessage = '';
-            this.waitingForResponse = true;
+            this.chatService.waitingForResponse = true;
             this.currentAnswer = '';
             this.currentTypeIndex = 0;
             this.chatService.chat.history.push({ author: "ai", content: "" });
@@ -125,11 +124,11 @@ export class ChatPageComponent implements OnInit, OnDestroy {
                         const errorClass = chunk.type.split(":")[1];
                         const errorMessage = "```\n" + chunk.value + "\n```"
                         this.chatService.chat.history.push({ author: "error", content: `### ${errorClass}\n\n${errorMessage}` });
-                        setTimeout(() => this.scrollBottom(), 100);
+                        setTimeout(() => this.container.scrollBottom(), 100);
                     }
                 },
                 complete: () => {
-                    this.waitingForResponse = false;
+                    this.chatService.waitingForResponse = false;
                 }
             });
         }
@@ -140,21 +139,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         if (this.currentTypeIndex < this.currentAnswer.length) {
             this.chatService.chat.history[this.chatService.chat.history.length - 1].content += this.currentAnswer[this.currentTypeIndex];
             this.currentTypeIndex++;
-            this.scrollBottom();
+            this.container.scrollBottom();
             setTimeout(() => this.typeAnswer(), 10);
-        } else if (this.waitingForResponse)
+        } else if (this.chatService.waitingForResponse)
             setTimeout(() => this.typeAnswer(), 10);
     }
 
     stopTyping() {
         // Stop typing
         this.currentTypeIndex = this.currentAnswer.length
-        this.waitingForResponse = false;
-    }
-
-    scrollBottom(): void {
-        // Scroll to the bottom of the chat container
-        setTimeout(() => this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight, 100);
+        this.chatService.waitingForResponse = false;
     }
 
     newChat() {
@@ -168,7 +162,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.chatService.chat = session;
             if (this.isHandset)
                 this.drawerContainer.close();
-            setTimeout(() => this.scrollBottom(), 100);
+            setTimeout(() => this.container.scrollBottom(), 100);
             this.isLoading = false;
             this.progressSpinner = false;
             this.newMessage = '';
@@ -202,6 +196,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
 
     changeMessage(index: number) {
+        console.log(index);
         this.newMessage = this.chatService.chat.history[index].content?.trim() ?? '';
         this.selectedFiles = [];
         this.chatService.chat.history[index].files?.forEach(file => {

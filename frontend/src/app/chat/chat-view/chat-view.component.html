@@ -1,0 +1,36 @@
+@if(chatService.chat){
+@for (message of chatService.chat.history; track message; let index=$index; let last=$last) {
+@if (message.content) {
+<div class="message {{message.author}}" (mouseover)="actionButtons=index" (mouseleave)="actionButtons=undefined"
+    (focus)="actionButtons=index">
+    @if(message.files && message.files.length > 0) {
+    <mat-chip-set>
+        @for (file of message.files; track file; let index=$index) {
+        <mat-chip-set>
+            <mat-chip>{{file.name}}</mat-chip>
+        </mat-chip-set>
+        }
+    </mat-chip-set>
+    }
+    <div [innerHTML]="message.content | markdown"></div>
+    @if(actionButtons==index && message.author == 'user') {
+    <div class="action-buttons">
+        <button mat-mini-fab matTooltip="Edit changeMessage" color="primary" (click)="editMessageEvent.emit(index)">
+            <mat-icon>edit</mat-icon>
+        </button>
+    </div>
+    }
+</div>
+} @else if (chatService.waitingForResponse && message.content=="") {<div
+    class="message {{message.author}} loading-spinner">
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+} @else {
+<div class="message {{message.author}}">
+    <pre>{{message | json}}</pre>
+</div>
+}
+}
+}
