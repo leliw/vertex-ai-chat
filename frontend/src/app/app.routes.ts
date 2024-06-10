@@ -5,7 +5,12 @@ import { authGuard } from './shared/auth/auth.service';
 export const routes: Routes = [
     { path: '', redirectTo: '/chat', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
-    { path: 'chat', canActivate: [authGuard], loadComponent: () => import('./chat/chat.component').then(mod => mod.ChatComponent) },
+    {
+        path: 'chat', canActivate: [authGuard],
+        loadComponent: () =>
+            import('./chat/chat-page/chat-page.component')
+                .then(mod => mod.ChatPageComponent)
+    },
     {
         path: 'knowledge-base', canActivate: [authGuard],
         loadComponent: () =>

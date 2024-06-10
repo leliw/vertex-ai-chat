@@ -1,16 +1,16 @@
-import datetime
+from datetime import datetime
 from typing import Optional, Type, TypeVar
 from uuid import uuid4
 from fastapi import HTTPException, Request, Response, UploadFile
-
 from fastapi_sessions.backends.session_backend import SessionBackend
 from pydantic import BaseModel, Field, PrivateAttr
 
-from base.session_manager import BasicSessionBackend
-from gcp.gcp_file_storage import FileStorage
-from gcp.gcp_storage import Storage
-from .gcp_oauth import OAuth, UserData
 from base import InvalidSessionException, BasicSessionManager
+from base.session_manager import BasicSessionBackend
+
+from .gcp_file_storage import FileStorage
+from .gcp_storage import Storage
+from .gcp_oauth import OAuth, UserData
 
 
 class SessionFile(BaseModel):
@@ -21,10 +21,8 @@ class SessionFile(BaseModel):
 
 class SessionData(BaseModel):
     session_id: str = Field(default_factory=lambda: str(uuid4()))
-    timestamp: Optional[datetime.datetime] = Field(
-        default_factory=datetime.datetime.now
-    )
-    user: UserData
+    timestamp: Optional[datetime] = Field(default_factory=datetime.now)
+    user: Optional[UserData] = None
     files: list[SessionFile] = Field(default_factory=list)
 
     _session_manager: BasicSessionManager = PrivateAttr(default=None)
@@ -38,6 +36,9 @@ class SessionData(BaseModel):
         file = next((f for f in self.files if f.name == name), None)
         self._session_manager.delete_file(self.session_id, file)
         self.files = [f for f in self.files if f.name != name]
+
+    async def update_session(self, request: Request):
+        await self._session_manager.update_session(request, self)
 
     async def delete_session(self, request: Request, response: Response):
         await self._session_manager.delete_session(
@@ -98,28 +99,31 @@ class SessionManager(BasicSessionManager[SessionModel]):
 
     async def middleware_add_session_data(self, request: Request, call_next):
         """Middleware to add session data to request."""
-        if self.o_auth.requre_auth(request):
-            try:
-                session_in = await self.get_session(request)
-                if not session_in:
-                    raise InvalidSessionException()
-                request.state.session_data = session_in.model_copy(deep=True)
-            except (InvalidSessionException, HTTPException):
-                session_in = None
+        try:
+            session_in = await self.get_session(request)
+            if not session_in:
+                raise InvalidSessionException()
+            if session_in.user is None and self.o_auth.requre_auth(request):
+                raise InvalidSessionException()
+            request.state.session_data = session_in.model_copy(deep=True)
+        except (InvalidSessionException, HTTPException):
+            session_in = None
+            if self.o_auth.requre_auth(request):
                 user_data = self.o_auth.verify_token(request)
-                request.state.session_data = self.create_session_for_user(user_data)
-            request.state.session_data._session_manager = self
-            response = await call_next(request)
-            request.state.session_data._session_manager = None
-            session_out = request.state.session_data
-            if session_in != session_out:
-                if not session_in:
-                    await self.create_session(request, response, session_out)
-                else:
-                    await self.update_session(request, session_out)
-            return response
-        else:
-            return await call_next(request)
+            else:
+                user_data = None
+            request.state.session_data = self.create_session_for_user(user_data)
+        request.state.session_data._session_manager = self
+        response = await call_next(request)
+        request.state.session_data._session_manager = None
+        session_out = request.state.session_data.model_copy(deep=True)
+        request.state.session_data._session_manager = self
+        if session_in != session_out:
+            if not session_in:
+                await self.create_session(request, response, session_out)
+            else:
+                await self.update_session(request, session_out)
+        return response
 
     def upload_file(self, session_id: str, file: UploadFile):
         blob_name = f"session-{session_id}/{file.filename}"

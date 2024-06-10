@@ -9,52 +9,13 @@
     box-sizing: border-box;
 }
 
-
-.chat-container {
+app-chat-view {
     flex: auto;
     padding: 10px;
     overflow-y: scroll;
     position: relative;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
-}
-
-.connection-status {
-    position: absolute;
-    top: 0;
-    right: 0.8em;
-    z-index: 1;
-    padding: 5px;
-    font-size: 20px;
-    font-weight: bold;
-    color: black;
-    border: none
-}
-
-.message {
-    padding: 10px;
-    margin: 5px;
-    margin-top: 10px;
-    border-radius: 20px;
-    color: black;
-    background-color: white;
-    position: relative;
-    max-width: 90%;
-    font-size: 16px;
-    line-height: 1.4;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-}
-
-.message p:last-child {
-    margin-bottom: 0 !important;
-}
-
-.message .action-buttons {
-    display: inline-block;
-    position: absolute;
-    bottom: -10px;
-    right: -5px;
 }
 
 .input-area {
@@ -75,15 +36,12 @@
     font-size: 12px;
 }
 
-
 .input-bar {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     width: 100%;
 }
-
-
 
 .input-area textarea {
     flex: 1;
@@ -103,31 +61,6 @@
     bottom: calc(3rem + 14px);
     right: 0.8em;
     z-index: 1;
-}
-
-.user {
-    align-self: flex-end;
-    border-radius: 20px 20px 0px 20px;
-}
-
-.ai {
-    background-color: #ececec;
-    align-self: flex-start;
-    border-radius: 20px 20px 20px 0px;
-}
-
-.error {
-    background-color: #e29292;
-    align-self: flex-start;
-    border-radius: 20px 20px 20px 0px;
-}
-
-.connected {
-    color: green
-}
-
-.disconnected {
-    color: red
 }
 
 .loading-spinner {
@@ -206,7 +139,6 @@
     z-index: 1;
 }
 
-
 .sidenav mat-list-item.handset:first-child {
     padding-left: 48px;
 }
@@ -262,10 +194,4 @@
     /* Upewnienie się, że spinner jest na wierzchu */
     background-color: rgba(0, 0, 0, 0.5);
     /* Przezroczyste tło */
-}
-
-.message mat-chip-set {
-    margin-left: 0.2rem;
-    margin-right: 0.2rem;
-    opacity: 0.8;
 }

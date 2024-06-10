@@ -1,0 +1,86 @@
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+        [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false"
+        [class.handset]="isHandset">
+        @if (isHandset$ | async) {
+        <button class="back" mat-icon-button (click)="drawer.toggle()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        }
+        <mat-action-list>
+            <mat-list-item [class.handset]="isHandset">
+                <a class="side-menu-item" matLine (click)="newChat()">New chat [{{model}}]</a>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" xPosition="before">
+                    @for( model of models; track model) {
+                    <button mat-menu-item (click)="setModel(model)">{{model}}</button>
+                    }
+                </mat-menu>
+            </mat-list-item>
+        </mat-action-list>
+        <app-chat-list (loadEvent)="loadChat($event)" (deleteEvent)="deleteChat($event)">
+        </app-chat-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar color="primary">
+            @if (isHandset$ | async) {
+            <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()">
+                <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+            </button>
+            }
+            <span>AI Chat</span>
+            <div class="flex-spacer"></div>
+            @if (!(isHandset$ | async)) {
+            <img src="{{ authService.user?.photoUrl }}" class="profile-photo" alt="User profile"
+                referrerpolicy="no-referrer">
+            }
+            <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
+                <mat-icon>logout</mat-icon>
+            </button>
+        </mat-toolbar>
+        <div class="chat" [class.handset]="isHandset">
+            <app-chat-view #container (editMessageEvent)="changeMessage($event)"
+                (cancelGeneratingEvent)="cancelGenerating()">
+            </app-chat-view>
+            @if(chatService.waitingForResponse || chatService.isTyping) {
+            <button class="cancel-generating" mat-mini-fab (click)="cancelGenerating()"
+                [matTooltip]="chatService.waitingForResponse ? 'Cancel generating' : 'Stop typing, show all'"
+                [color]="chatService.waitingForResponse ? 'warn' : ''">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            }
+            @if(progressSpinner) {
+            <div class="spinner-overlay">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+            </div>
+            }
+            <div class="input-area" (drop)="sessionService.onFileDropped($event)" (dragover)="$event.preventDefault()">
+                <mat-chip-set class="files-bar">
+                    @for (file of sessionService.selectedFiles; track file; let index=$index) {
+                    <mat-chip-row (removed)="sessionService.removeFile(index)"
+                        [class]="'background-progress-' + sessionService.uploadProgress[index]">
+                        {{file.name}}
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    }
+                </mat-chip-set>
+                <div class="input-bar">
+                    <button mat-icon-button matTooltip="Select file or drop here"
+                        (click)="sessionService.openFileDialog()">
+                        <mat-icon>attach_file</mat-icon>
+                    </button>
+                    <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
+                        [disabled]="sendingMessageDisabled()" placeholder="Type a message..."></textarea>
+                    <button mat-icon-button matTooltip="Send message" (click)="sendMessageAsync()"
+                        [disabled]="sendingMessageDisabled()">
+                        <mat-icon>send</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

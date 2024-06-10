@@ -2,7 +2,12 @@ import datetime
 import unittest
 
 from gcp import FileStorage
-from chat_service import ChatHistoryException, ChatMessage, ChatService, ChatSession
+from app.chat.chat_service import (
+    ChatHistoryException,
+    ChatMessage,
+    ChatService,
+    ChatSession,
+)
 
 model_name = "gemini-1.0-pro-002"
 
