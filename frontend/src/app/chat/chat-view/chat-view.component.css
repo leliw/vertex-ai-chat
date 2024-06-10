@@ -1,8 +1,8 @@
 /*
 There should be used :host, but it is not working when Encapsulation is set to None,
-so I have to use .chat-container which is set in parent
+so I have to set it in parent
 */
-.chat-container{
+/* :host {
     padding: 10px;
     overflow-y: scroll;
     position: relative;
@@ -10,7 +10,7 @@ so I have to use .chat-container which is set in parent
     flex-direction: column;
     box-sizing: border-box;
     height: 100%;
-}
+} */
 
 .message {
     padding: 10px;
@@ -36,18 +36,18 @@ so I have to use .chat-container which is set in parent
     right: -5px;
 }
 
-.user {
+.message.user {
     align-self: flex-end;
     border-radius: 20px 20px 0px 20px;
 }
 
-.ai {
+.message.ai {
     background-color: #ececec;
     align-self: flex-start;
     border-radius: 20px 20px 20px 0px;
 }
 
-.error {
+.message.error {
     background-color: #e29292;
     align-self: flex-start;
     border-radius: 20px 20px 20px 0px;

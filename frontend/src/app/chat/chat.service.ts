@@ -39,6 +39,7 @@ export class ChatService {
     public chat!: ChatSession;
     public isLoading = false;
     public waitingForResponse = false;
+    public isTyping = false;
 
     private endpoint = '/api/chats';
     private connected$ = new BehaviorSubject<boolean>(false);

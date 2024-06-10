@@ -34,6 +34,7 @@ export class ChatViewComponent {
         this.currentAnswer = '';
         this.currentTypeIndex = 0;
         this.typeAnswer();
+        this.chatService.isTyping = true;
     }
 
     addAnswerChunk(chunk: string) {
@@ -42,8 +43,10 @@ export class ChatViewComponent {
 
     stopTyping() {
         // Stop typing
-        this.currentTypeIndex = this.currentAnswer.length
+        this.currentTypeIndex = this.currentAnswer.length;
+        this.chatService.chat.history[this.chatService.chat.history.length - 1].content = this.currentAnswer;
         this.chatService.waitingForResponse = false;
+        this.chatService.isTyping = false;
     }
 
     private typeAnswer() {
@@ -53,8 +56,11 @@ export class ChatViewComponent {
             this.currentTypeIndex++;
             this.scrollBottom();
             setTimeout(() => this.typeAnswer(), 10);
-        } else if (this.chatService.waitingForResponse)
+        } else if (this.chatService.waitingForResponse) {
             setTimeout(() => this.typeAnswer(), 10);
+        } else {
+            this.chatService.isTyping = false;
+        }
     }
 
     cancelGenerating() {

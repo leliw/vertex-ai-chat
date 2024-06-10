@@ -11,6 +11,11 @@
 
 app-chat-view {
     flex: auto;
+    padding: 10px;
+    overflow-y: scroll;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .input-area {
@@ -31,15 +36,12 @@ app-chat-view {
     font-size: 12px;
 }
 
-
 .input-bar {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     width: 100%;
 }
-
-
 
 .input-area textarea {
     flex: 1;
@@ -136,7 +138,6 @@ app-chat-view {
     left: 0;
     z-index: 1;
 }
-
 
 .sidenav mat-list-item.handset:first-child {
     padding-left: 48px;

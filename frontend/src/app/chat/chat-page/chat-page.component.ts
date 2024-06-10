@@ -13,7 +13,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import {  Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
+import { Observable, Subscription, filter, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ConfigService } from '../../shared/config/config.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -41,7 +41,7 @@ import { SessionService } from '../../shared/session.service';
 export class ChatPageComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
-    @ViewChild('container') container!: ChatViewComponent;
+    @ViewChild('container') chatView!: ChatViewComponent;
 
     models: string[] = [];
     model!: string;
@@ -101,23 +101,23 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.sessionService.clearFiles()
             this.chatService.chat.history.push(message);
             const newMessage = { author: "user", content: this.newMessage }
-            this.container.scrollBottom();
+            this.chatView.scrollBottom();
             this.newMessage = '';
             this.chatService.waitingForResponse = true;
-            this.container.startTyping()
+            this.chatView.startTyping()
             this.chatService.chat.history.push({ author: "ai", content: "" });
             this.dataSubscription = this.chatService.send_async(this.model, newMessage).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
-                        this.container.addAnswerChunk(chunk.value);
+                        this.chatView.addAnswerChunk(chunk.value);
                     } else if (chunk.type.startsWith("error")) {
-                        this.container.stopTyping()
+                        this.chatView.stopTyping()
                         if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
                             this.chatService.chat.history.pop();
                         const errorClass = chunk.type.split(":")[1];
                         const errorMessage = "```\n" + chunk.value + "\n```"
                         this.chatService.chat.history.push({ author: "error", content: `### ${errorClass}\n\n${errorMessage}` });
-                        setTimeout(() => this.container.scrollBottom(), 100);
+                        setTimeout(() => this.chatView.scrollBottom(), 100);
                     }
                 },
                 complete: () => {
@@ -136,7 +136,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         this.chatService.get(chat_session_id).subscribe(() => {
             if (this.isHandset)
                 this.drawerContainer.close();
-            setTimeout(() => this.container.scrollBottom(), 100);
+            setTimeout(() => this.chatView.scrollBottom(), 100);
             this.progressSpinner = false;
             this.newMessage = '';
             this.sessionService.clearFiles()
@@ -146,14 +146,19 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
 
     cancelGenerating() {
-        // Cancel the current request
-        this.dataSubscription.unsubscribe();
-        if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
-            this.chatService.chat.history.pop();
-        const question = this.chatService.chat.history.pop();
-        if (question)
-            this.newMessage = question.content ?? '';
-        this.chatService.putChatSession(this.chatService.chat).subscribe();
+        if (this.chatService.waitingForResponse) {
+            // Cancel the current request
+            this.dataSubscription.unsubscribe();
+            if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
+                this.chatService.chat.history.pop();
+            const question = this.chatService.chat.history.pop();
+            if (question)
+                this.newMessage = question.content ?? '';
+            this.chatService.putChatSession(this.chatService.chat).subscribe();
+        } else {
+            // Stop typing
+            this.chatView.stopTyping();
+        }
     }
 
     deleteChat(chat_session_id: string) {
@@ -174,7 +179,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
 
     sendingMessageDisabled(): boolean {
-        return this.chatService.isLoading || this.chatService.waitingForResponse;
+        return this.chatService.isLoading || this.chatService.waitingForResponse || this.chatService.isTyping;
     }
 
 }

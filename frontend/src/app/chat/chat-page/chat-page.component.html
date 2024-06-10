@@ -44,6 +44,13 @@
             <app-chat-view #container (editMessageEvent)="changeMessage($event)"
                 (cancelGeneratingEvent)="cancelGenerating()">
             </app-chat-view>
+            @if(chatService.waitingForResponse || chatService.isTyping) {
+            <button class="cancel-generating" mat-mini-fab (click)="cancelGenerating()"
+                [matTooltip]="chatService.waitingForResponse ? 'Cancel generating' : 'Stop typing, show all'"
+                [color]="chatService.waitingForResponse ? 'warn' : ''">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            }
             @if(progressSpinner) {
             <div class="spinner-overlay">
                 <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
