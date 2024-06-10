@@ -37,12 +37,12 @@ class KnowledgeBaseStorage(Storage):
     def find_nearest(self, text: str) -> List[KnowledgeBaseItem]:
         """Finds the nearest knowledge base items to the given string."""
         embedding = self.vertex_ai_fatory.embed_text(
-            text=text, model_name=self.embedding_model
+            text=text, model_name=self.embedding_model, task = 'QUESTION_ANSWERING'
         )
         vq: VectorQuery = self._coll_ref.find_nearest(
             vector_field="embedding",
             query_vector=Vector(embedding),
-            distance_measure=DistanceMeasure.EUCLIDEAN,
+            distance_measure=DistanceMeasure.COSINE,
             limit=self.embedding_search_limit,
         ).get()
         ret = [KnowledgeBaseItem(**ds.to_dict()) for ds in vq]
