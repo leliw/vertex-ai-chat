@@ -2,7 +2,11 @@
 
 from typing import List, Optional
 import vertexai
-from vertexai.generative_models import GenerativeModel, ChatSession as VertexaiChatSession, Content
+from vertexai.generative_models import (
+    GenerativeModel,
+    ChatSession as VertexaiChatSession,
+    Content,
+)
 import vertexai.preview.generative_models as generative_models
 from vertexai.language_models import ChatModel, TextEmbeddingInput, TextEmbeddingModel
 
