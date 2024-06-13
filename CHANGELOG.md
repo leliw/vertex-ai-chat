@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.1 - 2024-06-14
+
+* Refactor + update google-cloud-aiplatform dependency to version 1.55.0
+
 ## Version 0.4.0 - 2024-06-01
 
 * Knowldege Base & embedding search

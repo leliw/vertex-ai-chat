@@ -12,6 +12,7 @@ from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
 
+from app.config import config
 from .chat_model import ChatSessionHeader, ChatSession
 from .message import ChatMessage, ChatMessageFile
 
@@ -39,8 +40,14 @@ class ChatService:
 
     def __init__(self, file_storage: FileStorage):
         self.factory = AIModelFactory()
+        self.model_config = config["generative_model_config"]
+        self.role = config["chatbot_role"]
         self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
-        self.knowledge_base_storage = KnowledgeBaseStorage(self.factory)
+        self.knowledge_base_storage = KnowledgeBaseStorage(
+            self.factory,
+            embedding_model=config["knowledge_base"]["embedding_model"],
+            embedding_search_limit=config["knowledge_base"]["embedding_search_limit"],
+        )
         self.file_storage = file_storage
 
     def get_answer(
@@ -70,11 +77,15 @@ class ChatService:
                 for f in m.files:
                     file_names[f.url] = f.name
         else:
+            chat_session = ChatSession()
             in_history = []
         try:
             context = self.get_context(message.content)
             chat = self.factory.get_chat(
-                model_name=model_name, history=in_history, context=context
+                model_name=model_name,
+                history=in_history,
+                context=context,
+                config=self.model_config,
             )
             parts = []
             parts.append(Part.from_text(message.content))
@@ -104,8 +115,8 @@ class ChatService:
 
     def get_context(self, text: str) -> str:
         """Get the context of the chat session."""
-        neartest = self.knowledge_base_storage.find_nearest(text)
-        context = ""
+        neartest = self.knowledge_base_storage.find_nearest(f"{self.role}\n{text}")
+        context = self.role + "\n\n"
         for n in neartest:
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context
