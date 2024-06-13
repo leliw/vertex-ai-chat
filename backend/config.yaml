@@ -7,3 +7,10 @@ oauth_client_id:
 knowledge_base:
   embedding_model: text-multilingual-embedding-002
   embedding_search_limit: 5
+
+generative_model_config:
+  max_output_tokens: 8192
+  temperature: 0.9
+  top_p: 0.95
+
+chatbot_role: 
