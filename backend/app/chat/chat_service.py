@@ -116,7 +116,10 @@ class ChatService:
     def get_context(self, text: str) -> str:
         """Get the context of the chat session."""
         neartest = self.knowledge_base_storage.find_nearest(f"{self.role}\n{text}")
-        context = self.role + "\n\n"
+        if self.role:
+            context = self.role + "\n\n"
+        else:
+            context = ""
         for n in neartest:
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context
