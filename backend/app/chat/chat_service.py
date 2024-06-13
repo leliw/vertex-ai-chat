@@ -85,7 +85,7 @@ class ChatService:
                 model_name=model_name,
                 history=in_history,
                 context=context,
-                config=self.model_config
+                config=self.model_config,
             )
             parts = []
             parts.append(Part.from_text(message.content))

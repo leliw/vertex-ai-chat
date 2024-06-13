@@ -41,7 +41,7 @@ class AIModelFactory:
         config: tuple[str, Any] = None,
     ) -> GenerativeModel:
         """Create a Gemini model.
-        
+
         Config as tuple is reqired by cache!!!
         """
         config = dict(config) or {
