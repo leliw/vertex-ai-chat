@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from google.api_core import exceptions
 from google.cloud import firestore
+from base import logger
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory
@@ -49,6 +50,7 @@ class ChatService:
             embedding_search_limit=config["knowledge_base"]["embedding_search_limit"],
         )
         self.file_storage = file_storage
+        self.logger = logger.get_logger(__name__)
 
     def get_answer(
         self, model_name: str, history: list[ChatMessage], message: ChatMessage
@@ -70,15 +72,15 @@ class ChatService:
     ) -> Iterator[StreamedEvent]:
         """Get an answer from the model."""
         file_names = {}
-        if chat_session and chat_session.history:
-            in_history = []
+        in_history = []
+        if not chat_session:
+            chat_session = ChatSession()
+        if chat_session.history:
             for m in chat_session.history:
                 in_history.append(m.to_content())
                 for f in m.files:
                     file_names[f.url] = f.name
-        else:
-            chat_session = ChatSession()
-            in_history = []
+
         try:
             context = self.get_context(message.content)
             chat = self.factory.get_chat(

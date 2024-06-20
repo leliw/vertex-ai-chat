@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.3 - 2024-06-20
+
+^ Minor fix
+
 ## Version 0.4.1 - 2024-06-14
 
 * Refactor + update google-cloud-aiplatform dependency to version 1.55.0
