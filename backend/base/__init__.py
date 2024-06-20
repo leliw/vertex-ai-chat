@@ -1,4 +1,5 @@
 from .static_files import static_file_response
+from . import logger
 from .base_storage import BaseStorage, T
 from .session_manager import (
     BasicSessionBackend,
@@ -14,4 +15,5 @@ __all__ = [
     "BasicSessionManager",
     "BasicSessionBackend",
     "InvalidSessionException",
+    "logger",
 ]
