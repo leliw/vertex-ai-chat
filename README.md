@@ -1,6 +1,6 @@
 # Vertex AI chat
 
-Chat application for general purposes usig `VertexAI` and `gemini-1.5-pro-preview` model.
+Chat application for general purposes usig `VertexAI` and `gemini-1.*` models.
 
 ## Changelog
 
