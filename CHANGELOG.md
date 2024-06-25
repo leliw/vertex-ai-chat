@@ -1,8 +1,12 @@
 # Changelog
 
+## Version 0.5.0
+
+* Voice recognition
+
 ## Version 0.4.3 - 2024-06-20
 
-^ Minor fix
+* Minor fix
 
 ## Version 0.4.1 - 2024-06-14
 

@@ -75,7 +75,7 @@
                     </button>
                     <textarea matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessageAsync()"
                         [disabled]="sendingMessageDisabled()" placeholder="Type a message..."></textarea>
-                    <app-speech-recognition-button (transcriptEvent)="newMessage = $event"
+                    <app-speech-recognition-button [timeout]="2000" (transcriptEvent)="newMessage = $event"
                         (timeoutEvent)="sendMessageAsync()"></app-speech-recognition-button>
                     <button mat-icon-button matTooltip="Send message" (click)="sendMessageAsync()"
                         [disabled]="sendingMessageDisabled()">
