@@ -1,0 +1,8 @@
+<button mat-icon-button [matTooltip]="isHearing ? 'I\'m hearing' : 'Talk to me'"
+    (click)="isHearing ? stopRecognition() : startRecognition()">
+    @if (!isHearing) {
+    <mat-icon>microphone</mat-icon>
+    } @else {
+    <mat-icon>hearing</mat-icon>
+    }
+</button>
