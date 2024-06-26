@@ -112,7 +112,9 @@ class SessionManager(BasicSessionManager[SessionModel]):
             if self.o_auth.requre_auth(request):
                 user_data = self.o_auth.verify_token(request)
                 if not user_data:
-                    return JSONResponse(status_code=401, content={'reason': "Unauthorized"})
+                    return JSONResponse(
+                        status_code=401, content={"reason": "Unauthorized"}
+                    )
             else:
                 user_data = None
             request.state.session_data = self.create_session_for_user(user_data)

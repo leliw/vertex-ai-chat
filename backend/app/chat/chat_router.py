@@ -20,7 +20,7 @@ class ChatRouter:
         self.router.include_router(message_router.router, prefix="/message")
 
     async def get_all(self, request: Request) -> list[ChatSessionHeader]:
-        if (request.state.session_data.user):
+        if request.state.session_data.user:
             return await self.service.get_all(request.state.session_data.user.email)
         else:
             return []
