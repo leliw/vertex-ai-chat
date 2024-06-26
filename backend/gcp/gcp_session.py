@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Type, TypeVar
 from uuid import uuid4
 from fastapi import HTTPException, Request, Response, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi_sessions.backends.session_backend import SessionBackend
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -110,6 +111,10 @@ class SessionManager(BasicSessionManager[SessionModel]):
             session_in = None
             if self.o_auth.requre_auth(request):
                 user_data = self.o_auth.verify_token(request)
+                if not user_data:
+                    return JSONResponse(
+                        status_code=401, content={"reason": "Unauthorized"}
+                    )
             else:
                 user_data = None
             request.state.session_data = self.create_session_for_user(user_data)

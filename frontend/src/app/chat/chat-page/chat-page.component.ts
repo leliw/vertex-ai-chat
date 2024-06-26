@@ -20,6 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChatListComponent } from "../chat-list/chat-list.component";
 import { ChatViewComponent } from "../chat-view/chat-view.component";
 import { SessionService } from '../../shared/session.service';
+import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognition-button/speech-recognition-button.component";
 
 
 @Component({
@@ -36,7 +37,7 @@ import { SessionService } from '../../shared/session.service';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent]
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent]
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
 
