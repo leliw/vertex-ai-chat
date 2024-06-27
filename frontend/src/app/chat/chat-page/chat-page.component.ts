@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { ChatService } from '../chat.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -38,12 +39,13 @@ import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognitio
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent]
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent, TextFieldModule]
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatSidenavContainer) drawerContainer!: MatSidenavContainer;
     @ViewChild('container') chatView!: ChatViewComponent;
+    @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
 
     models: string[] = [];
     model!: string;
@@ -68,7 +70,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         );
     isHandset!: boolean;
 
-    constructor(public authService: AuthService, private config: ConfigService,  private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
+    constructor(public authService: AuthService, private config: ConfigService, private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
         // Get the initial messages from the server
         this.chatService.get_models().subscribe(models => {
             this.models = models;
@@ -132,7 +134,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
                     }
                 },
                 complete: () => {
-                    this.speechSynthesis.endChunks(); 
+                    this.speechSynthesis.endChunks();
                     this.isSpeech = false;
                     this.chatService.waitingForResponse = false;
                 }
@@ -149,7 +151,10 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         this.chatService.get(chat_session_id).subscribe(() => {
             if (this.isHandset)
                 this.drawerContainer.close();
-            setTimeout(() => this.chatView.scrollBottom(), 100);
+            setTimeout(() => {
+                this.chatView.scrollBottom();
+                this.messageInput.nativeElement.focus()
+            }, 100);
             this.progressSpinner = false;
             this.newMessage = '';
             this.sessionService.clearFiles()
@@ -162,7 +167,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         if (this.chatService.waitingForResponse) {
             // Cancel the current request
             this.dataSubscription.unsubscribe();
-            this.chatService.waitingForResponse= false;
+            this.chatService.waitingForResponse = false;
             if (this.chatService.chat.history[this.chatService.chat.history.length - 1].author == "ai")
                 this.chatService.chat.history.pop();
             const question = this.chatService.chat.history.pop();
@@ -196,4 +201,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         return this.chatService.isLoading || this.chatService.waitingForResponse || this.chatService.isTyping;
     }
 
+    stopTyping() {
+        setTimeout(() => this.messageInput.nativeElement.focus(), 100);
+    }
 }
