@@ -1,6 +1,9 @@
-<button #button mat-icon-button [matTooltip]="isHearing ? 'I\'m hearing' : 'Talk to me'"
-    (click)="isHearing ? stopRecognition() : startRecognition()">
-    @if (!isHearing) {
+<button #button mat-icon-button
+    [matTooltip]="speechSynthesisService.isSpeaking? 'Stop speaking' : (isHearing ? 'I\'m hearing' : 'Talk to me')"
+    (click)="speechSynthesisService.isSpeaking ? speechSynthesisService.stopSpeaking() : (isHearing ? stopRecognition() : startRecognition())">
+    @if (speechSynthesisService.isSpeaking) {
+    <mat-icon class="pulsating-icon">campaign</mat-icon>
+    } @else if (!isHearing) {
     <mat-icon>microphone</mat-icon>
     } @else if (progresPercent > 25) {
     <mat-icon>stop</mat-icon>

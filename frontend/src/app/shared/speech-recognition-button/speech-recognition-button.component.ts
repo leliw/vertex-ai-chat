@@ -3,6 +3,7 @@ import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { SpeechSynthesisService } from '../speech-synthesis.service';
 
 @Component({
     selector: 'app-speech-recognition-button',
@@ -36,10 +37,10 @@ export class SpeechRecognitionButtonComponent {
     progresPercent: number = 0;
 
 
-    constructor() {
+    constructor(public speechSynthesisService: SpeechSynthesisService) {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
-        this.recognition.lang = 'pl-PL';
+        this.recognition.lang = navigator.language || 'en-US';
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
         this.recognition.maxAlternatives = 1;
