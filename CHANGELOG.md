@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.1 - 2024-06-27
+
+* text-to-speach
+* focus on message input
+* resizing message input
+
 ## Version 0.5.0 - 2024-06-25
 
 * Voice recognition

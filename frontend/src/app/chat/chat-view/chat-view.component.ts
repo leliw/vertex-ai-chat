@@ -18,6 +18,7 @@ import { MarkdownPipe } from '../../shared/markdown.pipe';
 })
 export class ChatViewComponent {
     @Output() editMessageEvent = new EventEmitter<number>();
+    @Output() stopTypingEvent = new EventEmitter<void>();
     @Output() cancelGeneratingEvent = new EventEmitter<void>();
 
     actionButtons?: number = undefined;
@@ -47,6 +48,7 @@ export class ChatViewComponent {
         this.chatService.chat.history[this.chatService.chat.history.length - 1].content = this.currentAnswer;
         this.chatService.waitingForResponse = false;
         this.chatService.isTyping = false;
+        this.stopTypingEvent.emit();
     }
 
     private typeAnswer() {
@@ -59,6 +61,7 @@ export class ChatViewComponent {
         } else if (this.chatService.waitingForResponse) {
             setTimeout(() => this.typeAnswer(), 10);
         } else {
+            this.stopTypingEvent.emit();
             this.chatService.isTyping = false;
         }
     }
