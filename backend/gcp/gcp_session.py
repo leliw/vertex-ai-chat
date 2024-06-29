@@ -73,8 +73,12 @@ class SessionManager(BasicSessionManager[SessionModel]):
 
     async def auth(self, request: Request, response: Response):
         code = request.query_params.get("code")
-        user_data = await self.o_auth.auth(code)
-        await self.create_session(response, SessionData(user=user_data))
+        if code:
+            user_data = await self.o_auth.auth(code)
+        else:
+            user_data = self.o_auth.verify_token(request)
+        data = self.create_session_for_user(user_data)
+        await self.create_session(request, response, data)
         return user_data
 
     async def session_reader(

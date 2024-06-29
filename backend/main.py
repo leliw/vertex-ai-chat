@@ -43,7 +43,7 @@ async def login_google(request: Request):
 
 @app.get("/api/auth")
 async def auth_google(request: Request, response: Response):
-    return session_manager.auth(request, response)
+    return await session_manager.auth(request, response)
 
 
 @app.post("/api/logout")
