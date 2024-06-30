@@ -1,0 +1,17 @@
+mat-card {
+    min-width: 400px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+mat-checkbox.form-field {
+    padding-bottom: 10px;
+    position: relative;
+}
+
+mat-checkbox.form-field mat-error {
+    position: absolute;
+    bottom: 0px;
+    left: 44px;
+    font-size: var(--mat-form-field-subscript-text-size);
+}
