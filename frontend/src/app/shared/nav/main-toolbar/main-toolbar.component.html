@@ -1,0 +1,16 @@
+<mat-toolbar color="primary">
+    @if (isHandset$ | async) {
+    <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawerToggle.emit()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    }
+    <span>AI Chat</span>
+    <div class="flex-spacer"></div>
+    @if (!(isHandset$ | async)) {
+    <img src="{{ authService.getUserPhotoUrl() }}" class="profile-photo" alt="User profile"
+        referrerpolicy="no-referrer">
+    }
+    <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
+        <mat-icon>logout</mat-icon>
+    </button>
+</mat-toolbar>
