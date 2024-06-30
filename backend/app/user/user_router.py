@@ -13,10 +13,10 @@ class UserRouter:
             self.get_all
         )
 
-    async def register(self, user: User):
+    async def register(self, request: Request, user: User):
         self.service.create(user)
+        request.state.session_data.api_user = user
         return user
     
     async def get_all(self):
-        print("get_all")
         return self.service.get_all() 

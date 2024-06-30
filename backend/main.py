@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 
 
 from app.chat.chat_router import ChatRouter
-from app.user import UserService, UserRouter
+from app.user import User, UserService, UserRouter
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
@@ -23,6 +23,7 @@ from app.chat.chat_service import (
 
 class SessionData(BaseSessionData):
     chat_session: Optional[ChatSession] = None
+    api_user: Optional[User] = None
 
 
 load_dotenv()
@@ -64,7 +65,11 @@ async def logout(request: Request, response: Response):
 
 @app.get("/api/user")
 async def user_get(request: Request):
-    return request.state.session_data.user
+    if not request.state.session_data.api_user:
+        request.state.session_data.api_user = user_service.get(
+            request.state.session_data.user.email
+        )
+    return request.state.session_data.api_user
 
 
 @app.get("/api/config")
