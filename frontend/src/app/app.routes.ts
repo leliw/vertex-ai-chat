@@ -6,6 +6,12 @@ export const routes: Routes = [
     { path: '', redirectTo: '/chat', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
     {
+        path: 'register', canActivate: [authGuard],
+        loadComponent: () =>
+            import('./register/register.component')
+                .then(mod => mod.RegisterComponent)
+    },
+    {
         path: 'chat', canActivate: [authGuard],
         loadComponent: () =>
             import('./chat/chat-page/chat-page.component')

@@ -33,7 +33,7 @@
             <span>AI Chat</span>
             <div class="flex-spacer"></div>
             @if (!(isHandset$ | async)) {
-            <img src="{{ authService.user?.photoUrl }}" class="profile-photo" alt="User profile"
+            <img src="{{ authService.getUserPhotoUrl() }}" class="profile-photo" alt="User profile"
                 referrerpolicy="no-referrer">
             }
             <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
