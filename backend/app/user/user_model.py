@@ -12,4 +12,5 @@ class UserHeader(BaseModel):
 
 
 class User(UserHeader):
+    terms_accepted: bool = Field(False, alias="termsAccepted")
     picture_url: Optional[str] = Field(None, alias="pictureUrl")
