@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../shared/auth/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,7 @@ import { ApiService, ApiUser } from '../shared/api.service';
     selector: 'app-register',
     standalone: true,
     imports: [
+        RouterModule, 
         ReactiveFormsModule,
         MatFormFieldModule, FormsModule,
         MatInputModule, MatCheckboxModule, MatButtonModule,

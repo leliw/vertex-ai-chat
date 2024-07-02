@@ -37,7 +37,7 @@
                 <input matInput formControlName="name">
             </mat-form-field>
 
-            <mat-checkbox class="form-field" formControlName="termsAccepted">Akceptuję warunki korzystania z serwisu
+            <mat-checkbox class="form-field" formControlName="termsAccepted">Akceptuję <a routerLink="/static/terms-of-service" >warunki korzystania z serwisu</a> oraz <a routerLink="/static/privacy-policy">politykę prywatności</a>
                 @if (form.get('termsAccepted')?.hasError('required')) {
                 <mat-error>Musisz zaakceptować warunki</mat-error>
                 }
