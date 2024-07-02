@@ -17,6 +17,6 @@ class UserRouter:
         self.service.create(user)
         request.state.session_data.api_user = user
         return user
-    
+
     async def get_all(self):
-        return self.service.get_all() 
+        return self.service.get_all()

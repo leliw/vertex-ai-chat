@@ -19,7 +19,9 @@ class UserService:
         return self.storage.get(email)
 
     def get_all(self) -> List[UserHeader]:
-        return [UserHeader(**i.model_dump(by_alias=True)) for i in self.storage.get_all()]
+        return [
+            UserHeader(**i.model_dump(by_alias=True)) for i in self.storage.get_all()
+        ]
 
     def update(self, email: str, user: User) -> Optional[User]:
         self.storage.put(email, user)
