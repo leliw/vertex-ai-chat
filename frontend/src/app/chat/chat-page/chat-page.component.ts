@@ -23,6 +23,7 @@ import { ChatViewComponent } from "../chat-view/chat-view.component";
 import { SessionService } from '../../shared/session.service';
 import { SpeechSynthesisService } from '../../shared/speech-synthesis.service';
 import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognition-button/speech-recognition-button.component";
+import { MainToolbarComponent } from '../../shared/nav/main-toolbar/main-toolbar.component';
 
 
 @Component({
@@ -39,7 +40,9 @@ import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognitio
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent, TextFieldModule]
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent, TextFieldModule,
+        MainToolbarComponent
+    ]
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
 

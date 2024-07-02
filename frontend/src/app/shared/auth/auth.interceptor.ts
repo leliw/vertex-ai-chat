@@ -5,7 +5,7 @@ import { catchError } from 'rxjs';
 import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    if (req.url.endsWith('/api/config')) {
+    if (req.url.endsWith('/api/config') || req.url.endsWith('/api/user')) {
         return next(req);
     } else {
         const router = inject(Router);

@@ -15,8 +15,11 @@ class BaseStorage(ABC, Generic[T]):
         pass
 
     def save(self, value: T) -> None:
-        key = getattr(value, self.key_name)
+        key = self.get_key(value)
         self.put(key, value)
+
+    def get_key(self, value: T) -> str:
+        return getattr(value, self.key_name)
 
     @abstractmethod
     def get(self, key: str) -> T:

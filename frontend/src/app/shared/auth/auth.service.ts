@@ -1,60 +1,108 @@
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { Injectable, inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { ApiService } from '../api.service';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { ApiService, ApiUser } from '../api.service';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-
-    user: SocialUser | null = null;
-    loggedIn: boolean = false;
+    isLoading = true;
+    socialUser: SocialUser | null = null;
+    apiUser: ApiUser | null = null;
 
     constructor(private router: Router, private socialAuthService: SocialAuthService, private apiService: ApiService) {
-        const jsonUser = localStorage.getItem("user")
+        const jsonUser = localStorage.getItem("socialUser")
         if (jsonUser) {
-            this.user = JSON.parse(jsonUser);
-            this.loggedIn = (this.user != null);
+            this.socialUser = JSON.parse(jsonUser);
+            this.apiService.getUser().subscribe({
+                next: (apiUser) => {
+                    this.apiUser = apiUser;
+                    this.router.navigate(['/'])
+                    this.isLoading = false;
+                },
+                error: (err) => {
+                    if (err.status == 404)
+                        this.router.navigate(['/register']);
+                    else
+                        this.router.navigate(['/login']);
+                }
+            });
+        } else {
+            this.isLoading = false;
         }
-        this.socialAuthService.authState.subscribe((user) => {
-            this.user = user;
-            localStorage.setItem("user", JSON.stringify(user))
-            this.loggedIn = (user != null);
-            this.router.navigate(['/']);
+        this.socialAuthService.authState.subscribe((socialUser) => {
+            this.socialUser = socialUser;
+            if (socialUser) {
+                localStorage.setItem("socialUser", JSON.stringify(socialUser));
+                this.getApiUserAndRedirect();
+            }
+        });
+    }
+
+    private getApiUserAndRedirect(): void {
+        this.apiService.auth().subscribe({
+            next: (apiUser) => {
+                this.apiUser = apiUser;
+                this.router.navigate(['/'])
+            },
+            error: (err) => {
+                if (err.status == 404)
+                    this.router.navigate(['/register']);
+                else
+                    this.router.navigate(['/login']);
+            }
         });
     }
 
     public signOut(): void {
         this.socialAuthService.signOut();
-        this.user = null;
-        localStorage.removeItem("user");
-        this.loggedIn = false;
         this.apiService.logout().subscribe(
-            () => this.router.navigate(['/login'])
+            () => {
+                this.router.navigate(['/login']);
+                localStorage.removeItem("socialUser");
+                this.socialUser = null;
+                this.apiUser = null;
+            }
         );
     }
 
     public getToken(): string {
-        const jsonUser = localStorage.getItem("user")
-        if (jsonUser)
-            this.user = JSON.parse(jsonUser);
-        return this.user?.idToken ?? '';
+        if (!this.socialUser) {
+            const jsonUser = localStorage.getItem("socialUser")
+            if (jsonUser)
+                this.socialUser = JSON.parse(jsonUser);
+        }
+        return this.socialUser?.idToken ?? '';
     }
 
-    public canActivate(): boolean {
-        // Check if the user is logged in
-        this.loggedIn = localStorage.getItem("user") != null;
-        if (this.loggedIn)
-            return true;
-        else {
+    public getUserPhotoUrl(): string {
+        return this.socialUser?.photoUrl ?? '';
+    }
+
+    public isAuthenticated(): boolean {
+        return this.socialUser != null;
+    }
+
+    public isRegistered(): boolean {
+        return this.apiUser != null;
+    }
+
+    public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        if (!this.isAuthenticated()) {
             this.router.navigate(['/login']);
             return false;
+        } else if (!this.isRegistered() && route.url[0].path != 'register') {
+            this.router.navigate(['/register']);
+            return false;
+        } else {
+            return true;
         }
     }
 
 }
 
-export const authGuard: CanActivateFn = (route, state) => {
-    return inject(AuthService).canActivate();
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    return inject(AuthService).canActivate(route, state);
 };

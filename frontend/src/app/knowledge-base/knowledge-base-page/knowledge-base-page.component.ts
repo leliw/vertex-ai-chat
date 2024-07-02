@@ -10,11 +10,14 @@ import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { MainToolbarComponent } from '../../shared/nav/main-toolbar/main-toolbar.component';
 
 @Component({
     selector: 'app-knowledge-base-page',
     standalone: true,
-    imports: [RouterOutlet, MatSidenavModule, MatListModule, MatMenuModule, MatToolbarModule, MatButtonModule, MatIconModule, AsyncPipe],
+    imports: [RouterOutlet, MatSidenavModule, MatListModule, MatMenuModule, MatToolbarModule, MatButtonModule, MatIconModule, AsyncPipe,
+        MainToolbarComponent
+    ],
     templateUrl: './knowledge-base-page.component.html',
     styleUrl: './knowledge-base-page.component.css',
     encapsulation: ViewEncapsulation.None,

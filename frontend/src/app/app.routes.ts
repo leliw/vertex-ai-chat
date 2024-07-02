@@ -4,7 +4,25 @@ import { authGuard } from './shared/auth/auth.service';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/chat', pathMatch: 'full' },
+    {
+        path: 'static/terms-of-service',
+        loadComponent: () =>
+            import('./static/terms-of-service/terms-of-service.component')
+                .then(mod => mod.TermsOfServiceComponent)
+    },
+    {
+        path: 'static/privacy-policy',
+        loadComponent: () =>
+            import('./static/privacy-policy/privacy-policy.component')
+                .then(mod => mod.PrivacyPolicyComponent)
+    },
     { path: 'login', component: LoginComponent },
+    {
+        path: 'register', canActivate: [authGuard],
+        loadComponent: () =>
+            import('./register/register.component')
+                .then(mod => mod.RegisterComponent)
+    },
     {
         path: 'chat', canActivate: [authGuard],
         loadComponent: () =>

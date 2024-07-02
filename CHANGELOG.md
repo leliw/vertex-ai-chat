@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.2 - 2024-07-02
+
+* user registration
+* term of services
+* privacy policy
+
 ## Version 0.5.1 - 2024-06-27
 
 * text-to-speach

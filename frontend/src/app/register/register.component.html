@@ -1,0 +1,52 @@
+@if (!authService.isLoading && !authService.isRegistered()) {
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>Rejestracja</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <mat-form-field appearance="fill" class="full-width">
+                <mat-label>e-mail</mat-label>
+                <input matInput formControlName="email" type="email">
+                @if (form.get('email')?.hasError('required')) {
+                <mat-error>Podaj adres email</mat-error>
+                }
+                @if (form.get('email')?.hasError('email')) {
+                <mat-error>Nieprawidłowy format adresu email</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Imię</mat-label>
+                <input matInput formControlName="firstName">
+                @if (form.get('firstName')?.hasError('required')) {
+                <mat-error>Podaj swoje imię</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Nazwisko</mat-label>
+                <input matInput formControlName="lastName">
+                @if (form.get('lastName')?.hasError('required')) {
+                <mat-error>Podaj swoje nazwisko</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Nazwa</mat-label>
+                <input matInput formControlName="name">
+            </mat-form-field>
+
+            <mat-checkbox class="form-field" formControlName="termsAccepted">Akceptuję <a routerLink="/static/terms-of-service" >warunki korzystania z serwisu</a> oraz <a routerLink="/static/privacy-policy">politykę prywatności</a>
+                @if (form.get('termsAccepted')?.hasError('required')) {
+                <mat-error>Musisz zaakceptować warunki</mat-error>
+                }
+            </mat-checkbox>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">Register</button>
+        </mat-card-actions>
+    </mat-card>
+</form>
+}

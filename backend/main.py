@@ -4,10 +4,11 @@ import os
 from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 
 from app.chat.chat_router import ChatRouter
+from app.user import User, UserService, UserRouter
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
@@ -22,6 +23,7 @@ from app.chat.chat_service import (
 
 class SessionData(BaseSessionData):
     chat_session: Optional[ChatSession] = None
+    api_user: Optional[User] = None
 
 
 load_dotenv()
@@ -41,9 +43,19 @@ async def login_google(request: Request):
     return session_manager.redirect_login(request)
 
 
+user_service = UserService()
+app.include_router(UserRouter(user_service).router, prefix="/api")
+
+
 @app.get("/api/auth")
 async def auth_google(request: Request, response: Response):
-    return session_manager.auth(request, response)
+    user_data = await session_manager.auth(request, response)
+    if user_data:
+        user = user_service.get(user_data["email"])
+        if user:
+            return JSONResponse(status_code=200, content=user_data)
+        else:
+            return JSONResponse(status_code=404, content=user_data)
 
 
 @app.post("/api/logout")
@@ -53,7 +65,11 @@ async def logout(request: Request, response: Response):
 
 @app.get("/api/user")
 async def user_get(request: Request):
-    return request.state.session_data.user
+    if not request.state.session_data.api_user:
+        request.state.session_data.api_user = user_service.get(
+            request.state.session_data.user.email
+        )
+    return request.state.session_data.api_user
 
 
 @app.get("/api/config")
