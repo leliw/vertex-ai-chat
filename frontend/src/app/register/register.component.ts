@@ -33,7 +33,7 @@ export class RegisterComponent {
     });
 
     constructor(
-        private authService: AuthService,
+        public authService: AuthService,
         private router: Router,
         private snackBar: MatSnackBar,
         private apiService: ApiService,

@@ -8,7 +8,7 @@ import { ApiService, ApiUser } from '../api.service';
     providedIn: 'root'
 })
 export class AuthService {
-
+    isLoading = true;
     socialUser: SocialUser | null = null;
     apiUser: ApiUser | null = null;
 
@@ -20,6 +20,7 @@ export class AuthService {
                 next: (apiUser) => {
                     this.apiUser = apiUser;
                     this.router.navigate(['/'])
+                    this.isLoading = false;
                 },
                 error: (err) => {
                     if (err.status == 404)
@@ -28,6 +29,8 @@ export class AuthService {
                         this.router.navigate(['/login']);
                 }
             });
+        } else {
+            this.isLoading = false;
         }
         this.socialAuthService.authState.subscribe((socialUser) => {
             this.socialUser = socialUser;
@@ -85,7 +88,6 @@ export class AuthService {
     public isRegistered(): boolean {
         return this.apiUser != null;
     }
-
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
         if (!this.isAuthenticated()) {

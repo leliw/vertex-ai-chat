@@ -1,3 +1,4 @@
+@if (!authService.isLoading && !authService.isRegistered()) {
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <mat-card>
         <mat-card-header>
@@ -48,3 +49,4 @@
         </mat-card-actions>
     </mat-card>
 </form>
+}
