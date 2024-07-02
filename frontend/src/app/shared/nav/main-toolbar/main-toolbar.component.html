@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-    @if (isHandset$ | async) {
+    @if (drawer && (isHandset$ | async)) {
     <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawerToggle.emit()">
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
@@ -10,7 +10,21 @@
     <img src="{{ authService.getUserPhotoUrl() }}" class="profile-photo" alt="User profile"
         referrerpolicy="no-referrer">
     }
-    <button mat-icon-button aria-label="Logout" (click)="authService.signOut()">
-        <mat-icon>logout</mat-icon>
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
     </button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="/chat" routerLinkActive="active-link">
+            <mat-icon>chat</mat-icon>
+            <span>Chat</span>
+        </button>
+        <button mat-menu-item routerLink="/knowledge-base" routerLinkActive="active-link">
+            <mat-icon>folder</mat-icon>
+            <span>Knowledge base</span>
+        </button>
+        <button mat-menu-item (click)="authService.signOut()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+        </button>
+    </mat-menu>
 </mat-toolbar>

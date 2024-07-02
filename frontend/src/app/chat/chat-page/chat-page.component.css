@@ -116,7 +116,6 @@ app-chat-view {
 }
 
 .sidenav {
-    position: relative;
     min-width: 15%;
     max-width: 30%;
 }
