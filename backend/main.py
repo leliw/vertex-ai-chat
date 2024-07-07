@@ -11,6 +11,8 @@ from app.chat.chat_router import ChatRouter
 from app.user import User, UserService, UserRouter
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
+import google.generativeai as genai
+
 
 from app.config import config
 from app.knowledge_base import KnowledgeBaseRouter
@@ -32,6 +34,8 @@ config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+print("API key:", os.environ["GOOGLE_API_KEY"])
 
 @app.middleware("http")
 async def add_session_data(request: Request, call_next):
