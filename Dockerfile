@@ -35,4 +35,4 @@
     VOLUME /storage
     VOLUME /workspace
     EXPOSE 8080
-    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
+    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "-k", "uvicorn.workers.UvicornWorker", "app.main:app"]
