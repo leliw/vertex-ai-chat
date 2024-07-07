@@ -1,6 +1,9 @@
 """This module contains dependencies for FastAPI endpoints."""
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, Request
+
+load_dotenv()
 
 
 class InsufficientPermissionsError(HTTPException):

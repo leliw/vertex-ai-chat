@@ -2,7 +2,7 @@
 
 import os
 from typing import List, Optional
-from dotenv import load_dotenv
+
 from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
@@ -12,12 +12,13 @@ from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
 
 from app.config import config
-from app.knowledge_base import KnowledgeBaseRouter
 
 from app.chat.chat_service import (
     ChatService,
     ChatSession,
 )
+
+from .routers import knowledge_base
 
 
 class SessionData(BaseSessionData):
@@ -25,7 +26,6 @@ class SessionData(BaseSessionData):
     api_user: Optional[User] = None
 
 
-load_dotenv()
 app = FastAPI()
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
@@ -103,8 +103,7 @@ def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
 
 
-knowledge_base_router = KnowledgeBaseRouter()
-app.include_router(knowledge_base_router.router, prefix="/api/knowledge-base")
+app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
 
 
 # Angular static files - it have to be at the end of file
