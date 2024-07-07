@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from main import app, session_manager, SessionData
+from app.main import app, session_manager, SessionData
 
 
 class CookieAwareTestClient(TestClient):
