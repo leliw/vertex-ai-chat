@@ -5,8 +5,10 @@ from pydantic import BaseModel, Field
 from google.generativeai.types.content_types import ContentDict
 from google.generativeai.types.file_types import FileDataDict
 
+
 class ChatMessageFile(BaseModel):
     """File in chat message."""
+
     name: Optional[str] = Field("")
     url: str
     mime_type: str
@@ -14,6 +16,7 @@ class ChatMessageFile(BaseModel):
 
 class ChatMessage(BaseModel):
     """One chat message."""
+
     author: Literal["user", "ai"]
     content: str
     files: Optional[list[ChatMessageFile]] = Field([])
@@ -34,7 +37,9 @@ class ChatMessage(BaseModel):
         )
 
     @classmethod
-    def from_content(cls, content: ContentDict, file_names: dict[str, str]) -> ChatMessage:
+    def from_content(
+        cls, content: ContentDict, file_names: dict[str, str]
+    ) -> ChatMessage:
         """Convert ContentDict to ChatMessage."""
         files = []
         for part in content.parts:

@@ -13,10 +13,11 @@ class TestAIAgent(unittest.TestCase):
 
         self.assertIn("George Washington", response)
 
-
     def test_chat(self):
         chat = self.agent.start_chat()
-        response = chat.send_message("Who was the first president of the United States?")
+        response = chat.send_message(
+            "Who was the first president of the United States?"
+        )
         history = chat.get_history()
         self.assertIn("George Washington", response)
         chat = self.agent.start_chat(history)
@@ -25,9 +26,10 @@ class TestAIAgent(unittest.TestCase):
 
     def test_chat_streaming(self):
         chat = self.agent.start_chat(enable_automatic_function_calling=False)
-        g = chat.send_message_streaming("Who was the first president of the United States?")
+        g = chat.send_message_streaming(
+            "Who was the first president of the United States?"
+        )
         response = ""
         for chunk in g:
             response += chunk.text
         self.assertIn("George Washington", response)
-
