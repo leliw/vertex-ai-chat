@@ -5,11 +5,14 @@ from uuid import uuid4
 
 from google.api_core import exceptions
 from google.cloud import firestore
+from google.generativeai.types.content_types import ContentDict
+from google.generativeai.types.file_types import FileDataDict
+
+from ai_agents import AIAgent
 from base import logger
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory
-from vertexai.generative_models import Content, Part, GenerationResponse
 
 from gcp import Storage
 
@@ -56,9 +59,10 @@ class ChatService:
         self, model_name: str, history: list[ChatMessage], message: ChatMessage
     ) -> tuple[ChatMessage, list[ChatMessage]]:
         """Get an answer from the model."""
+        ai_agent = AIAgent(model_name=model_name)
         in_history = [m.to_content() for m in history]
-        chat = self.factory.get_chat(model_name=model_name, history=in_history)
-        response: GenerationResponse = chat.send_message(message.content, stream=False)
+        chat = ai_agent.start_chat(history=in_history)
+        response = chat.send_message_streaming(message.content, stream=False)
         ret = ChatMessage(author="ai", content=response.text)
         out_history = [ChatMessage.from_content(m, {}) for m in chat.history]
         return (ret, out_history)
@@ -83,28 +87,23 @@ class ChatService:
 
         try:
             context = self.get_context(message.content)
-            chat = self.factory.get_chat(
-                model_name=model_name,
-                history=in_history,
-                context=context,
-                config=self.model_config,
-            )
-            parts = []
-            parts.append(Part.from_text(message.content))
+            ai_agent = AIAgent(model_name=model_name, system_instruction=context)
+            chat = ai_agent.start_chat(history=in_history)
+            parts = [message.content]
             for file in files:
                 chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
                 self.file_storage.move_blob(file.url, chat_blob_name)
                 uri = f"gs://{self.file_storage.bucket_name}/{chat_blob_name}"
-                parts.append(Part.from_uri(uri, mime_type=file.mime_type))
+                parts.append(FileDataDict(uri, mime_type=file.mime_type))
                 file_names[uri] = file.name
-            content = Content(role="user", parts=parts)
-            responses = chat.send_message(content, stream=True)
+            content = ContentDict(role="user", parts=parts)
+            responses = chat.send_message_streaming(content)
             for response in responses:
                 if response.text:
                     yield StreamedEvent(type="text", value=response.text)
                 # await asyncio.sleep(0.1)
             out_history = [
-                ChatMessage.from_content(m, file_names) for m in chat.history
+                ChatMessage.from_content(m, file_names) for m in chat.get_history()
             ]
             chat_session.history = out_history
             if not chat_session.summary:
