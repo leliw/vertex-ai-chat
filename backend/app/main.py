@@ -18,7 +18,7 @@ from app.chat.chat_service import (
     ChatSession,
 )
 
-from .routers import knowledge_base
+from .routers import agents, knowledge_base
 
 
 class SessionData(BaseSessionData):
@@ -102,7 +102,7 @@ def files_post(request: Request, files: List[UploadFile] = File(...)):
 def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
 
-
+app.include_router(agents.router, prefix="/api/agents")
 app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
 
 
