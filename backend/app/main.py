@@ -1,23 +1,18 @@
 """Main file for FastAPI server"""
 
-import os
 from typing import List, Optional
 
 from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_router import ChatRouter
+from app.chat.chat_service import ChatSession
+from app.routers import chats_message
 from app.user import User, UserService, UserRouter
 from base import static_file_response
-from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
+from gcp import SessionManager, SessionData as BaseSessionData
 
-from app.config import config
-
-from app.chat.chat_service import (
-    ChatService,
-    ChatSession,
-)
-
+from app.dependencies import ConfigDep, file_storage, chat_service
 from .routers import agents, knowledge_base
 
 
@@ -27,8 +22,6 @@ class SessionData(BaseSessionData):
 
 
 app = FastAPI()
-config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
 
@@ -72,7 +65,7 @@ async def user_get(request: Request):
 
 
 @app.get("/api/config")
-async def read_config():
+async def read_config(config: ConfigDep):
     """Return config from yaml file"""
     return config
 
@@ -83,11 +76,10 @@ def ping():
 
 
 @app.get("/api/models")
-def models_get_all() -> list[str]:
+def models_get_all(config: ConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-chat_service = ChatService(file_storage)
 chat_router = ChatRouter(chat_service)
 app.include_router(chat_router.router, prefix="/api/chats")
 
@@ -102,8 +94,11 @@ def files_post(request: Request, files: List[UploadFile] = File(...)):
 def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
 
+
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
+app.include_router(chats_message.router, prefix="/api/chats/message")
+
 
 
 # Angular static files - it have to be at the end of file

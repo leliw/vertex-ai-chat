@@ -1,48 +1,45 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
-from ..agent import Agent, AgentService
+from app.dependencies import AgentServiceDep, UserEmailDep
+
+from ..agent import Agent
 
 
-service = AgentService()
 router = APIRouter(
     tags=["agent"],
 )
-AGENT_PATH = "/{agemt_name}"
+AGENT_PATH = "/{agent_name}"
 
 
 @router.post("", response_model=Agent)
-def create(request: Request, agent: Agent):
+def create(agent: Agent, user_email: UserEmailDep, service: AgentServiceDep):
     """Creates a new AI agent for current user."""
-    user_email = request.state.session_data.user.email
     service.create(user_email, agent)
     return agent
 
 
 @router.get("", response_model=list[str])
-def get_all(request: Request):
+def get_all(user_email: UserEmailDep, service: AgentServiceDep):
     """Returns a list of AI agents for current user."""
-    user_email = request.state.session_data.user.email
     return service.get_all(user_email)
 
 
 @router.get(AGENT_PATH, response_model=Agent)
-def get(request: Request, agent_name: str):
+def get(agent_name: str, user_email: UserEmailDep, service: AgentServiceDep):
     """Returns an AI agent by name."""
-    user_email = request.state.session_data.user.email
-    agent = service.get(user_email, agent_name)
-    return agent
+    return service.get(user_email, agent_name)
 
 
 @router.put(AGENT_PATH, response_model=Agent)
-def put(request: Request, agent_name: str, agent: Agent):
+def put(
+    agent_name: str, agent: Agent, user_email: UserEmailDep, service: AgentServiceDep
+):
     """Updates an AI agent."""
-    user_email = request.state.session_data.user.email
     service.put(user_email, agent_name, agent)
     return agent
 
 
 @router.delete(AGENT_PATH)
-def delete(request: Request, agent_name: str):
+def delete(agent_name: str, user_email: UserEmailDep, service: AgentServiceDep):
     """Deletes an AI agent."""
-    user_email = request.state.session_data.user.email
     service.delete(user_email, agent_name)
