@@ -73,7 +73,7 @@ export class ChatService {
             }));
     }
 
-    send_async(model: string, message: ChatMessage): Observable<StreamedEvent> {
+    send_async(agent: string, message: ChatMessage): Observable<StreamedEvent> {
         if (this.chat && !this.chats.some(chat => chat.chat_session_id == this.chat.chat_session_id)) {
             this.chats.unshift({
                 chat_session_id: this.chat.chat_session_id,
@@ -85,7 +85,7 @@ export class ChatService {
         let lastCommaIndex = 0;
         return new Observable(observer => {
             let buffer = '';
-            let params = new HttpParams().set('model', model);
+            let params = new HttpParams().set('agent', agent);
             this.httpClient.post(`${this.endpoint}/message`, message, {
                 params: params,
                 responseType: 'text',

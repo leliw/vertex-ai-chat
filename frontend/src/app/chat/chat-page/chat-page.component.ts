@@ -24,6 +24,7 @@ import { SessionService } from '../../shared/session.service';
 import { SpeechSynthesisService } from '../../shared/speech-synthesis.service';
 import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognition-button/speech-recognition-button.component";
 import { MainToolbarComponent } from '../../shared/nav/main-toolbar/main-toolbar.component';
+import { AgentService } from '../../agent/agent.service';
 
 
 @Component({
@@ -50,9 +51,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     @ViewChild('container') chatView!: ChatViewComponent;
     @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
 
-    models: string[] = [];
-    model!: string;
-
     sessionChanged = false;
     newMessage = '';
     progressSpinner = false;
@@ -73,15 +71,20 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         );
     isHandset!: boolean;
 
+    agentService = inject(AgentService);
+    agents!: string[];
+    selectedAgent!: string;
+
     constructor(public authService: AuthService, private config: ConfigService, private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
         // Get the initial messages from the server
-        this.chatService.get_models().subscribe(models => {
-            this.models = models;
-            this.model = models[0];
-            this.chatService.get_all().subscribe(chats => {
-                this.newChat()
-                setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
-            });
+        this.agentService.get_all().subscribe(agents => {
+            this.agents = agents;
+            this.selectedAgent = agents[0];
+        });
+
+        this.chatService.get_all().subscribe(chats => {
+            this.newChat()
+            setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
         });
         this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }
@@ -92,10 +95,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.chatService.disconect();
-    }
-
-    setModel(model: string) {
-        this.model = model;
     }
 
     async sendMessageAsync() {
@@ -118,7 +117,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.chatService.waitingForResponse = true;
             this.chatView.startTyping()
             this.chatService.chat.history.push({ author: "ai", content: "" });
-            this.dataSubscription = this.chatService.send_async(this.model, newMessage).subscribe({
+            this.dataSubscription = this.chatService.send_async(this.selectedAgent, newMessage).subscribe({
                 next: (chunk) => {
                     if (chunk.type == "text") {
                         this.chatView.addAnswerChunk(chunk.value);

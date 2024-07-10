@@ -9,13 +9,13 @@
         }
         <mat-action-list>
             <mat-list-item [class.handset]="isHandset">
-                <a class="side-menu-item" matLine (click)="newChat()">New chat [{{model}}]</a>
+                <a class="side-menu-item" matLine (click)="newChat()">New chat [{{selectedAgent}}]</a>
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu" xPosition="before">
-                    @for( model of models; track model) {
-                    <button mat-menu-item (click)="setModel(model)">{{model}}</button>
+                    @for( agent of agents; track agent) {
+                    <button mat-menu-item (click)="selectedAgent = agent">{{agent}}</button>
                     }
                 </mat-menu>
             </mat-list-item>
