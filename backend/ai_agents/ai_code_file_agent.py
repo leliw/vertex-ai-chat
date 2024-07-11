@@ -10,11 +10,13 @@ class AICodeFileAgent(AIAgent):
 
     def __init__(
         self,
+        model_name: str,
         system_instruction: str,
         generation_config: dict[str, Any] = None,
         safety_settings: dict = None,
     ) -> None:
         super().__init__(
+            model_name,
             system_instruction
             + "\nPrzed każdym kodem podawaj proponowaną ścieżkę i nazwę pliku dla tego kodu jako nagłowek 2 markdown.",
             generation_config,
@@ -44,13 +46,22 @@ class AICodeFileAgent(AIAgent):
                 full_path = f
             if full_path.exists():
                 ret += f"\n## {f}\n\n"
-                ext = full_path.suffix[1:]
+                lang = cls._decode_language(full_path.suffix[1:])
                 with open(full_path, "r", encoding="utf8") as i:
-                    ret += f"```{ext}\n{i.read()}\n```\n"
+                    ret += f"```{lang}\n{i.read()}\n```\n"
         return ret
 
     @classmethod
-    def _extract_code_files(cls, markdown_text: str) -> tuple[Path, str]:
+    def _decode_language(cls, file_ext: str) -> str:
+        if (file_ext == 'py'):
+            return 'python'
+        elif (file_ext == 'ts'):
+            return 'Typescript'
+        else:
+            return file_ext
+
+    @classmethod
+    def _extract_code_files(cls, markdown_text: str) -> list[tuple[Path, str]]:
         """
         Funkcja wyciąga nagłówki i kod z pliku Markdown, zachowując kolejność.
 
@@ -65,7 +76,7 @@ class AICodeFileAgent(AIAgent):
         current_code_block = None
 
         for line in markdown_text.splitlines():
-            if line.startswith("#"):
+            if current_code_block is None and line.startswith("#"):
                 # Nowy nagłówek
                 if current_header:
                     headers_and_code.append(
@@ -87,8 +98,8 @@ class AICodeFileAgent(AIAgent):
                 current_code_block += "\n"
 
         # Dodaj ostatni nagłówek i kod do listy
-        if current_header:
-            headers_and_code.append((Path(current_header), current_code_block[0]))
+        if current_header and current_code_block:
+                headers_and_code.append((Path(current_header), current_code_block[0]))
 
         return headers_and_code
 
