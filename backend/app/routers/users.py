@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 
 from app.dependencies import Authorize
 
-from ..user import User, UserService
+from ..user import UserHeader, User, UserService
 
 service = UserService()
 router = APIRouter(tags=["users"])
@@ -16,7 +16,7 @@ async def register(request: Request, user: User):
 
 
 @router.get("/users", dependencies=[Depends(Authorize("admin"))])
-async def get_all():
+async def get_all()  -> list[UserHeader]:
     return service.get_all()
 
 
