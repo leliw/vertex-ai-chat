@@ -25,6 +25,7 @@ import { SpeechSynthesisService } from '../../shared/speech-synthesis.service';
 import { SpeechRecognitionButtonComponent } from "../../shared/speech-recognition-button/speech-recognition-button.component";
 import { MainToolbarComponent } from '../../shared/nav/main-toolbar/main-toolbar.component';
 import { AgentService } from '../../agent/agent.service';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
@@ -34,6 +35,7 @@ import { AgentService } from '../../agent/agent.service';
     styleUrl: './chat-page.component.css',
     encapsulation: ViewEncapsulation.None,
     imports: [CommonModule,
+        RouterModule,
         MatToolbarModule,
         MatChipsModule,
         MatButtonModule,
