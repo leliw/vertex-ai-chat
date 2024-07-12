@@ -51,5 +51,29 @@ export const routes: Routes = [
                         .then(mod => mod.KnowledgeBaseFormComponent)
             },
         ]
+    },
+    {
+        path: 'agents', canActivate: [authGuard],
+        loadComponent: () =>
+            import('./agent/agent-page/agent-page.component')
+                .then(mod => mod.AgentPageComponent),
+        children: [
+            {
+                path: '', canActivate: [authGuard], loadComponent: () =>
+                    import('./agent/agent-table/agent-table.component')
+                        .then(mod => mod.AgentTableComponent)
+            },
+            {
+                path: 'create', canActivate: [authGuard], loadComponent: () =>
+                    import('./agent/agent-form/agent-form.component')
+                        .then(mod => mod.AgentFormComponent)
+            },
+            {
+                path: ':id/edit', canActivate: [authGuard], loadComponent: () =>
+                    import('./agent/agent-form/agent-form.component')
+                        .then(mod => mod.AgentFormComponent)
+            },
+        ]
     }
 ];
+

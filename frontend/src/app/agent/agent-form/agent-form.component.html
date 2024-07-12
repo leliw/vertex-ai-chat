@@ -1,0 +1,57 @@
+<form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+    <mat-card class="shipping-card">
+        <mat-card-header>
+            <mat-card-title>Agent</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Name</mat-label>
+                        <input matInput placeholder="Name" formControlName="name">
+                        @if (form.controls['name'].hasError('required')) {
+                        <mat-error>Name is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Description</mat-label>
+                        <textarea matInput rows=4 placeholder="Description" formControlName="description"></textarea>
+                        @if (form.controls['description'].hasError('required')) {
+                        <mat-error>Description is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Model Name</mat-label>
+                        <input matInput placeholder="Model Name" formControlName="model_name">
+                        @if (form.controls['model_name'].hasError('required')) {
+                        <mat-error>Model Name is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>System Prompt</mat-label>
+                        <textarea matInput rows=8 placeholder="System Prompt" formControlName="system_prompt"></textarea>
+                        @if (form.controls['system_prompt'].hasError('required')) {
+                        <mat-error>System Prompt is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+        </mat-card-actions>
+    </mat-card>
+</form>

@@ -17,7 +17,7 @@
                     @for( agent of agents; track agent) {
                     <button mat-menu-item (click)="selectedAgent = agent">{{agent}}</button>
                     }
-                    <button mat-menu-item routerLink="agents/create">
+                    <button mat-menu-item routerLink="/agents/create">
                         <mat-icon>add</mat-icon>
                         <span>Add new agent</span>
                     </button>
