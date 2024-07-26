@@ -62,7 +62,12 @@ class AIAgent:
     def run(self, prompt: str) -> str:
         """Run the model with the given prompt and return the response."""
         response = self.generate_content([prompt])
-        return response.text
+        try:
+            return response.text
+        except ValueError as e:
+            self._logger.error(f"Error running AI Agent: {e}")
+            self._logger.error(response)
+            return ""
 
     def start_chat(
         self,

@@ -74,6 +74,25 @@ export const routes: Routes = [
                         .then(mod => mod.AgentFormComponent)
             },
         ]
+    },
+    {
+        path: 'users', canActivate: [authGuard],
+        loadComponent: () =>
+            import('./user/user-page/user-page.component')
+                .then(mod => mod.UserPageComponent),
+        children: [
+            {
+                path: '', canActivate: [authGuard], loadComponent: () =>
+                    import('./user/user-table/user-table.component')
+                        .then(mod => mod.UserTableComponent)
+            },
+            {
+                path: ':email/edit', canActivate: [authGuard], loadComponent: () =>
+                    import('./user/user-form/user-form.component')
+                        .then(mod => mod.UserFormComponent)
+            },
+        ]
     }
 ];
+
 

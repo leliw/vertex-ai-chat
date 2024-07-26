@@ -1,0 +1,68 @@
+<form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+    <mat-card class="shipping-card">
+        <mat-card-header>
+            <mat-card-title>User</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Email</mat-label>
+                        <input matInput placeholder="Email" formControlName="email">
+                        @if (form.controls['email'].hasError('required')) {
+                        <mat-error>Email is <strong>required</strong></mat-error>
+                        }
+                        @if (form.controls['email'].hasError('email')) {
+                        <mat-error>Please enter a valid email address</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Given name</mat-label>
+                        <input matInput placeholder="Given name" formControlName="given_name">
+                        @if (form.controls['given_name'].hasError('required')) {
+                        <mat-error>Given name is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Family name</mat-label>
+                        <input matInput placeholder="Family name" formControlName="family_name">
+                        @if (form.controls['family_name'].hasError('required')) {
+                        <mat-error>Family name is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <mat-form-field class="full-width">
+                        <mat-label>Picture URL</mat-label>
+                        <input matInput placeholder="Picture URL" formControlName="picture">
+                        @if (form.controls['picture'].hasError('required')) {
+                        <mat-error>Picture URL is <strong>required</strong></mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="full-width">
+                        <mat-checkbox formControlName="terms_accepted">Terms accepted</mat-checkbox>
+                        @if (form.controls['terms_accepted'].hasError('required')) {
+                        <mat-error>Terms must be <strong>accepted</strong></mat-error>
+                        }
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit">Submit</button>
+        </mat-card-actions>
+    </mat-card>
+</form>
