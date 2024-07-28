@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from ampf_local.json_multi_files_storage import JsonMultiFilesStorage
 from ampf_local.json_one_file_storage import JsonOneFileStorage
 
 
