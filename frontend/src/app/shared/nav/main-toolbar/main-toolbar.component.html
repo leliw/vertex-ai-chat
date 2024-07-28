@@ -26,10 +26,12 @@
             <mat-icon>folder</mat-icon>
             <span>Knowledge base</span>
         </button>
+        @if (authService.hasRole('admin')) {
         <button mat-menu-item routerLink="/users" routerLinkActive="active-link">
             <mat-icon>people</mat-icon>
             <span>Users</span>
         </button>
+        }
         <button mat-menu-item (click)="authService.signOut()">
             <mat-icon>logout</mat-icon>
             <span>Logout</span>

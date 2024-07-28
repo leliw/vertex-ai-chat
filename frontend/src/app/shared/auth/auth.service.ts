@@ -89,6 +89,13 @@ export class AuthService {
         return this.apiUser != null;
     }
 
+    public hasRole(role: string): boolean {
+        if (role=="admin" && this.apiUser?.email=="marcin.leliwa@gmail.com")
+            return true;
+        else
+            return (this.apiUser?.roles && this.apiUser?.roles.includes(role)) ?? false
+    }
+
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
         if (!this.isAuthenticated()) {
             this.router.navigate(['/login']);

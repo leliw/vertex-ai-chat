@@ -9,6 +9,7 @@ export interface ApiUser {
     firstName: string;
     lastName: string;
     termsAccepted: boolean;
+    roles: string[];
 }
 
 @Injectable({
