@@ -7,6 +7,9 @@ from .agent_model import Agent
 class AgentService:
     """Service for managing AI agent definitions."""
 
+    def __init__(self, config: dict):
+        self.config = config
+
     def _crete_storage(self, user_email: str):
         """Create storage for agents of a given user."""
         return Storage(f"users/{user_email}/agents", Agent, key_name="name")
@@ -30,7 +33,12 @@ class AgentService:
     def get_all(self, user_email: str):
         """Return a list of agent names for a given user."""
         storage = self._crete_storage(user_email)
-        return storage.keys()
+        keys = list(storage.keys())
+        if not keys:
+            model_name = self.config.get("default_model")
+            self.create_default(user_email, model_name=model_name)
+            keys = [model_name]
+        return keys
 
     def get(self, user_email: str, agent_name: str):
         """Return an agent by name."""

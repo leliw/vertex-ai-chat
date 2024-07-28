@@ -39,7 +39,7 @@ load_dotenv()
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 chat_service = ChatService(file_storage)
-agent_service = AgentService()
+agent_service = AgentService(config)
 
 UserEmailDep = Annotated[str, Depends(get_current_user_id)]
 ConfigDep = Annotated[dict, Depends(lambda: config)]
