@@ -2,7 +2,6 @@ from fastapi import APIRouter, Request
 
 
 from .chat_model import ChatSession, ChatSessionHeader
-from .message.message_router import ChatMessageRouter
 
 
 class ChatRouter:
@@ -15,9 +14,6 @@ class ChatRouter:
         self.router.get(ID_PATH, response_model=ChatSession)(self.get)
         self.router.put(ID_PATH)(self.chat_session_update)
         self.router.delete(ID_PATH)(self.chat_delete)
-
-        message_router = ChatMessageRouter(chat_service)
-        self.router.include_router(message_router.router, prefix="/message")
 
     async def get_all(self, request: Request) -> list[ChatSessionHeader]:
         if request.state.session_data.user:

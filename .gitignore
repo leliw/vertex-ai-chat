@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 backend/static/**
 .keys/*
+backend/data/**

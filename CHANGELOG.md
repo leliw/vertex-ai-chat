@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.5.4 - 2024-07-28
+
+* AI Agnets
+* Users CRUD
+
 ## Version 0.5.3 - 2024-07-07
 
 * Google library changed from `vertexai.generative_models` to `google.generativeai`

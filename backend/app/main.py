@@ -1,23 +1,19 @@
 """Main file for FastAPI server"""
 
-import os
 from typing import List, Optional
-from dotenv import load_dotenv
+
 from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_router import ChatRouter
-from app.user import User, UserService, UserRouter
+from app.chat.chat_service import ChatSession
+from app.routers import chats_message
+from app.user import User
 from base import static_file_response
-from gcp import SessionManager, SessionData as BaseSessionData, FileStorage
+from gcp import SessionManager, SessionData as BaseSessionData
 
-from app.config import config
-from app.knowledge_base import KnowledgeBaseRouter
-
-from app.chat.chat_service import (
-    ChatService,
-    ChatSession,
-)
+from app.dependencies import ConfigDep, file_storage, chat_service
+from .routers import users, agents, knowledge_base
 
 
 class SessionData(BaseSessionData):
@@ -25,10 +21,7 @@ class SessionData(BaseSessionData):
     api_user: Optional[User] = None
 
 
-load_dotenv()
 app = FastAPI()
-config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
 
@@ -42,15 +35,14 @@ async def login_google(request: Request):
     return session_manager.redirect_login(request)
 
 
-user_service = UserService()
-app.include_router(UserRouter(user_service).router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 
 
 @app.get("/api/auth")
 async def auth_google(request: Request, response: Response):
     user_data = await session_manager.auth(request, response)
     if user_data:
-        user = user_service.get(user_data["email"])
+        user = users.service.get(user_data["email"])
         if user:
             return JSONResponse(status_code=200, content=user_data)
         else:
@@ -65,14 +57,14 @@ async def logout(request: Request, response: Response):
 @app.get("/api/user")
 async def user_get(request: Request):
     if not request.state.session_data.api_user:
-        request.state.session_data.api_user = user_service.get(
+        request.state.session_data.api_user = users.service.get(
             request.state.session_data.user.email
         )
     return request.state.session_data.api_user
 
 
 @app.get("/api/config")
-async def read_config():
+async def read_config(config: ConfigDep):
     """Return config from yaml file"""
     return config
 
@@ -83,11 +75,10 @@ def ping():
 
 
 @app.get("/api/models")
-def models_get_all() -> list[str]:
+def models_get_all(config: ConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-chat_service = ChatService(file_storage)
 chat_router = ChatRouter(chat_service)
 app.include_router(chat_router.router, prefix="/api/chats")
 
@@ -103,8 +94,9 @@ def files_delete(name: str, request: Request):
     request.state.session_data.delete_file(name)
 
 
-knowledge_base_router = KnowledgeBaseRouter()
-app.include_router(knowledge_base_router.router, prefix="/api/knowledge-base")
+app.include_router(agents.router, prefix="/api/agents")
+app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
+app.include_router(chats_message.router, prefix="/api/chats/message")
 
 
 # Angular static files - it have to be at the end of file

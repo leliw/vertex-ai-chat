@@ -1,12 +1,13 @@
 from typing import List, Optional
 
+from gcp.gcp_storage import Storage
+
 from .user_model import User, UserHeader
-from .user_storage import UserStorage
 
 
 class UserService:
     def __init__(self):
-        self.storage = UserStorage()
+        self.storage = Storage("user", User, key_name="email")
 
     def create(self, user: User) -> User:
         key = self.storage.get_key(user)

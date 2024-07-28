@@ -9,6 +9,7 @@ from google.generativeai.types.content_types import ContentDict
 from google.generativeai.types.file_types import FileDataDict
 
 from ai_agents import AIAgent
+from app.agent.agent_model import Agent
 from base import logger
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
@@ -69,10 +70,11 @@ class ChatService:
 
     def get_answer_async(
         self,
-        model_name: str,
-        chat_session: ChatSession,
         message: ChatMessage,
         files: list[ChatMessageFile],
+        agent: Agent = None,
+        model_name: str = None,
+        chat_session: ChatSession = None,
     ) -> Iterator[StreamedEvent]:
         """Get an answer from the model."""
         file_names = {}
@@ -84,9 +86,10 @@ class ChatService:
                 in_history.append(m.to_content())
                 for f in m.files:
                     file_names[f.url] = f.name
-
+        if agent:
+            model_name = agent.model_name
         try:
-            context = self.get_context(message.content)
+            context = self.get_context(message.content, agent)
             ai_agent = AIAgent(model_name=model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
@@ -114,13 +117,15 @@ class ChatService:
             raise ChatHistoryException(chat_session, e)
         raise ChatHistoryException(chat_session)
 
-    def get_context(self, text: str) -> str:
+    def get_context(self, text: str, agent: Agent = None) -> str:
         """Get the context of the chat session."""
-        neartest = self.knowledge_base_storage.find_nearest(f"{self.role}\n{text}")
-        if self.role:
+        if agent:
+            context = agent.system_prompt + "\n\n"
+        elif self.role:
             context = self.role + "\n\n"
         else:
             context = ""
+        neartest = self.knowledge_base_storage.find_nearest(f"{text}")
         for n in neartest:
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context

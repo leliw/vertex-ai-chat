@@ -3,9 +3,13 @@ from typing import Any, Generator
 from google.generativeai import GenerativeModel, ChatSession
 from google.generativeai.types import content_types, generation_types
 
+from ampf_base.logger import get_logger
+
 
 class AIAgent:
     """Standard AI Agent"""
+
+    _logger = get_logger(__name__)
 
     def __init__(
         self,
@@ -14,6 +18,9 @@ class AIAgent:
         generation_config: dict[str, Any] = None,
         safety_settings: dict = None,
     ) -> None:
+        self._logger.debug(
+            f"Initializing AI Agent with model {model_name}\n{system_instruction}"
+        )
         self.model_name = model_name
         self.system_instruction = system_instruction
         self.generation_config = generation_config or {
@@ -57,7 +64,12 @@ class AIAgent:
     def run(self, prompt: str) -> str:
         """Run the model with the given prompt and return the response."""
         response = self.generate_content([prompt])
-        return response.text
+        try:
+            return response.text
+        except ValueError as e:
+            self._logger.error(f"Error running AI Agent: {e}")
+            self._logger.error(response)
+            return ""
 
     def start_chat(
         self,

@@ -18,9 +18,17 @@
             <mat-icon>chat</mat-icon>
             <span>Chat</span>
         </button>
+        <button mat-menu-item routerLink="/agents" routerLinkActive="active-link">
+            <mat-icon>engineering</mat-icon>
+            <span>Agents</span>
+        </button>
         <button mat-menu-item routerLink="/knowledge-base" routerLinkActive="active-link">
             <mat-icon>folder</mat-icon>
             <span>Knowledge base</span>
+        </button>
+        <button mat-menu-item routerLink="/users" routerLinkActive="active-link">
+            <mat-icon>people</mat-icon>
+            <span>Users</span>
         </button>
         <button mat-menu-item (click)="authService.signOut()">
             <mat-icon>logout</mat-icon>
