@@ -6,19 +6,27 @@ class D(BaseModel):
     name: str
     value: str
 
+
 def test_constructor(tmp_path):
     # test file name - Path with ext
-    t1 = JsonOneFileStorage[D](D, key_name="name", file_name=tmp_path.joinpath("data.json"))
+    t1 = JsonOneFileStorage[D](
+        D, key_name="name", file_name=tmp_path.joinpath("data.json")
+    )
     assert t1.file_name == tmp_path.joinpath("data.json")
     # test file name - Path without ext
     t2 = JsonOneFileStorage[D](D, key_name="name", file_name=tmp_path.joinpath("data"))
     assert t2.file_name == tmp_path.joinpath("data.json")
     # test file name - string with ext
-    t3 = JsonOneFileStorage[D](D, key_name="name", file_name=str(tmp_path.joinpath("data.json")))
+    t3 = JsonOneFileStorage[D](
+        D, key_name="name", file_name=str(tmp_path.joinpath("data.json"))
+    )
     assert t3.file_name == tmp_path.joinpath("data.json")
     # test file name - string without ext
-    t4 = JsonOneFileStorage[D](D, key_name="name", file_name=str(tmp_path.joinpath("data")))
+    t4 = JsonOneFileStorage[D](
+        D, key_name="name", file_name=str(tmp_path.joinpath("data"))
+    )
     assert t4.file_name == tmp_path.joinpath("data.json")
+
 
 def test_simple_key_all(tmp_path):
     t = JsonOneFileStorage[D](D, key_name="name", file_name=tmp_path.joinpath("data"))
@@ -31,6 +39,7 @@ def test_simple_key_all(tmp_path):
     t.delete("foo")
     assert [] == list(t.keys())
     assert t.get("foo") is None
+
 
 def test_folder_key_all(tmp_path):
     t = JsonOneFileStorage[D](D, key_name="name", file_name=tmp_path.joinpath("data"))

@@ -14,7 +14,7 @@ from .file_storage import StrPath
 DEF_EXT = "json"
 
 
-class JsonOneFileStorage[T:BaseModel](BaseStorage[T]):
+class JsonOneFileStorage[T: BaseModel](BaseStorage[T]):
     def __init__(
         self, clazz: Type[T], key_name: str = None, file_name: StrPath = "data.json"
     ):
@@ -41,7 +41,12 @@ class JsonOneFileStorage[T:BaseModel](BaseStorage[T]):
             return {}
 
     def _save_data(self, data: dict[str, T]) -> None:
-        json.dump(data, open(self.file_name, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+        json.dump(
+            data,
+            open(self.file_name, "w", encoding="utf-8"),
+            indent=2,
+            ensure_ascii=False,
+        )
 
     def put(self, key: str, value: T) -> None:
         data = self._load_data()

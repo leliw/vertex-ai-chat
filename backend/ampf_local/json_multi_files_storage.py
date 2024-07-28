@@ -43,13 +43,13 @@ class JsonMultiFilesStorage[T](BaseStorage[T], FileStorage):
             return None
 
     def keys(self) -> Iterator[str]:
-        start_index = len(str(self._root_dir_path))+1
+        start_index = len(str(self._root_dir_path)) + 1
         if self.subfolder_characters:
-            end_index = self.subfolder_characters+1
+            end_index = self.subfolder_characters + 1
         else:
             end_index = 1
         for root, _, files in os.walk(self._root_dir_path):
-            folder = root[start_index:-end_index]    
+            folder = root[start_index:-end_index]
             for file in files:
                 k = f"{folder}/{file}" if folder else file
                 yield k[:-5] if k.endswith(".json") else k

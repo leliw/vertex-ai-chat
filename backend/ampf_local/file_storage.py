@@ -6,7 +6,12 @@ type StrPath = str | Path
 
 
 class FileStorage(ABC):
-    def __init__(self, root_dir: StrPath, subfolder_characters: int = None, default_ext: str = None):
+    def __init__(
+        self,
+        root_dir: StrPath,
+        subfolder_characters: int = None,
+        default_ext: str = None,
+    ):
         self.subfolder_characters = subfolder_characters
         self.default_ext = default_ext
         if isinstance(root_dir, Path):
@@ -20,7 +25,7 @@ class FileStorage(ABC):
         folders = file_name.split("/")
         if self.subfolder_characters:
             file_name = folders.pop()
-            sub_folder = file_name[0:self.subfolder_characters]
+            sub_folder = file_name[0 : self.subfolder_characters]
             return [*folders, sub_folder, file_name]
         else:
             return folders

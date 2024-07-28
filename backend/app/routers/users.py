@@ -16,7 +16,7 @@ async def register(request: Request, user: User):
 
 
 @router.get("/users", dependencies=[Depends(Authorize("admin"))])
-async def get_all()  -> list[UserHeader]:
+async def get_all() -> list[UserHeader]:
     return service.get_all()
 
 
@@ -33,4 +33,3 @@ async def update(email: str, user: User):
 @router.delete("/users/{email}", dependencies=[Depends(Authorize("admin"))])
 async def delete(email: str):
     return service.delete(email)
-

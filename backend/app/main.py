@@ -99,7 +99,6 @@ app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
 app.include_router(chats_message.router, prefix="/api/chats/message")
 
 
-
 # Angular static files - it have to be at the end of file
 @app.get("/{full_path:path}", response_class=HTMLResponse, tags=["static"])
 async def catch_all(_: Request, full_path: str):

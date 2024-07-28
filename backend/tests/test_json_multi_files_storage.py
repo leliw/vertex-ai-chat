@@ -8,7 +8,9 @@ class D(BaseModel):
 
 
 def test_simple_key_all(tmp_path):
-    t = JsonMultiFilesStorage[D](D, key_name="name", root_dir=tmp_path, subfolder_characters=2)
+    t = JsonMultiFilesStorage[D](
+        D, key_name="name", root_dir=tmp_path, subfolder_characters=2
+    )
     d = D(name="foo", value="beer")
     t.put("foo", d)
 
@@ -19,8 +21,11 @@ def test_simple_key_all(tmp_path):
     assert [] == list(t.keys())
     assert t.get("foo") is None
 
+
 def test_folder_key_all(tmp_path):
-    t = JsonMultiFilesStorage[D](D, key_name="name", root_dir=tmp_path, subfolder_characters=2)
+    t = JsonMultiFilesStorage[D](
+        D, key_name="name", root_dir=tmp_path, subfolder_characters=2
+    )
     d = D(name="foo", value="beer")
     t.put("kung/foo", d)
 
