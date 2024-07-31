@@ -1,0 +1,5 @@
+<div class="content">
+    <div [innerHTML]="content | markdown"></div>
+    <hr>
+    Keywords: @for(keyword of keywords; track keyword; let last=$last ){<span>{{keyword}}</span>@if(!last){,} }
+</div>

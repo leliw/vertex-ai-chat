@@ -50,6 +50,11 @@ export const routes: Routes = [
                     import('./knowledge-base/knowledge-base-form/knowledge-base-form.component')
                         .then(mod => mod.KnowledgeBaseFormComponent)
             },
+            {
+                path: ':id/view', canActivate: [authGuard], loadComponent: () =>
+                    import('./knowledge-base/knowledge-base-view/knowledge-base-view.component')
+                        .then(mod => mod.KnowledgeBaseViewComponent)
+            },
         ]
     },
     {

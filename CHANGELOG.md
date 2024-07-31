@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.5 -
+
+* Knowledge base - view page
+
 ## Version 0.5.4 - 2024-07-28
 
 * AI Agnets

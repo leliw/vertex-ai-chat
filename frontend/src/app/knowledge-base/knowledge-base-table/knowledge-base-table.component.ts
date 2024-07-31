@@ -42,6 +42,10 @@ export class KnowledgeBaseTableComponent implements OnInit {
         this.router.navigate(['knowledge-base', row.item_id, 'edit']);
     }
 
+    viewRow(row: KnowledgeBaseItem) {
+        this.router.navigate(['knowledge-base', row.item_id, 'view']);
+    }
+
     deleteRow(row: KnowledgeBaseItem) {
         this.dialog
             .open(SimpleDialogComponent, {

@@ -26,6 +26,10 @@
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu" xPosition="before">
+                    <button mat-menu-item (click)="viewRow(row)">
+                        <mat-icon>preview</mat-icon>
+                        <span>View</span>
+                    </button>
                     <button mat-menu-item (click)="editRow(row)">
                         <mat-icon>edit</mat-icon>
                         <span>Edit</span>
