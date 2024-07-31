@@ -25,7 +25,7 @@ export class KnowledgeBaseTableComponent implements OnInit {
     @ViewChild(MatTable) table!: MatTable<KnowledgeBaseItemHeader>;
     dataSource: MatTableDataSource<KnowledgeBaseItemHeader> = new MatTableDataSource();
 
-    displayedColumns = ['item_id', 'title', 'actions'];
+    displayedColumns = ['item_id', 'title', 'keywords', 'actions'];
 
 
     constructor(private router: Router, public dialog: MatDialog, private knowledgeBaseService: KnowledgeBaseService) { }
