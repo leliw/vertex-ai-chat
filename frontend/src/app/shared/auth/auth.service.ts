@@ -93,7 +93,7 @@ export class AuthService {
         if (role=="admin" && this.apiUser?.email=="marcin.leliwa@gmail.com")
             return true;
         else
-            return (this.apiUser?.roles && this.apiUser?.roles.includes(role)) ?? false
+            return this.apiUser?.roles?.includes(role) ?? false;
     }
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {

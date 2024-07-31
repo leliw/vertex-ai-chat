@@ -23,13 +23,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 
-/* Toolbar */
-
-mat-toolbar span {
-    margin-right: 1rem;
-}
-
-
 /* Forms */
 
 form {
