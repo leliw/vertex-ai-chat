@@ -10,22 +10,33 @@ import { Router, RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { SimpleDialogComponent } from '../../shared/simple-dialog/simple-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
     selector: 'app-agent-table',
     templateUrl: './agent-table.component.html',
     styleUrl: './agent-table.component.css',
     standalone: true,
-    imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatToolbarModule, MatButtonModule, MatIconModule, RouterModule, MatMenuModule],
+    imports: [
+        RouterModule,
+        MatTableModule, 
+        MatPaginatorModule, 
+        MatSortModule,
+        MatToolbarModule,
+        MatMenuModule,
+        MatButtonModule, 
+        MatIconModule,
+        MatChipsModule,
+    ],
     providers: [AgentService]
 })
 export class AgentTableComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild(MatTable) table!: MatTable<string>;
-    dataSource: MatTableDataSource<string> = new MatTableDataSource();
+    dataSource: MatTableDataSource<Agent> = new MatTableDataSource();
 
-    displayedColumns = ['name', 'actions'];
+    displayedColumns = ['name', 'model_name', 'keywords', 'actions'];
 
 
     constructor(private router: Router, public dialog: MatDialog, private agentService: AgentService) { }
@@ -38,29 +49,29 @@ export class AgentTableComponent implements OnInit {
         });
     }
 
-    editRow(row: string) {
-        this.router.navigate(['agents', row, 'edit']);
+    editRow(row: Agent) {
+        this.router.navigate(['agents', row.name, 'edit']);
     }
 
-    deleteRow(row: string) {
+    deleteRow(row: Agent) {
         this.dialog
             .open(SimpleDialogComponent, {
                 data: {
                     title: 'Confirm deletion',
-                    message: `Are you sure you want to delete "<b>${row}</b>" agent?`,
+                    message: `Are you sure you want to delete "<b>${row.name}</b>" agent?`,
                     confirm: true
                 }
             })
             .afterClosed().subscribe(result => {
                 if (result)
-                    this.agentService.delete(row).subscribe(res => {
+                    this.agentService.delete(row.name).subscribe(res => {
                         this.dataSource.data = this.dataSource.data.filter(item => item !== row);
                         this.table.renderRows();
                         this.dialog
                             .open(SimpleDialogComponent, {
                                 data: {
                                     title: 'Confirmation',
-                                    message: `"<b>${row}</b>" agent has been deleted.`,
+                                    message: `"<b>${row.name}</b>" agent has been deleted.`,
                                     confirm: false
                                 }
                             });

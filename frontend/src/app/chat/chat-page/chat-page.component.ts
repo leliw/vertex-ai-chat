@@ -80,8 +80,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     constructor(public authService: AuthService, private config: ConfigService, private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
         // Get the initial messages from the server
         this.agentService.get_all().subscribe(agents => {
-            this.agents = agents;
-            this.selectedAgent = agents[0];
+            this.agents = agents.map(agent => agent.name);
+            this.selectedAgent = this.agents[0];
         });
 
         this.chatService.get_all().subscribe(chats => {

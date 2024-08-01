@@ -7,6 +7,7 @@ export interface Agent {
     description: string;
     model_name: string;
     system_prompt: string;
+    keywords: string[];
 }
 
 @Injectable({
@@ -18,8 +19,8 @@ export class AgentService {
 
     constructor(private http: HttpClient) { }
 
-    get_all(): Observable<string[]> {
-        return this.http.get<string[]>(this.apiUrl);
+    get_all(): Observable<Agent[]> {
+        return this.http.get<Agent[]>(this.apiUrl);
     }
 
     get(agentName: string): Observable<Agent> {

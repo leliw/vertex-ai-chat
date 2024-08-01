@@ -8,6 +8,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { Agent, AgentService } from '../agent.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
@@ -16,12 +18,12 @@ import { ActivatedRoute, Router } from '@angular/router';
     // styleUrl: './agent-form.component.css',
     standalone: true,
     imports: [
+        ReactiveFormsModule,
+        MatCardModule,
         MatInputModule,
         MatButtonModule,
-        MatSelectModule,
-        MatRadioModule,
-        MatCardModule,
-        ReactiveFormsModule
+        MatIconModule,
+        MatChipsModule,
     ]
 })
 export class AgentFormComponent {
@@ -31,6 +33,7 @@ export class AgentFormComponent {
         description: ['', Validators.required],
         model_name: ['', Validators.required],
         system_prompt: ['', Validators.required],
+        keywords: [[] as string[]],
     });
     agentName: string = '';
     editMode: boolean = false;
@@ -51,12 +54,7 @@ export class AgentFormComponent {
     fetchAgentData(agentName: string) {
         this.agentService.get(agentName).subscribe({
             next: (agent) => {
-                this.form.patchValue({
-                    name: agent.name,
-                    description: agent.description,
-                    model_name: agent.model_name,
-                    system_prompt: agent.system_prompt,
-                });
+                this.form.patchValue(agent);
             },
             error: (error) => {
                 console.error('Error fetching agent data:', error);
@@ -107,5 +105,20 @@ export class AgentFormComponent {
         });
     }
 
+    addKeyword(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+        if (value) {
+            this.form.get('keywords')?.value?.push(value);
+        }
+        event.chipInput!.clear();
+    }
+
+    removeKeyword(keyword: string): void {
+        const keywords = this.form.get('keywords')?.value as string[];
+        const index = keywords.indexOf(keyword);
+        if (index >= 0) {
+            keywords.splice(index, 1);
+        }
+    }
 }
 

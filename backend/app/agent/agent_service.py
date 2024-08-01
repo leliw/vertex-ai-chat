@@ -33,12 +33,12 @@ class AgentService:
     def get_all(self, user_email: str):
         """Return a list of agent names for a given user."""
         storage = self._crete_storage(user_email)
-        keys = list(storage.keys())
-        if not keys:
+        ret = list(storage.get_all())
+        if not ret:
             model_name = self.config.get("default_model")
-            self.create_default(user_email, model_name=model_name)
-            keys = [model_name]
-        return keys
+            agent = self.create_default(user_email, model_name=model_name)
+            ret = [agent]
+        return ret
 
     def get(self, user_email: str, agent_name: str):
         """Return an agent by name."""

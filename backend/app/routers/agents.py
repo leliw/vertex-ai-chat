@@ -18,7 +18,7 @@ def create(agent: Agent, user_email: UserEmailDep, service: AgentServiceDep):
     return agent
 
 
-@router.get("", response_model=list[str])
+@router.get("", response_model=list[Agent])
 def get_all(user_email: UserEmailDep, service: AgentServiceDep):
     """Returns a list of AI agents for current user."""
     return service.get_all(user_email)
