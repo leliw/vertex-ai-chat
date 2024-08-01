@@ -2,11 +2,15 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { KnowledgeBaseService } from '../knowledge-base.service';
 import { MarkdownPipe } from "../../shared/markdown.pipe";
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
     selector: 'app-knowledge-base-view',
     standalone: true,
-    imports: [MarkdownPipe],
+    imports: [
+        MatChipsModule,
+        MarkdownPipe
+    ],
     templateUrl: './knowledge-base-view.component.html',
     styleUrl: './knowledge-base-view.component.css'
 })

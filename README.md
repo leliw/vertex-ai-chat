@@ -25,7 +25,7 @@ Report is gnerated as html here: `backend/htmlcov/index.html`.
 
 ## Running
 
-The application is available at: [https://ai-chat.leliwa.priv.pl/](https://ai-chat.leliwa.priv.pl/)
+The application is available at: [https://chat.hanse-intelli-tech.pl/](https://chat.hanse-intelli-tech.pl/)
 
 ### Running in develpment evironment
 

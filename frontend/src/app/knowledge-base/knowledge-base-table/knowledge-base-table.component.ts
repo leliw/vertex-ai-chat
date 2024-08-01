@@ -10,13 +10,24 @@ import { Router, RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { SimpleDialogComponent } from '../../shared/simple-dialog/simple-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
     selector: 'app-knowledge-base-table',
     templateUrl: './knowledge-base-table.component.html',
     styleUrl: './knowledge-base-table.component.css',
     standalone: true,
-    imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatToolbarModule, MatButtonModule, MatIconModule, RouterModule, MatMenuModule],
+    imports: [
+        RouterModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatToolbarModule,
+        MatMenuModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+    ],
     providers: [KnowledgeBaseService]
 })
 export class KnowledgeBaseTableComponent implements OnInit {

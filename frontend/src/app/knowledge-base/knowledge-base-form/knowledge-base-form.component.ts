@@ -3,11 +3,11 @@ import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { KnowledgeBaseItem, KnowledgeBaseService } from '../knowledge-base.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
@@ -16,12 +16,12 @@ import { ActivatedRoute, Router } from '@angular/router';
     styleUrl: './knowledge-base-form.component.css',
     standalone: true,
     imports: [
-        MatInputModule,
-        MatButtonModule,
-        MatSelectModule,
-        MatRadioModule,
+        ReactiveFormsModule,
         MatCardModule,
-        ReactiveFormsModule
+        MatInputModule,
+        MatChipsModule,
+        MatButtonModule,
+        MatIconModule,
     ]
 })
 export class KnowledgeBaseFormComponent {
@@ -29,7 +29,7 @@ export class KnowledgeBaseFormComponent {
     form = this.fb.group({
         title: ['', Validators.required],
         content: ['', Validators.required],
-        keywords: [''],
+        keywords: [[] as string[]],
     });
     itemId: string = '';
     editMode: boolean = false;
@@ -53,7 +53,7 @@ export class KnowledgeBaseFormComponent {
                 this.form.patchValue({
                     title: item.title,
                     content: item.content,
-                    keywords: item?.keywords ? item.keywords.join(', ') : '',
+                    keywords: item.keywords,
                 });
             },
             error: (error) => {
@@ -68,9 +68,6 @@ export class KnowledgeBaseFormComponent {
             return;
         }
         const formData = this.form.value as unknown as KnowledgeBaseItem;
-        // formData.id = this.itemId;
-        // Split keywords string into an array
-        formData.keywords = this.form.value.keywords ? this.form.value.keywords.split(',').map((keyword: string) => keyword.trim()) : [];
         if (this.editMode) {
             this.updateItem(formData);
         } else {
@@ -108,4 +105,19 @@ export class KnowledgeBaseFormComponent {
         });
     }
 
+    addKeyword(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+        if (value) {
+            this.form.get('keywords')?.value?.push(value);
+        }
+        event.chipInput!.clear();
+    }
+
+    removeKeyword(keyword: string): void {
+        const keywords = this.form.get('keywords')?.value as string[];
+        const index = keywords.indexOf(keyword);
+        if (index >= 0) {
+            keywords.splice(index, 1);
+        }
+    }
 }

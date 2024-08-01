@@ -30,10 +30,18 @@
                 <div class="col">
                     <mat-form-field class="full-width">
                         <mat-label>Keywords</mat-label>
-                        <input matInput placeholder="Keywords" formControlName="keywords">
-                        @if (form.controls['keywords'].hasError('required')) {
-                        <mat-error>Keywords are <strong>required</strong></mat-error>
-                        }
+                        <mat-chip-grid #chipGrid aria-label="Enter keywords" formControlName="keywords">
+                            @for (keyword of form.controls["keywords"].value; track keyword) {
+                            <mat-chip-row (removed)="removeKeyword(keyword)">
+                                {{keyword}}
+                                <button matChipRemove aria-label="'remove ' + keyword">
+                                    <mat-icon>cancel</mat-icon>
+                                </button>
+                            </mat-chip-row>
+                            }
+                        </mat-chip-grid>
+                        <input placeholder="New keyword..." [matChipInputFor]="chipGrid"
+                            (matChipInputTokenEnd)="addKeyword($event)" />
                     </mat-form-field>
                 </div>
             </div>

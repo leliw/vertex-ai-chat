@@ -3,6 +3,7 @@
 ## Version 0.5.5 -
 
 * Knowledge base - view page
+* Knowledge base - keywords as chips
 
 ## Version 0.5.4 - 2024-07-28
 
