@@ -9,7 +9,7 @@ from app.chat.chat_service import (
     ChatSession,
 )
 
-model_name = "gemini-1.0-pro-002"
+model_name = "gemini-1.5-flash"
 
 
 class TestChatService(unittest.TestCase):
@@ -39,7 +39,9 @@ class TestChatService(unittest.TestCase):
         message = ChatMessage(author="user", content="Hello")
         text = ""
         try:
-            for p in self.service.get_answer_async(model_name, session, message, []):
+            for p in self.service.get_answer_async(
+                model_name=model_name, chat_session=session, message=message, files=[]
+            ):
                 text += p.value
         except ChatHistoryException as e:
             chat_history = e.chat_session.history

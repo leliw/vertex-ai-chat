@@ -1,3 +1,4 @@
+from uuid import uuid4
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
 
@@ -6,7 +7,8 @@ class KnowledgeBaseItemHeader(BaseModel):
     """Represents the header of a knowledge base item."""
 
     item_id: Optional[str] = Field(
-        None, description="Unique identifier for the knowledge base item."
+        description="Unique identifier for the knowledge base item.",
+        default_factory=lambda: str(uuid4()),
     )
     title: str = Field(..., description="Title of the knowledge base item.")
     keywords: Optional[List[str]] = Field(

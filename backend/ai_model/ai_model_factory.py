@@ -23,11 +23,15 @@ class AIModelFactory:
     ) -> GenerativeModel | ChatModel:
         """Get the generative model."""
         system_instruction = context
+        if config:
+            config = tuple(config.items())
+        else:
+            config = tuple({})
         if "gemini" in model_name:
             model = self._create_gemini_model(
                 model_name,
                 system_instruction=system_instruction,
-                config=tuple(config.items()),
+                config=config,
             )
         else:
             model = self._create_chat_model(model_name)

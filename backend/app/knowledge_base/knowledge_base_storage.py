@@ -34,8 +34,12 @@ class KnowledgeBaseStorage(Storage):
         )
         return item
 
-    def find_nearest(self, text: str) -> List[KnowledgeBaseItem]:
-        """Finds the nearest knowledge base items to the given string."""
+    def find_nearest(self, text: str, keywords: List[str] = None) -> List[KnowledgeBaseItem]:
+        """Finds the nearest knowledge base items to the given string.
+        
+        Args:
+            text: The text to search for.
+            keywords: A list of keywords (any of) to filter the search results."""
         embedding = self.vertex_ai_fatory.embed_text(
             text=text, model_name=self.embedding_model, task="QUESTION_ANSWERING"
         )
@@ -45,5 +49,12 @@ class KnowledgeBaseStorage(Storage):
             distance_measure=DistanceMeasure.COSINE,
             limit=self.embedding_search_limit,
         ).get()
-        ret = [KnowledgeBaseItem(**ds.to_dict()) for ds in vq]
+        if keywords:
+            ret = []
+            for ds in vq:
+                kb = KnowledgeBaseItem(**ds.to_dict())
+                if any(keyword in kb.keywords for keyword in keywords):
+                    ret.append(kb)
+        else:
+            ret = [KnowledgeBaseItem(**ds.to_dict()) for ds in vq]
         return ret

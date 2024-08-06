@@ -63,9 +63,9 @@ class ChatService:
         ai_agent = AIAgent(model_name=model_name)
         in_history = [m.to_content() for m in history]
         chat = ai_agent.start_chat(history=in_history)
-        response = chat.send_message_streaming(message.content, stream=False)
-        ret = ChatMessage(author="ai", content=response.text)
-        out_history = [ChatMessage.from_content(m, {}) for m in chat.history]
+        response = chat.send_message(message.content)
+        ret = ChatMessage(author="ai", content=response)
+        out_history = [ChatMessage.from_content(m, {}) for m in chat.get_history()]
         return (ret, out_history)
 
     def get_answer_async(
@@ -127,6 +127,7 @@ class ChatService:
             context = ""
         neartest = self.knowledge_base_storage.find_nearest(f"{text}")
         for n in neartest:
+            print(n.title)
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context
 
