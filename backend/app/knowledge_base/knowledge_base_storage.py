@@ -34,9 +34,11 @@ class KnowledgeBaseStorage(Storage):
         )
         return item
 
-    def find_nearest(self, text: str, keywords: List[str] = None) -> List[KnowledgeBaseItem]:
+    def find_nearest(
+        self, text: str, keywords: List[str] = None
+    ) -> List[KnowledgeBaseItem]:
         """Finds the nearest knowledge base items to the given string.
-        
+
         Args:
             text: The text to search for.
             keywords: A list of keywords (any of) to filter the search results."""
