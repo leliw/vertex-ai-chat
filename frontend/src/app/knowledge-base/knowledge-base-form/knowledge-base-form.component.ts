@@ -67,7 +67,8 @@ export class KnowledgeBaseFormComponent {
         if (this.form.invalid) {
             return;
         }
-        const formData = this.form.value as unknown as KnowledgeBaseItem;
+        const formData = this.form.value as KnowledgeBaseItem;
+        formData.item_id = this.itemId;
         if (this.editMode) {
             this.updateItem(formData);
         } else {
@@ -110,7 +111,7 @@ export class KnowledgeBaseFormComponent {
         if (value) {
             this.form.get('keywords')?.value?.push(value);
         }
-        event.chipInput!.clear();
+        event.chipInput.clear();
     }
 
     removeKeyword(keyword: string): void {
