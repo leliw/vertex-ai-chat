@@ -1,9 +1,11 @@
 # Changelog
 
-## Version 0.5.5 -
+## Version 0.5.5 - 2024-08-08
 
 * Knowledge base - view page
 * Knowledge base - keywords as chips
+* Knowledge base - edit and update - fix
+* Knowledge base - filtering by agent's keywords
 
 ## Version 0.5.4 - 2024-07-28
 

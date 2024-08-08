@@ -121,13 +121,15 @@ class ChatService:
         """Get the context of the chat session."""
         if agent:
             context = agent.system_prompt + "\n\n"
+            keywords = agent.keywords
         elif self.role:
             context = self.role + "\n\n"
+            keywords = None
         else:
             context = ""
-        neartest = self.knowledge_base_storage.find_nearest(f"{text}")
+            keywords = None
+        neartest = self.knowledge_base_storage.find_nearest(f"{text}", keywords)
         for n in neartest:
-            print(n.title)
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context
 
