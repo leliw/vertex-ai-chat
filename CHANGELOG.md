@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.6 - 2024-09-03
+
+* Knowledge base - table full text filter
+
 ## Version 0.5.5 - 2024-08-08
 
 * Knowledge base - view page
