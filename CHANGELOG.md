@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.7 - 2024-09-11
+
+* Knowledge base - whole row is clickable
+
 ## Version 0.5.6 - 2024-09-03
 
 * Knowledge base - table full text filter
