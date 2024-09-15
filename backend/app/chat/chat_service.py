@@ -10,7 +10,7 @@ from google.generativeai.types.file_types import FileDataDict
 
 from ai_agents import AIAgent
 from app.agent.agent_model import Agent
-from base import logger
+from ampf.base import logger
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory

@@ -11,7 +11,7 @@ from fastapi_sessions.backends.session_backend import (
     SessionModel,
 )
 
-from .base_storage import BaseStorage
+from ampf.base.base_storage import BaseStorage
 
 
 class InvalidSessionException(HTTPException):
