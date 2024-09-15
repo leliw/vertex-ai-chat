@@ -10,7 +10,7 @@ from base import InvalidSessionException, BasicSessionManager
 from base.session_manager import BasicSessionBackend
 
 from .gcp_file_storage import FileStorage
-from .gcp_storage import Storage
+from ampf.gcp import Storage
 from .gcp_oauth import OAuth, UserData
 
 

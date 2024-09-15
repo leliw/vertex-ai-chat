@@ -15,7 +15,7 @@ from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory
 
-from gcp import Storage
+from ampf.gcp import Storage
 
 from app.config import config
 from .chat_model import ChatSessionHeader, ChatSession

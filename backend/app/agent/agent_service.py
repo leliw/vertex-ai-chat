@@ -1,6 +1,6 @@
 """Service for managing AI agent definitions."""
 
-from gcp import Storage
+from ampf.gcp import Storage
 from .agent_model import Agent
 
 

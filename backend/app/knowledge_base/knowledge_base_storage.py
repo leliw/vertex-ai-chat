@@ -1,5 +1,5 @@
 from typing import List
-from gcp import Storage
+from ampf.gcp import Storage
 from .knowledge_base_model import KnowledgeBaseItem
 from ai_model import AIModelFactory
 from google.cloud.firestore_v1.vector import Vector

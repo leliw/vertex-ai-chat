@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from gcp.gcp_storage import Storage
+from ampf.gcp import Storage
 
 from .user_model import User, UserHeader
 
