@@ -3,7 +3,7 @@ from typing import Any, Generator
 from google.generativeai import GenerativeModel, ChatSession
 from google.generativeai.types import content_types, generation_types
 
-from ampf_base.logger import get_logger
+from ampf.base.logger import get_logger
 
 
 class AIAgent:

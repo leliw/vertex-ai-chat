@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from ampf_base.logger import get_logger
+from ampf.base.logger import get_logger
 
 from .ai_agent import AIAgent
 
