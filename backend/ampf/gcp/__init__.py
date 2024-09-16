@@ -1,3 +1,4 @@
-from .gcp_storage import Storage
+from .gcp_storage import GcpStorage
+from .ampf_gcp_factory import AmpfGcpFactory
 
-__all__ = ["Storage"]
+__all__ = ["GcpStorage", "AmpfGcpFactory"]

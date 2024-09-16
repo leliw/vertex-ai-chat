@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import pytest
 
-from ampf.gcp import Storage
+from ampf.gcp import GcpStorage
 
 
 class TC(BaseModel):
@@ -10,7 +10,7 @@ class TC(BaseModel):
 
 @pytest.fixture
 def storage():
-    return Storage("unit tests", TC)
+    return GcpStorage("unit tests", TC)
 
 
 def test_storage(storage):

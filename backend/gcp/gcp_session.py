@@ -10,7 +10,7 @@ from base import InvalidSessionException, BasicSessionManager
 from base.session_manager import BasicSessionBackend
 
 from .gcp_file_storage import FileStorage
-from ampf.gcp import Storage
+from ampf.gcp import GcpStorage
 from .gcp_oauth import OAuth, UserData
 
 
@@ -61,7 +61,7 @@ class SessionManager(BasicSessionManager[SessionModel]):
         file_storage: FileStorage = None,
     ):
         if not backend:
-            storage = Storage("sessions", session_class)
+            storage = GcpStorage("sessions", session_class)
             backend = BasicSessionBackend(storage, session_class)
         super().__init__(backend=backend)
         self.o_auth = o_auth or OAuth()
