@@ -24,13 +24,16 @@ def get_current_user_id(request: Request) -> str:
     return request.state.session_data.user.email
 
 
+UserEmailDep = Annotated[str, Depends(get_current_user_id)]
+
+
 class Authorize:
     """Dependency for authorizing users based on their role."""
 
     def __init__(self, required_role: str):
         self.required_role = required_role
 
-    def __call__(self, user_id: str = Depends(get_current_user_id)) -> bool:
+    def __call__(self, user_id: UserEmailDep) -> bool:
         if user_id == "marcin.leliwa@gmail.com":
             return True
         else:
@@ -56,6 +59,4 @@ def get_agent_service(config: ConfigDep, factory: FactoryDep) -> AgentService:
 
 
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
-
-UserEmailDep = Annotated[str, Depends(get_current_user_id)]
 ChatServiceDep = Annotated[ChatService, Depends(lambda: chat_service)]
