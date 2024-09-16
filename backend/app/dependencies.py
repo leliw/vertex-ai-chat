@@ -5,6 +5,8 @@ from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, Request
 
+from ampf.base import AmpfBaseFactory
+from ampf.gcp import AmpfGcpFactory
 from gcp import FileStorage
 
 from app.config import config
@@ -37,11 +39,23 @@ class Authorize:
 
 load_dotenv()
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+ConfigDep = Annotated[dict, Depends(lambda: config)]
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 chat_service = ChatService(file_storage)
-agent_service = AgentService(config)
+
+
+def get_factory() -> AmpfBaseFactory:
+    return AmpfGcpFactory()
+
+
+FactoryDep = Annotated[AmpfBaseFactory, Depends(get_factory)]
+
+
+def get_agent_service(config: ConfigDep, factory: FactoryDep) -> AgentService:
+    return AgentService(config, factory)
+
+
+AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
 
 UserEmailDep = Annotated[str, Depends(get_current_user_id)]
-ConfigDep = Annotated[dict, Depends(lambda: config)]
 ChatServiceDep = Annotated[ChatService, Depends(lambda: chat_service)]
-AgentServiceDep = Annotated[AgentService, Depends(lambda: agent_service)]

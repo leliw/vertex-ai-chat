@@ -1,18 +1,21 @@
 """Service for managing AI agent definitions."""
 
-from ampf.gcp import Storage
+from ampf.base import AmpfBaseFactory
 from .agent_model import Agent
 
 
 class AgentService:
     """Service for managing AI agent definitions."""
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, factory: AmpfBaseFactory):
         self.config = config
+        self.factory = factory
 
     def _crete_storage(self, user_email: str):
         """Create storage for agents of a given user."""
-        return Storage(f"users/{user_email}/agents", Agent, key_name="name")
+        return self.factory.create_compact_storage(
+            f"users/{user_email}/agents", Agent, key_name="name"
+        )
 
     def create_default(self, user_email: str, model_name: str):
         """Create a default agent for a given model."""
