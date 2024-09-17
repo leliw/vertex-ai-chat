@@ -44,7 +44,6 @@ load_dotenv()
 config["oauth_client_id"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 ConfigDep = Annotated[dict, Depends(lambda: config)]
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
-chat_service = ChatService(file_storage)
 
 
 def get_factory() -> AmpfBaseFactory:
@@ -59,4 +58,10 @@ def get_agent_service(config: ConfigDep, factory: FactoryDep) -> AgentService:
 
 
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
-ChatServiceDep = Annotated[ChatService, Depends(lambda: chat_service)]
+
+
+def get_chat_service(factory: FactoryDep) -> ChatService:
+    return ChatService(factory, file_storage)
+
+
+ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

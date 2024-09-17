@@ -5,14 +5,13 @@ from typing import List, Optional
 from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from app.chat.chat_router import ChatRouter
 from app.chat.chat_service import ChatSession
-from app.routers import chats_message
+from app.routers import chats, chats_message
 from app.user import User
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData
 
-from app.dependencies import ConfigDep, file_storage, chat_service
+from app.dependencies import ConfigDep, file_storage
 from .routers import users, agents, knowledge_base
 
 
@@ -35,6 +34,7 @@ async def login_google(request: Request):
     return session_manager.redirect_login(request)
 
 
+app.include_router(chats.router, prefix="/api/chats")
 app.include_router(users.router, prefix="/api")
 
 
@@ -77,10 +77,6 @@ def ping():
 @app.get("/api/models")
 def models_get_all(config: ConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
-
-
-chat_router = ChatRouter(chat_service)
-app.include_router(chat_router.router, prefix="/api/chats")
 
 
 @app.post("/api/files", tags=["files"])

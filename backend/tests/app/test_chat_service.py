@@ -1,5 +1,6 @@
 import datetime
 import pytest
+from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
 from app.chat.chat_service import ChatHistoryException, ChatService
@@ -8,11 +9,14 @@ from gcp.gcp_file_storage import FileStorage
 
 model_name = "gemini-1.5-flash"
 
+@pytest.fixture
+def factory():
+    return AmpfGcpFactory()
 
 @pytest.fixture
-def chat_service():
+def chat_service(factory):
     file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(file_storage)
+    service = ChatService(factory, file_storage)
     service.role = "This is role"
     return service
 
