@@ -9,9 +9,11 @@ from gcp.gcp_file_storage import FileStorage
 
 model_name = "gemini-1.5-flash"
 
+
 @pytest.fixture
 def factory():
     return AmpfGcpFactory()
+
 
 @pytest.fixture
 def chat_service(factory):

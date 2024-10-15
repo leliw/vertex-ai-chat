@@ -85,8 +85,10 @@ def test_get_nonexistent_metadata(storage):
     assert retrieved_metadata is None
 
 
-def test_upload_blob_with_default_ext(tmp_path, storage):
-    storage = LocalBlobStorage(str(tmp_path.joinpath("test_bucket")), default_ext="txt", subfolder_characters=2)
+def test_upload_blob_with_default_ext(tmp_path):
+    storage = LocalBlobStorage(
+        str(tmp_path.joinpath("test_bucket")), default_ext="txt", subfolder_characters=2
+    )
     file_name = "test/file"
     data = b"test data"
     storage.upload_blob(file_name, data)

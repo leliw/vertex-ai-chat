@@ -2,6 +2,7 @@ import pytest
 from app.knowledge_base.knowledge_base_model import KnowledgeBaseItem
 from app.knowledge_base.knowledge_base_storage import KnowledgeBaseStorage
 
+
 @pytest.fixture
 def kb():
     kb = KnowledgeBaseStorage()
@@ -30,9 +31,9 @@ def test_find_nearest(kb):
         title="France", content="France is a country in Europe.", keywords=["pytest"]
     )
     kb.save(kb2)
-    
+
     ret = kb.find_nearest("What is the capital of France?", ["pytest"])
-    
+
     assert ret is not None
     assert len(ret) == 2
     assert ret[0].title == "Paris"

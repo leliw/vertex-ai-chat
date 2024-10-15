@@ -39,7 +39,9 @@ app.include_router(users.router, prefix="/api")
 
 
 @app.get("/api/auth")
-async def auth_google(user_service: users.UserServiceDep, request: Request, response: Response):
+async def auth_google(
+    user_service: users.UserServiceDep, request: Request, response: Response
+):
     user_data = await session_manager.auth(request, response)
     if user_data:
         user = user_service.get(user_data["email"])

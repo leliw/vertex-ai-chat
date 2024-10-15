@@ -66,7 +66,6 @@ class GcpBlobStorage[T](BaseBlobStorage[T]):
         blob = self._bucket.blob(file_name)
         blob.download_to_filename(dest_path)
 
-
     def get_blob(self, file_name: str):
         return self._bucket.blob(file_name)
 

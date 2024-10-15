@@ -20,6 +20,7 @@ def test_storage_all():
     assert [] == list(t.keys())
     assert t.get("foo") is None
 
+
 def test_storage_factory():
     t1 = AmpfInMemoryFactory()
     s1 = t1.create_storage("xxx", D)

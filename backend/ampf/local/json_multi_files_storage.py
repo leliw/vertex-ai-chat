@@ -61,7 +61,9 @@ class JsonMultiFilesStorage[T](BaseStorage[T], FileStorage):
                 # - skip it - it's subcollection
                 pass
             else:
-                folder = root[start_index:-end_index] if end_index else root[start_index:]
+                folder = (
+                    root[start_index:-end_index] if end_index else root[start_index:]
+                )
                 for file in files:
                     k = f"{folder}/{file}" if folder else file
                     self._log.debug("keys: %s", k)

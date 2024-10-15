@@ -5,4 +5,10 @@ from .blob_storage import LocalBlobStorage
 from .ampf_local_factory import AmpfLocalFactory
 
 
-__all__ = ["FileStorage", "LocalBlobStorage", "JsonOneFileStorage", "JsonMultiFilesStorage", "AmpfLocalFactory"]
+__all__ = [
+    "FileStorage",
+    "LocalBlobStorage",
+    "JsonOneFileStorage",
+    "JsonMultiFilesStorage",
+    "AmpfLocalFactory",
+]

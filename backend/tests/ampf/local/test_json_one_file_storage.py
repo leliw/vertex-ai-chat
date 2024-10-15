@@ -9,6 +9,7 @@ class D(BaseModel):
     name: str
     value: str
 
+
 @pytest.fixture
 def t(tmp_path):
     FileStorage._root_dir_path = tmp_path
@@ -54,8 +55,10 @@ def test_folder_key_all(t):
     assert [] == list(t.keys())
     assert t.get("kung/foo") is None
 
+
 def test_is_empty(t):
     assert t.is_empty()
+
 
 def test_create(t):
     d = D(name="foo", value="beer")
@@ -63,7 +66,8 @@ def test_create(t):
     assert ["foo"] == list(t.keys())
     with pytest.raises(KeyExists):
         t.create(d)
-    
+
+
 def test_drop(t):
     d = D(name="foo", value="beer")
     t.create(d)

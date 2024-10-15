@@ -9,7 +9,9 @@ ID_PATH = "/{chat_id}"
 
 
 @router.get("")
-async def get_all(service: ChatServiceDep, user_email: UserEmailDep) -> list[ChatSessionHeader]:
+async def get_all(
+    service: ChatServiceDep, user_email: UserEmailDep
+) -> list[ChatSessionHeader]:
     return await service.get_all(user_email)
 
 
@@ -43,5 +45,7 @@ async def chat_session_update(
 
 
 @router.delete(ID_PATH)
-async def chat_delete(service: ChatServiceDep, chat_id: str, user_email: UserEmailDep) -> None:
+async def chat_delete(
+    service: ChatServiceDep, chat_id: str, user_email: UserEmailDep
+) -> None:
     await service.delete_chat(chat_id, user_email)
