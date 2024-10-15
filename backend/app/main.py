@@ -39,10 +39,10 @@ app.include_router(users.router, prefix="/api")
 
 
 @app.get("/api/auth")
-async def auth_google(request: Request, response: Response):
+async def auth_google(user_service: users.UserServiceDep, request: Request, response: Response):
     user_data = await session_manager.auth(request, response)
     if user_data:
-        user = users.service.get(user_data["email"])
+        user = user_service.get(user_data["email"])
         if user:
             return JSONResponse(status_code=200, content=user_data)
         else:
@@ -55,9 +55,9 @@ async def logout(request: Request, response: Response):
 
 
 @app.get("/api/user")
-async def user_get(request: Request):
+async def user_get(user_service: users.UserServiceDep, request: Request):
     if not request.state.session_data.api_user:
-        request.state.session_data.api_user = users.service.get(
+        request.state.session_data.api_user = user_service.get(
             request.state.session_data.user.email
         )
     return request.state.session_data.api_user
