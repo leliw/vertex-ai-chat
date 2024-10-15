@@ -1,4 +1,5 @@
 """In memory storage implemenation - for tests"""
+
 from typing import Iterator, Type
 from pydantic import BaseModel
 from .base.ampf_base_factory import AmpfBaseFactory
