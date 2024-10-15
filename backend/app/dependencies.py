@@ -1,5 +1,6 @@
 """This module contains dependencies for FastAPI endpoints."""
 
+import logging
 import os
 from typing import Annotated
 from dotenv import load_dotenv
@@ -32,11 +33,13 @@ class Authorize:
 
     def __init__(self, required_role: str):
         self.required_role = required_role
+        self._log = logging.getLogger(__name__)
 
     def __call__(self, user_id: UserEmailDep) -> bool:
         if user_id == "marcin.leliwa@gmail.com":
             return True
         else:
+            self._log.warning(f"User {user_id} does not have the required role.")
             raise InsufficientPermissionsError()
 
 
