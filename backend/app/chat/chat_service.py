@@ -9,13 +9,11 @@ from google.generativeai.types.content_types import ContentDict
 from google.generativeai.types.file_types import FileDataDict
 
 from ai_agents import AIAgent
+from ampf.base import AmpfBaseFactory, logger
 from app.agent.agent_model import Agent
-from base import logger
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory
-
-from gcp import Storage
 
 from app.config import config
 from .chat_model import ChatSessionHeader, ChatSession
@@ -43,13 +41,15 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
-    def __init__(self, file_storage: FileStorage):
-        self.factory = AIModelFactory()
+    def __init__(self, factory: AmpfBaseFactory, file_storage: FileStorage):
+        self.ai_factory = AIModelFactory()
         self.model_config = config["generative_model_config"]
         self.role = config["chatbot_role"]
-        self.storage = Storage("ChatSessions", ChatSession, key_name="chat_session_id")
+        self.storage = factory.create_storage(
+            "ChatSessions", ChatSession, key_name="chat_session_id"
+        )
         self.knowledge_base_storage = KnowledgeBaseStorage(
-            self.factory,
+            self.ai_factory,
             embedding_model=config["knowledge_base"]["embedding_model"],
             embedding_search_limit=config["knowledge_base"]["embedding_search_limit"],
         )

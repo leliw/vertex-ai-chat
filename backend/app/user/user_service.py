@@ -1,13 +1,13 @@
 from typing import List, Optional
 
-from gcp.gcp_storage import Storage
+from ampf.base import AmpfBaseFactory
 
 from .user_model import User, UserHeader
 
 
 class UserService:
-    def __init__(self):
-        self.storage = Storage("user", User, key_name="email")
+    def __init__(self, factory: AmpfBaseFactory):
+        self.storage = factory.create_storage("user", User, key_name="email")
 
     def create(self, user: User) -> User:
         key = self.storage.get_key(user)

@@ -1,5 +1,5 @@
 from typing import List
-from gcp import Storage
+from ampf.gcp import GcpStorage
 from .knowledge_base_model import KnowledgeBaseItem
 from ai_model import AIModelFactory
 from google.cloud.firestore_v1.vector import Vector
@@ -7,7 +7,7 @@ from google.cloud.firestore_v1.vector_query import VectorQuery
 from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
 
 
-class KnowledgeBaseStorage(Storage):
+class KnowledgeBaseStorage(GcpStorage):
     """Storage for knowledge base items."""
 
     def __init__(

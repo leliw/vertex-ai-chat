@@ -1,24 +1,25 @@
 """A simple wrapper around Google Cloud Firestore."""
 
-from typing import Generic, Iterator, Type
+from typing import Iterator, Type
 from google.cloud import firestore, exceptions
 
-from base import T, BaseStorage
+from ampf.base import BaseStorage
 
 
-class Storage(BaseStorage[T], Generic[T]):
+class GcpStorage[T](BaseStorage[T]):
     """A simple wrapper around Google Cloud Firestore."""
 
     def __init__(
         self,
         collection: str,
         clazz: Type[T],
+        db: firestore.Client = None,
         project: str = None,
         database: str = None,
         key_name: str = None,
     ):
         super().__init__(clazz, key_name=key_name)
-        self._db = firestore.Client(project=project, database=database)
+        self._db = db or firestore.Client(project=project, database=database)
         self._collection = collection
         self._coll_ref = self._db.collection(self._collection)
 

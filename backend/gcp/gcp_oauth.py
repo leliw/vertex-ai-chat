@@ -98,7 +98,9 @@ class OAuth:
             GOOGLE_URL_USERINFO,
             headers={"Authorization": f"Bearer {access_token}"},
         )
-        return UserData.model_validate(user_info.json())
+        user_dict = user_info.json()
+        user_dict["email"] = user_dict["email"].lower()
+        return UserData(**user_dict)
 
     async def verify_token_middleware(self, request: Request, call_next) -> Response:
         """Verify token middleware."""
@@ -142,6 +144,7 @@ class OAuth:
                 algorithms=["RS256"],
                 audience=self.client_id,
             )
+            decoded_token["email"] = decoded_token["email"].lower()
             return decoded_token
         except JWTError:
             return None

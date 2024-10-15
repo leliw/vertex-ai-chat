@@ -3,10 +3,11 @@
 import logging
 import os
 import json
+from pathlib import Path
 from typing import Iterator, Type
 
-from ampf_base import BaseStorage
-from .file_storage import FileStorage, StrPath
+from ..base import BaseStorage
+from .file_storage import FileStorage
 
 
 class JsonMultiFilesStorage[T](BaseStorage[T], FileStorage):
@@ -14,26 +15,29 @@ class JsonMultiFilesStorage[T](BaseStorage[T], FileStorage):
 
     def __init__(
         self,
+        path_name: str,
         clazz: Type[T],
         key_name: str = None,
-        root_dir: StrPath = "data",
         subfolder_characters: int = None,
     ):
         BaseStorage.__init__(self, clazz, key_name)
         FileStorage.__init__(
             self,
-            root_dir=root_dir,
-            subfolder_characters=subfolder_characters,
+            folder_name=path_name,
             default_ext="json",
+            subfolder_characters=subfolder_characters,
         )
         self._log = logging.getLogger(__name__)
 
     def put(self, key: str, value: T) -> None:
+        full_path = self._key_to_full_path(key)
+        self._log.debug("put: %s (%s)", key, full_path)
         json_str = value.model_dump_json(by_alias=True, indent=2, exclude_none=True)
-        with open(self._key_to_full_path(key), "w", encoding="utf-8") as file:
+        with open(full_path, "w", encoding="utf-8") as file:
             file.write(json_str)
 
     def get(self, key: str) -> T:
+        self._log.debug("get %s", key)
         full_path = self._key_to_full_path(key)
         try:
             with open(full_path, "r", encoding="utf-8") as file:
@@ -43,18 +47,31 @@ class JsonMultiFilesStorage[T](BaseStorage[T], FileStorage):
             return None
 
     def keys(self) -> Iterator[str]:
-        start_index = len(str(self._root_dir_path)) + 1
+        self._log.debug("keys -> start %s", self.folder_path)
+        start_index = len(str(self.folder_path)) + 1
         if self.subfolder_characters:
             end_index = self.subfolder_characters + 1
         else:
-            end_index = 1
-        for root, _, files in os.walk(self._root_dir_path):
-            folder = root[start_index:-end_index]
-            for file in files:
-                k = f"{folder}/{file}" if folder else file
-                yield k[:-5] if k.endswith(".json") else k
+            end_index = None
+        for root, _, files in os.walk(self.folder_path):
+            self._log.debug("keys -> walk %s %d", root, len(files))
+            if Path(f"{root}.json").is_file() and root != str(self.folder_path):
+                # If exists json file wtith the same name as directory
+                # and it's not root folder
+                # - skip it - it's subcollection
+                pass
+            else:
+                folder = (
+                    root[start_index:-end_index] if end_index else root[start_index:]
+                )
+                for file in files:
+                    k = f"{folder}/{file}" if folder else file
+                    self._log.debug("keys: %s", k)
+                    yield k[:-5] if k.endswith(".json") else k
+        self._log.debug("keys <- end")
 
     def delete(self, key: str) -> None:
+        self._log.debug("delete %s", key)
         full_path = self._key_to_full_path(key)
         os.remove(full_path)
 

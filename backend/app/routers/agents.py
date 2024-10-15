@@ -5,9 +5,7 @@ from app.dependencies import AgentServiceDep, UserEmailDep
 from ..agent import Agent
 
 
-router = APIRouter(
-    tags=["agent"],
-)
+router = APIRouter(tags=["agent"])
 AGENT_PATH = "/{agent_name}"
 
 
