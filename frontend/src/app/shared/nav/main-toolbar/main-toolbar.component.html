@@ -6,6 +6,9 @@
     }
     <span>AI Chat</span>
     <div class="flex-spacer"></div>
+    @if (!pingService.connected()) {
+        <mat-icon matTooltip="Connecting to server ..." class="connection-status" color="warn">wifi_off</mat-icon>
+    }
     @if (!(isHandset$ | async)) {
     <img src="{{ authService.getUserPhotoUrl() }}" class="profile-photo" alt="User profile"
         referrerpolicy="no-referrer">

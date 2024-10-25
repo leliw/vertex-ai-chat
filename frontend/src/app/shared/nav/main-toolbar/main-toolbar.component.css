@@ -13,3 +13,8 @@
 .active-link {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+.connection-status {
+    margin-left: 1em;
+    margin-right: 1em;
+}

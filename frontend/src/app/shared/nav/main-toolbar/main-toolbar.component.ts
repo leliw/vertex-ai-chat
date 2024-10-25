@@ -8,6 +8,8 @@ import { Observable, map, shareReplay } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
+import { PingService } from '../../ping.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-main-toolbar',
@@ -16,7 +18,7 @@ import { RouterModule } from '@angular/router';
         CommonModule, AsyncPipe,
         RouterModule,
         MatToolbarModule,
-        MatButtonModule, MatIconModule,
+        MatButtonModule, MatIconModule, MatTooltipModule,
         MatMenuModule
     ],
     templateUrl: './main-toolbar.component.html',
@@ -27,7 +29,8 @@ export class MainToolbarComponent {
     @Input() drawer = true;
     @Output() drawerToggle = new EventEmitter<void>();
 
-    private breakpointObserver = inject(BreakpointObserver);
+    public readonly pingService = inject(PingService);
+    private readonly breakpointObserver = inject(BreakpointObserver);
 
     isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
         .pipe(
