@@ -1,6 +1,6 @@
 import { HttpClient, HttpDownloadProgressEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter, tap } from 'rxjs';
+import { Observable, filter, tap } from 'rxjs';
 
 export interface ChatMessageFile {
     name: string;
@@ -41,11 +41,10 @@ export class ChatService {
     public waitingForResponse = false;
     public isTyping = false;
 
-    private endpoint = '/api/chats';
-    private connected$ = new BehaviorSubject<boolean>(false);
+    private readonly endpoint = '/api/chats';
     private pingIntervalId: any;
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(private readonly httpClient: HttpClient) { }
 
     connect() {
         // Set a timeout to keep the connection alive
@@ -122,10 +121,6 @@ export class ChatService {
                     },
                 });
         });
-    }
-
-    connected(): Observable<boolean> {
-        return this.connected$;
     }
 
     get_all(): Observable<ChatSessionHeader[]> {

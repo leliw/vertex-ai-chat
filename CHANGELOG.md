@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.8 - 2024-10-25
+
+* PingService - refactor
+
 ## Version 0.5.7 - 2024-09-11
 
 * Knowledge base - whole row is clickable
