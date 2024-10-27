@@ -18,13 +18,13 @@ class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     version: str = "0.5.9"
-    
+
     models: List[str] = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
     default_model: str = "gemini-1.5-flash"
 
     google_oauth_client_id: str = ""
     google_oauth_client_secret: str = ""
-    
+
     knowledge_base: KnowledgeBaseConfig = KnowledgeBaseConfig()
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
 

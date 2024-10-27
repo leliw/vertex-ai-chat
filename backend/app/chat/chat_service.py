@@ -41,9 +41,11 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
-    def __init__(self, factory: AmpfBaseFactory, file_storage: FileStorage, config: ServerConfig):
+    def __init__(
+        self, factory: AmpfBaseFactory, file_storage: FileStorage, config: ServerConfig
+    ):
         self.ai_factory = AIModelFactory()
-        self.role = ''
+        self.role = ""
         self.storage = factory.create_storage(
             "ChatSessions", ChatSession, key_name="chat_session_id"
         )

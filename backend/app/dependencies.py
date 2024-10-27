@@ -62,7 +62,9 @@ def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentServ
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
 
 
-def get_chat_service(factory: FactoryDep, server_config: ServerConfigDep) -> ChatService:
+def get_chat_service(
+    factory: FactoryDep, server_config: ServerConfigDep
+) -> ChatService:
     return ChatService(factory, file_storage, server_config)
 
 
