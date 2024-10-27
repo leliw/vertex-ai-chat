@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, APIRouter
-from typing import List
+from typing import Annotated, List
 
-from app.dependencies import Authorize
+from app.dependencies import Authorize, ServerConfigDep
 
 from ..knowledge_base.knowledge_base_model import (
     KnowledgeBaseItem,
@@ -16,23 +16,31 @@ class NotFoundError(HTTPException):
 
 
 ITEM_ID_PATH = "/{item_id}"
-service = KnowledgeBaseService()
 router = APIRouter(
     tags=["Knowledge Base"],
     dependencies=[Depends(Authorize("admin"))],
 )
 
 
+def get_knowledge_base_service(server_config: ServerConfigDep):
+    return KnowledgeBaseService(server_config.knowledge_base)
+
+
+KnowledgeBaseServiceDep = Annotated[
+    KnowledgeBaseService, Depends(get_knowledge_base_service)
+]
+
+
 @router.post("", response_model=KnowledgeBaseItem)
-def create_item(item: KnowledgeBaseItem):
+def create_item(service: KnowledgeBaseServiceDep, item: KnowledgeBaseItem):
     """
     Create a new knowledge base item.
     """
     return service.create_item(item)
 
 
-@router.get("", response_model=List[KnowledgeBaseItemHeader])
-def get_items():
+@router.get("")
+def get_items(service: KnowledgeBaseServiceDep) -> List[KnowledgeBaseItemHeader]:
     """
     Get all knowledge base items.
     """
@@ -40,7 +48,7 @@ def get_items():
 
 
 @router.get(ITEM_ID_PATH, response_model=KnowledgeBaseItem)
-def get_item(item_id: str):
+def get_item(service: KnowledgeBaseServiceDep, item_id: str):
     """
     Get a knowledge base item by ID.
     """
@@ -51,7 +59,9 @@ def get_item(item_id: str):
 
 
 @router.put(ITEM_ID_PATH, response_model=KnowledgeBaseItem)
-def update_item(item_id: str, updated_item: KnowledgeBaseItem):
+def update_item(
+    service: KnowledgeBaseServiceDep, item_id: str, updated_item: KnowledgeBaseItem
+):
     """
     Update a knowledge base item.
     """
@@ -62,7 +72,7 @@ def update_item(item_id: str, updated_item: KnowledgeBaseItem):
 
 
 @router.delete(ITEM_ID_PATH, response_model=bool)
-def delete_item(item_id: str):
+def delete_item(service: KnowledgeBaseServiceDep, item_id: str):
     """
     Delete a knowledge base item.
     """

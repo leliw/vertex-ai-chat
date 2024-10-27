@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional
 from uuid import uuid4
 
@@ -6,7 +7,7 @@ from ai_model import AIModelFactory
 from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
 
-from app.config import config
+from app.config import KnowledgeBaseConfig
 
 
 class KnowledgeBaseService:
@@ -14,11 +15,12 @@ class KnowledgeBaseService:
     Service for managing knowledge base items.
     """
 
-    def __init__(self):
+    def __init__(self, config: KnowledgeBaseConfig):
         self.vertex_ai_fatory = AIModelFactory()
         self.storage = KnowledgeBaseStorage(
-            self.vertex_ai_fatory, **config.get("knowledge_base", {})
+            self.vertex_ai_fatory, **config.model_dump()
         )
+        self._log = logging.getLogger(__name__)
 
     def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
         """

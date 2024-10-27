@@ -2,7 +2,7 @@ from typing import Iterator
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
-from app.dependencies import AgentServiceDep, ChatServiceDep, ConfigDep, UserEmailDep
+from app.dependencies import ServerConfigDep, AgentServiceDep, ChatServiceDep, UserEmailDep
 from app.chat.chat_service import ChatHistoryException, StreamedEvent
 from app.chat.message.message_model import ChatMessage, ChatMessageFile
 
@@ -16,7 +16,7 @@ router = APIRouter(
 def post_message_async(
     request: Request,
     message: ChatMessage,
-    config: ConfigDep,
+    config: ServerConfigDep,
     user_email: UserEmailDep,
     agent_service: AgentServiceDep,
     chat_service: ChatServiceDep,

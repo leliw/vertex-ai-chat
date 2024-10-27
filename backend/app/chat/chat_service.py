@@ -15,7 +15,7 @@ from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from ai_model import AIModelFactory
 
-from app.config import config
+from app.config import ServerConfig
 from .chat_model import ChatSessionHeader, ChatSession
 from .message import ChatMessage, ChatMessageFile
 
@@ -41,17 +41,16 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
-    def __init__(self, factory: AmpfBaseFactory, file_storage: FileStorage):
+    def __init__(self, factory: AmpfBaseFactory, file_storage: FileStorage, config: ServerConfig):
         self.ai_factory = AIModelFactory()
-        self.model_config = config["generative_model_config"]
-        self.role = config["chatbot_role"]
+        self.role = ''
         self.storage = factory.create_storage(
             "ChatSessions", ChatSession, key_name="chat_session_id"
         )
         self.knowledge_base_storage = KnowledgeBaseStorage(
             self.ai_factory,
-            embedding_model=config["knowledge_base"]["embedding_model"],
-            embedding_search_limit=config["knowledge_base"]["embedding_search_limit"],
+            embedding_model=config.knowledge_base.embedding_model,
+            embedding_search_limit=config.knowledge_base.embedding_search_limit,
         )
         self.file_storage = file_storage
         self.logger = logger.get_logger(__name__)

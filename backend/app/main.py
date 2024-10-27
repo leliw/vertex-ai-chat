@@ -6,12 +6,13 @@ from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_service import ChatSession
+from app.config import ClientConfig
 from app.routers import chats, chats_message
 from app.user import User
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData
 
-from app.dependencies import ConfigDep, file_storage
+from app.dependencies import ServerConfigDep, file_storage
 from .routers import users, agents, knowledge_base
 
 
@@ -66,9 +67,9 @@ async def user_get(user_service: users.UserServiceDep, request: Request):
 
 
 @app.get("/api/config")
-async def read_config(config: ConfigDep):
+async def read_config(config: ServerConfigDep):
     """Return config from yaml file"""
-    return config
+    return ClientConfig(**config.model_dump())
 
 
 @app.get("/api/ping")
@@ -77,7 +78,7 @@ def ping():
 
 
 @app.get("/api/models")
-def models_get_all(config: ConfigDep) -> list[str]:
+def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
