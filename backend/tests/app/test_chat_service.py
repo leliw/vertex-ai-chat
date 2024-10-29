@@ -5,6 +5,7 @@ from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
 from app.chat.chat_service import ChatHistoryException, ChatService
 from app.chat.message.message_model import ChatMessage
+from app.config import ServerConfig
 from gcp.gcp_file_storage import FileStorage
 
 model_name = "gemini-1.5-flash"
@@ -18,7 +19,7 @@ def factory():
 @pytest.fixture
 def chat_service(factory):
     file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(factory, file_storage)
+    service = ChatService(factory, file_storage, ServerConfig())
     service.role = "This is role"
     return service
 

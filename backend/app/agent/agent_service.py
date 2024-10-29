@@ -1,13 +1,14 @@
 """Service for managing AI agent definitions."""
 
 from ampf.base import AmpfBaseFactory
+from app.config import ServerConfig
 from .agent_model import Agent
 
 
 class AgentService:
     """Service for managing AI agent definitions."""
 
-    def __init__(self, config: dict, factory: AmpfBaseFactory):
+    def __init__(self, config: ServerConfig, factory: AmpfBaseFactory):
         self.config = config
         self.factory = factory
 
@@ -38,7 +39,7 @@ class AgentService:
         storage = self._crete_storage(user_email)
         ret = list(storage.get_all())
         if not ret:
-            model_name = self.config.get("default_model")
+            model_name = self.config.default_model
             agent = self.create_default(user_email, model_name=model_name)
             ret = [agent]
         return ret

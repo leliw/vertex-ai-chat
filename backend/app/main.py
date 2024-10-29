@@ -6,8 +6,7 @@ from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_service import ChatSession
-from app.config import ClientConfig
-from app.routers import chats, chats_message
+from app.routers import chats, chats_message, config
 from app.user import User
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData
@@ -22,6 +21,10 @@ class SessionData(BaseSessionData):
 
 
 app = FastAPI()
+
+app.include_router(prefix="/api/config", router=config.router)
+
+
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
 
 
@@ -66,14 +69,8 @@ async def user_get(user_service: users.UserServiceDep, request: Request):
     return request.state.session_data.api_user
 
 
-@app.get("/api/config")
-async def read_config(config: ServerConfigDep):
-    """Return config from yaml file"""
-    return ClientConfig(**config.model_dump())
-
-
 @app.get("/api/ping")
-def ping():
+def ping() -> None:
     """Just for keep container alive"""
 
 

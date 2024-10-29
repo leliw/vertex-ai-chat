@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from ampf.base.ampf_base_factory import AmpfBaseFactory
 
 
 class KnowledgeBaseConfig(BaseModel):
@@ -32,3 +34,28 @@ class ServerConfig(BaseSettings):
 class ClientConfig(BaseModel):
     version: str
     google_oauth_client_id: str
+
+# UserConfig isn't used jet !!!!
+# The key should be username
+class UserConfig(BaseModel):
+    agent: Optional[str] = None
+
+
+class UserConfigService:
+    def __init__(self, factory: AmpfBaseFactory):
+        self.storage = factory.create_compact_storage(
+            "user_config", UserConfig, key_name="config"
+        )
+
+    def get(self) -> UserConfig:
+        return self.storage.get("config")
+
+    def put(self, config: UserConfig):
+        self.storage.put("config", config)
+
+    def patch(self, patch_data: UserConfig) -> None:
+        key = "config"
+        item = self.storage.get(key)
+        patch_dict = patch_data.model_dump(exclude_unset=True)
+        item.__dict__.update(patch_dict)
+        self.storage.put(key, item)
