@@ -8,7 +8,7 @@ import smtplib
 import jwt
 from pydantic import EmailStr
 
-from base import AmpfBaseFactory, KeyExists, KeyNotExists
+from ..base import AmpfBaseFactory, KeyExists, KeyNotExists
 from .auth_model import AuthUser, TokenExp, TokenPayload, Tokens
 from .auth_exceptions import (
     BlackListedRefreshTokenException,
@@ -33,11 +33,12 @@ class AuthService[T: AuthUser]:
         storage_factory: AmpfBaseFactory,
         user_service: UserServiceBase[T],
         default_user: AuthUser,
+        jwt_secret_key: str = None,
     ) -> None:
         self._storage = storage_factory.create_compact_storage(
             "token_black_list", TokenExp, "token"
         )
-        self._secret_key = os.environ["JWT_SECRET_KEY"]
+        self._secret_key = jwt_secret_key or os.environ["JWT_SECRET_KEY"]
         self._user_service = user_service
         if user_service.is_empty():
             user_service.create(default_user)

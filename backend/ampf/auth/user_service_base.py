@@ -4,7 +4,7 @@ import hashlib
 
 from pydantic import EmailStr
 
-from base.base_storage import KeyExists, KeyNotExists
+from ..base import KeyExists, KeyNotExists
 
 from .auth_model import AuthUser
 from .auth_exceptions import (
