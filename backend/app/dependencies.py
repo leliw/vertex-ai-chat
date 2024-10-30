@@ -5,9 +5,14 @@ import os
 from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, Request
+from fastapi.security import OAuth2PasswordBearer
 
+from ampf.auth.auth_model import TokenPayload
+from ampf.auth.auth_service import AuthService
 from ampf.base import AmpfBaseFactory
 from ampf.gcp import AmpfGcpFactory
+from app.user.user_model import User
+from app.user.user_service import UserService
 from gcp import FileStorage
 
 from app.config import ServerConfig
@@ -44,7 +49,13 @@ class Authorize:
 
 
 load_dotenv()
-ServerConfigDep = Annotated[ServerConfig, Depends(lambda: ServerConfig())]
+
+
+def get_server_config() -> ServerConfig:
+    return ServerConfig()
+
+
+ServerConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
 file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 
 
@@ -53,6 +64,38 @@ def get_factory() -> AmpfBaseFactory:
 
 
 FactoryDep = Annotated[AmpfBaseFactory, Depends(get_factory)]
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
+AuthTokenDep = Annotated[str, Depends(oauth2_scheme)]
+
+
+def user_service_dep(factory: FactoryDep) -> UserService:
+    return UserService(factory)
+
+
+UserServceDep = Annotated[UserService, Depends(user_service_dep)]
+
+
+def auth_service_dep(
+    factory: FactoryDep, conf: ServerConfigDep, user_service: UserServceDep
+) -> AuthService:
+    default_user = User(**dict(conf.default_user))
+    return AuthService(
+        storage_factory=factory,
+        user_service=user_service,
+        default_user=default_user,
+        jwt_secret_key=conf.jwt_secret_key,
+    )
+
+
+AuthServiceDep = Annotated[AuthService, Depends(auth_service_dep)]
+
+
+def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep):
+    return auth_service.decode_token(token)
+
+
+TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
 
 
 def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentService:

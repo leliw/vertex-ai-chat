@@ -5,6 +5,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from ampf.base.ampf_base_factory import AmpfBaseFactory
 
 
+class DefaultUserConfig(BaseModel):
+    email: str = "marcin.leliwa@gmail.com"
+    password: str = "admin"
+    roles: List[str] = ["admin"]
+
+
 class KnowledgeBaseConfig(BaseModel):
     embedding_model: str = "text-multilingual-embedding-002"
     embedding_search_limit: int = 5
@@ -21,6 +27,9 @@ class ServerConfig(BaseSettings):
 
     version: str = "0.5.9"
 
+    jwt_secret_key: str
+    default_user: DefaultUserConfig = DefaultUserConfig()
+
     models: List[str] = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
     default_model: str = "gemini-1.5-flash"
 
@@ -34,6 +43,7 @@ class ServerConfig(BaseSettings):
 class ClientConfig(BaseModel):
     version: str
     google_oauth_client_id: str
+
 
 # UserConfig isn't used jet !!!!
 # The key should be username
