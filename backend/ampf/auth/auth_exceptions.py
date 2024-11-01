@@ -16,8 +16,9 @@ class InvalidRefreshTokenException(HTTPException):
         super().__init__(status_code=401, detail="Invalid refresh token")
 
 
-class BlackListedRefreshTokenException(Exception):
-    """Zwracany jeśli token odświeżania jest już na czarnej liście"""
+class BlackListedRefreshTokenException(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=401, detail="Invalid token")
 
 
 class IncorectOldPasswordException(HTTPException):
@@ -38,3 +39,8 @@ class ResetCodeExpiredException(HTTPException):
 class ResetCodeException(HTTPException):
     def __init__(self):
         super().__init__(status_code=400, detail="Reset code error")
+
+
+class InsufficientPermissionsError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=403, detail="Insufficient permissions.")

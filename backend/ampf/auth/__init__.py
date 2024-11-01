@@ -11,6 +11,7 @@ from .auth_exceptions import (
     BlackListedRefreshTokenException,
     TokenExpiredException,
     InvalidRefreshTokenException,
+    InsufficientPermissionsError
 )
 from .auth_service import AuthService
 from .user_service_base import UserServiceBase
@@ -26,6 +27,7 @@ __all__ = [
     "BlackListedRefreshTokenException",
     "TokenExpiredException",
     "InvalidRefreshTokenException",
+    "InsufficientPermissionsError",
     "AuthService",
     "UserServiceBase",
 ]
