@@ -23,6 +23,12 @@ class InMemoryStorage[T: BaseModel](BaseStorage):
     def delete(self, key: str) -> None:
         self.items.pop(key, None)
 
+    def is_empty(self) -> bool:
+        return not bool(self.items)
+
+    def drop(self):
+        self.items = {}
+
 
 class AmpfInMemoryFactory(AmpfBaseFactory):
     collections = {}
