@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from ampf.auth.auth_model import TokenPayload
 from ampf.auth.auth_service import AuthService
-from ampf.base import AmpfBaseFactory
+from ampf.base import AmpfBaseFactory, BaseEmailSender
 from ampf.gcp import AmpfGcpFactory
 from app.user.user_model import User
 from app.user.user_service import UserService
@@ -75,13 +75,18 @@ def user_service_dep(factory: FactoryDep) -> UserService:
 
 UserServceDep = Annotated[UserService, Depends(user_service_dep)]
 
+def get_email_sender() -> BaseEmailSender:
+    return None
+
+EmailSenderDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
 
 def auth_service_dep(
-    factory: FactoryDep, conf: ServerConfigDep, user_service: UserServceDep
+    factory: FactoryDep, email_sender: EmailSenderDep, conf: ServerConfigDep, user_service: UserServceDep
 ) -> AuthService:
     default_user = User(**dict(conf.default_user))
     return AuthService(
         storage_factory=factory,
+        email_sender=email_sender,
         user_service=user_service,
         default_user=default_user,
         jwt_secret_key=conf.jwt_secret_key,

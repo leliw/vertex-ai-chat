@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import logging
 import os
 import secrets
-import smtplib
 
 import jwt
 from pydantic import EmailStr
+
+from ampf.base.base_email_sender import BaseEmailSender
 
 from ..base import AmpfBaseFactory, KeyExists, KeyNotExists
 from .auth_model import AuthUser, TokenExp, TokenPayload, Tokens
@@ -31,6 +31,7 @@ class AuthService[T: AuthUser]:
     def __init__(
         self,
         storage_factory: AmpfBaseFactory,
+        email_sender: BaseEmailSender,
         user_service: UserServiceBase[T],
         default_user: AuthUser,
         jwt_secret_key: str = None,
@@ -39,9 +40,11 @@ class AuthService[T: AuthUser]:
             "token_black_list", TokenExp, "token"
         )
         self._secret_key = jwt_secret_key or os.environ["JWT_SECRET_KEY"]
+        self._email_sender = email_sender
         self._user_service = user_service
         if user_service.is_empty():
             user_service.create(default_user)
+        self._log = logging.getLogger(__name__)
 
     def authorize(self, username: str, password: str) -> Tokens:
         user = self._user_service.get_user_by_credentials(username, password)
@@ -84,8 +87,10 @@ class AuthService[T: AuthUser]:
             self.add_to_black_list(TokenExp(token=refresh_token, exp=payload.exp))
             return self.create_tokens(payload)
         except BlackListedRefreshTokenException:
+            self._log.warning("Refresh token is blacklisted")
             raise InvalidRefreshTokenException
         except jwt.exceptions.ExpiredSignatureError:
+            self._log.warning("Refresh token expired")
             raise TokenExpiredException
 
     def add_to_black_list(self, token: TokenExp | str) -> None:
@@ -108,34 +113,28 @@ class AuthService[T: AuthUser]:
             user = self._user_service.get_user_by_email(email)
         except KeyNotExists:
             raise UserNotExistsException(email)
-        reset_code = secrets.token_urlsafe(16)
+        reset_code = secrets.token_urlsafe(16)[:16]
+        self._log.debug(f"Reset code for {email}: {reset_code}")
         expires_delta = timedelta(minutes=RESET_CODE_EXPIRE_MINUTES)
         reset_code_expires = datetime.now(timezone.utc) + expires_delta
         self.send_reset_email(email, reset_code)
         self._user_service.set_reset_code(user.username, reset_code, reset_code_expires)
 
-    def send_reset_email(self, email: EmailStr, reset_code: str) -> None:
+    def send_reset_email(self, recipient_email: EmailStr, reset_code: str) -> None:
         # Wypełnij te dane własnymi
         sender_email = "noreply@saltus.pl"
-        sender_password = ""
-
-        msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = email
-        msg["Subject"] = "Resetowanie hasła - Archive Assist AI"
-
         body = f"""
         Witaj! Otrzymałeś ten email, ponieważ poprosiłeś o zresetowanie hasła.
         Aby zresetować swoje hasło, wpisz kod: {reset_code} w formularzu. 
         Kod jest ważny przez {RESET_CODE_EXPIRE_MINUTES} minut.
         Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
         """
-        msg.attach(MIMEText(body, "plain"))
-
-        with smtplib.SMTP("mx.saltus.pl", 25) as server:
-            if sender_password:
-                server.login(sender_email, sender_password)
-            server.sendmail(sender_email, email, msg.as_string())
+        self._email_sender.send(
+            sender=sender_email,
+            recipient=recipient_email,
+            subject="Resetowanie hasła - Archive Assist AI",
+            body=body,
+        )
 
     def reset_password(self, email: EmailStr, reset_code: str, new_pass: str) -> None:
         user = self._user_service.get_user_by_email(email)
