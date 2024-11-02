@@ -1,14 +1,12 @@
 """This module contains dependencies for FastAPI endpoints."""
 
-import logging
 import os
 from typing import Annotated
 from dotenv import load_dotenv
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from ampf.auth.auth_model import TokenPayload
-from ampf.auth.auth_service import AuthService
+from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender
 from ampf.gcp import AmpfGcpFactory
 from app.user.user_model import User
@@ -18,34 +16,6 @@ from gcp import FileStorage
 from app.config import ServerConfig
 from app.agent import AgentService
 from app.chat import ChatService
-
-
-class InsufficientPermissionsError(HTTPException):
-    def __init__(self):
-        super().__init__(status_code=403, detail="Insufficient permissions.")
-
-
-def get_current_user_id(request: Request) -> str:
-    """Returns the current user's ID from the session."""
-    return request.state.session_data.user.email
-
-
-UserEmailDep = Annotated[str, Depends(get_current_user_id)]
-
-
-class Authorize:
-    """Dependency for authorizing users based on their role."""
-
-    def __init__(self, required_role: str):
-        self.required_role = required_role
-        self._log = logging.getLogger(__name__)
-
-    def __call__(self, user_id: UserEmailDep) -> bool:
-        if user_id == "marcin.leliwa@gmail.com":
-            return True
-        else:
-            self._log.warning(f"User {user_id} does not have the required role.")
-            raise InsufficientPermissionsError()
 
 
 load_dotenv()
@@ -75,13 +45,19 @@ def user_service_dep(factory: FactoryDep) -> UserService:
 
 UserServceDep = Annotated[UserService, Depends(user_service_dep)]
 
+
 def get_email_sender() -> BaseEmailSender:
     return None
 
+
 EmailSenderDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
 
+
 def auth_service_dep(
-    factory: FactoryDep, email_sender: EmailSenderDep, conf: ServerConfigDep, user_service: UserServceDep
+    factory: FactoryDep,
+    email_sender: EmailSenderDep,
+    conf: ServerConfigDep,
+    user_service: UserServceDep,
 ) -> AuthService:
     default_user = User(**dict(conf.default_user))
     return AuthService(
@@ -101,6 +77,25 @@ def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep):
 
 
 TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
+
+def get_user_email(token_payload: TokenPayloadDep) -> str:
+    """Returns the current user's ID from the session."""
+    return token_payload.email
+
+
+UserEmailDep = Annotated[str, Depends(get_user_email)]
+
+class Authorize:
+    """Dependency for authorizing users based on their role."""
+
+    def __init__(self, required_role: str = None):
+        self.required_role = required_role
+
+    def __call__(self, token_payload: TokenPayloadDep) -> bool:
+        if not self.required_role or self.required_role in token_payload.roles:
+            return True
+        else:
+            raise InsufficientPermissionsError()
 
 
 def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentService:

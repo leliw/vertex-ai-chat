@@ -6,7 +6,7 @@ from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_service import ChatSession
-from app.routers import chats, chats_message, config
+from app.routers import auth, chats, chats_message, config
 from app.user import User
 from base import static_file_response
 from gcp import SessionManager, SessionData as BaseSessionData
@@ -22,7 +22,9 @@ class SessionData(BaseSessionData):
 
 app = FastAPI()
 
+#app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
+app.include_router(prefix="/api/users", router=users.router)
 
 
 session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
@@ -39,7 +41,6 @@ async def login_google(request: Request):
 
 
 app.include_router(chats.router, prefix="/api/chats")
-app.include_router(users.router, prefix="/api")
 
 
 @app.get("/api/auth")

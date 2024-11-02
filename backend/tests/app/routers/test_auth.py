@@ -9,6 +9,8 @@ import pytest
 from ampf.auth.auth_model import TokenExp
 from app.dependencies import get_email_sender, get_factory, get_server_config
 from app.routers import auth, config
+from app.user.user_model import User
+from app.user.user_service import UserService
 
 
 @pytest.fixture
@@ -21,8 +23,11 @@ def client(factory, email_sender, test_config):
     app.include_router(auth.router, prefix="/api")
     app.include_router(config.router, prefix="/api/config")
     client = TestClient(app)
-    return client
-
+    yield client
+    # Restore default user
+    user_service = UserService(factory)
+    user_service.storage.drop()
+    user_service.create(User(**test_config.default_user.model_dump()))
 
 def test_login_ok(client):
     # When: Default user logs in
