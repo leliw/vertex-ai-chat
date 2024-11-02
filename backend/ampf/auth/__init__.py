@@ -10,6 +10,7 @@ from .auth_model import (
 from .auth_exceptions import (
     BlackListedRefreshTokenException,
     TokenExpiredException,
+    InvalidTokenException,
     InvalidRefreshTokenException,
     InsufficientPermissionsError
 )
@@ -26,6 +27,7 @@ __all__ = [
     "ResetPasswordRequest",
     "BlackListedRefreshTokenException",
     "TokenExpiredException",
+    "InvalidTokenException",
     "InvalidRefreshTokenException",
     "InsufficientPermissionsError",
     "AuthService",

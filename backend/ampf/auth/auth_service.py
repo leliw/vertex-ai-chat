@@ -12,6 +12,7 @@ from ..base import AmpfBaseFactory, KeyExists, KeyNotExists
 from .auth_model import AuthUser, TokenExp, TokenPayload, Tokens
 from .auth_exceptions import (
     BlackListedRefreshTokenException,
+    InvalidTokenException,
     InvalidRefreshTokenException,
     ResetCodeException,
     ResetCodeExpiredException,
@@ -80,6 +81,8 @@ class AuthService[T: AuthUser]:
             return TokenPayload(**payload)
         except jwt.exceptions.ExpiredSignatureError:
             raise TokenExpiredException
+        except jwt.exceptions.InvalidTokenError:
+            raise InvalidTokenException
 
     def refresh_token(self, refresh_token: str) -> Tokens:
         try:

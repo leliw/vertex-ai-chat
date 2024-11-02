@@ -11,6 +11,11 @@ class TokenExpiredException(HTTPException):
         super().__init__(status_code=401, detail="Token expired")
 
 
+class InvalidTokenException(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=401, detail="Invalids token")
+
+
 class InvalidRefreshTokenException(HTTPException):
     def __init__(self):
         super().__init__(status_code=401, detail="Invalid refresh token")
