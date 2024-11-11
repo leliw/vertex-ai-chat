@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Iterator
 from pydantic import BaseModel
 from uuid import uuid4
@@ -18,14 +17,6 @@ from ai_model import AIModelFactory
 from app.config import ServerConfig
 from .chat_model import ChatSessionHeader, ChatSession
 from .message import ChatMessage, ChatMessageFile
-
-
-class ChatHistoryException(Exception):
-    """Is't strange form of returning history."""
-
-    def __init__(self, chat_session: ChatSession, exception: Exception = None):
-        self.chat_session = chat_session
-        self.exception = exception
 
 
 class StreamedEvent(BaseModel):
@@ -115,8 +106,6 @@ class ChatService:
             self.storage.save(chat_session)
         except Exception as e:
             yield StreamedEvent(type=f"error:{type(e).__name__}", value=str(e))
-            raise ChatHistoryException(chat_session, e)
-        raise ChatHistoryException(chat_session)
 
     def get_context(self, text: str, agent: Agent = None) -> str:
         """Get the context of the chat session."""
@@ -148,20 +137,13 @@ class ChatService:
         ]
         return ret
 
-    async def get_chat(self, chat_session_id: str, user: str) -> ChatSession:
+    def get(self, chat_session_id: str, user: str) -> ChatSession:
         """Get chat history by id."""
         if chat_session_id == "_NEW_":
-            chat_session_id = str(uuid4())
-            chat_session = ChatSession(
-                chat_session_id=chat_session_id,
-                user=user,
-                created=datetime.now(),
-                summary="",
-                history=[],
-            )
+            chat_session = ChatSession(user=user)
         else:
             chat_session = self.storage.get(chat_session_id)
-            if chat_session.user != user:
+            if chat_session and chat_session.user != user:
                 raise ChatSessionUserError()
         return chat_session
 

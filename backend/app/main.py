@@ -2,17 +2,17 @@
 
 from typing import List, Optional
 
-from fastapi import FastAPI, File, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, File, Request, UploadFile
+from fastapi.responses import HTMLResponse
 
 from app.chat.chat_service import ChatSession
 from app.logging_conf import setup_logging
 from app.routers import auth, chats, chats_message, config
 from app.user import User
 from base import static_file_response
-from gcp import SessionManager, SessionData as BaseSessionData
+from gcp import SessionData as BaseSessionData
 
-from app.dependencies import ServerConfigDep, file_storage
+from app.dependencies import ServerConfigDep
 from .routers import users, agents, knowledge_base
 
 
@@ -77,7 +77,7 @@ def files_delete(name: str, request: Request):
 
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
-app.include_router(chats_message.router, prefix="/api/chats/message")
+app.include_router(chats_message.router, prefix="/api/chats/{chat_id}/messages")
 
 
 # Angular static files - it have to be at the end of file
