@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './shared/login/login.component';
 import { authGuard } from './shared/auth/auth.service';
+import { LoginFormComponent } from './shared/auth/login-form/login-form.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/chat', pathMatch: 'full' },
@@ -16,12 +17,21 @@ export const routes: Routes = [
             import('./static/privacy-policy/privacy-policy.component')
                 .then(mod => mod.PrivacyPolicyComponent)
     },
-    { path: 'login', component: LoginComponent },
+    // { path: 'login', component: LoginComponent },
+    { path: 'login', component: LoginFormComponent },
     {
         path: 'register', canActivate: [authGuard],
         loadComponent: () =>
             import('./register/register.component')
                 .then(mod => mod.RegisterComponent)
+    },
+    {
+        path: 'reset-password-request',
+        loadComponent: () => import('./shared/auth/reset-password-request-form/reset-password-request-form.component').then(mod => mod.ResetPasswordRequestFormComponent)
+    },
+    {
+        path: 'reset-password',
+        loadComponent: () => import('./shared/auth/reset-password-form/reset-password-form.component').then(mod => mod.ResetPasswordFormComponent)
     },
     {
         path: 'chat', canActivate: [authGuard],
