@@ -4,6 +4,8 @@ from .base_blob_storage import BaseBlobStorage
 from .ampf_base_factory import AmpfBaseFactory
 from . import logger
 from .singleton import singleton
+from .smtp_email_sender import SmtpEmailSender
+
 
 __all__ = [
     "BaseStorage",
@@ -15,4 +17,5 @@ __all__ = [
     "AmpfBaseFactory",
     "logger",
     "singleton",
+    "SmtpEmailSender",
 ]

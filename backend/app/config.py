@@ -22,6 +22,14 @@ class GenerativeModelConfig(BaseModel):
     top_p: float = 0.95
 
 
+class SmtpConfig(BaseModel):
+    host: str = "smtp.gmail.com"
+    port: int = 465
+    username: Optional[str] = None
+    password: Optional[str] = None
+    use_ssl: bool = True
+
+
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
@@ -38,6 +46,7 @@ class ServerConfig(BaseSettings):
 
     knowledge_base: KnowledgeBaseConfig = KnowledgeBaseConfig()
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
+    smtp: SmtpConfig = SmtpConfig()
 
 
 class ClientConfig(BaseModel):
