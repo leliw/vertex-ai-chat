@@ -28,40 +28,21 @@ app = FastAPI()
 app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
 app.include_router(prefix="/api/users", router=users.router)
+app.include_router(prefix="/api/chats", router=chats.router)
 
 
-session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
+# @app.get("/api/auth")
+# async def auth_google(
+#     user_service: users.UserServiceDep, request: Request, response: Response
+# ):
+#     user_data = await session_manager.auth(request, response)
+#     if user_data:
+#         user = user_service.get(user_data["email"])
+#         if user:
+#             return JSONResponse(status_code=200, content=user_data)
+#         else:
+#             return JSONResponse(status_code=404, content=user_data)
 
-
-@app.middleware("http")
-async def add_session_data(request: Request, call_next):
-    return await session_manager.middleware_add_session_data(request, call_next)
-
-
-@app.get("/api/login")
-async def login_google(request: Request):
-    return session_manager.redirect_login(request)
-
-
-app.include_router(chats.router, prefix="/api/chats")
-
-
-@app.get("/api/auth")
-async def auth_google(
-    user_service: users.UserServiceDep, request: Request, response: Response
-):
-    user_data = await session_manager.auth(request, response)
-    if user_data:
-        user = user_service.get(user_data["email"])
-        if user:
-            return JSONResponse(status_code=200, content=user_data)
-        else:
-            return JSONResponse(status_code=404, content=user_data)
-
-
-@app.post("/api/logout")
-async def logout(request: Request, response: Response):
-    await request.state.session_data.delete_session(request, response)
 
 
 @app.get("/api/user")
