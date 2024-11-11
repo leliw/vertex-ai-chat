@@ -5,6 +5,7 @@ from .ampf_base_factory import AmpfBaseFactory
 from . import logger
 from .singleton import singleton
 from .smtp_email_sender import SmtpEmailSender
+from .email_template import EmailTemplate
 
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "logger",
     "singleton",
     "SmtpEmailSender",
+    "EmailTemplate",
 ]

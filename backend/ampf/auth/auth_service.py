@@ -6,7 +6,7 @@ import secrets
 import jwt
 from pydantic import EmailStr
 
-from ampf.base.base_email_sender import BaseEmailSender
+from ampf.base import BaseEmailSender, EmailTemplate
 
 from ..base import AmpfBaseFactory, KeyExists, KeyNotExists
 from .auth_model import AuthUser, TokenExp, TokenPayload, Tokens
@@ -32,19 +32,21 @@ class AuthService[T: AuthUser]:
     def __init__(
         self,
         storage_factory: AmpfBaseFactory,
-        email_sender: BaseEmailSender,
+        email_sender_service: BaseEmailSender,
         user_service: UserServiceBase[T],
         default_user: AuthUser,
+        reset_mail_template: EmailTemplate,
         jwt_secret_key: str = None,
     ) -> None:
         self._storage = storage_factory.create_compact_storage(
             "token_black_list", TokenExp, "token"
         )
         self._secret_key = jwt_secret_key or os.environ["JWT_SECRET_KEY"]
-        self._email_sender = email_sender
+        self._email_sender_service = email_sender_service
         self._user_service = user_service
         if user_service.is_empty():
             user_service.create(default_user)
+        self.reset_mail_template = reset_mail_template
         self._log = logging.getLogger(__name__)
 
     def authorize(self, username: str, password: str) -> Tokens:
@@ -123,20 +125,13 @@ class AuthService[T: AuthUser]:
         self.send_reset_email(email, reset_code)
         self._user_service.set_reset_code(user.username, reset_code, reset_code_expires)
 
-    def send_reset_email(self, recipient_email: EmailStr, reset_code: str) -> None:
-        # Wypełnij te dane własnymi
-        sender_email = "noreply@saltus.pl"
-        body = f"""
-        Witaj! Otrzymałeś ten email, ponieważ poprosiłeś o zresetowanie hasła.
-        Aby zresetować swoje hasło, wpisz kod: {reset_code} w formularzu. 
-        Kod jest ważny przez {RESET_CODE_EXPIRE_MINUTES} minut.
-        Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
-        """
-        self._email_sender.send(
-            sender=sender_email,
-            recipient=recipient_email,
-            subject="Resetowanie hasła - Archive Assist AI",
-            body=body,
+    def send_reset_email(self, recipient: EmailStr, reset_code: str) -> None:
+        self._email_sender_service.send(
+            **self.reset_mail_template.render(
+                recipient=recipient,
+                reset_code=reset_code,
+                RESET_CODE_EXPIRE_MINUTES=RESET_CODE_EXPIRE_MINUTES,
+            )
         )
 
     def reset_password(self, email: EmailStr, reset_code: str, new_pass: str) -> None:

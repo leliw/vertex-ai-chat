@@ -7,7 +7,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
-from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender
+from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import AmpfGcpFactory
 from app.user.user_model import User
 from app.user.user_service import UserService
@@ -50,21 +50,33 @@ def get_email_sender(conf: ServerConfigDep) -> BaseEmailSender:
     return SmtpEmailSender(**dict(conf.smtp))
 
 
-EmailSenderDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
+EmailSenderServiceDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
 
 
 def auth_service_dep(
     factory: FactoryDep,
-    email_sender: EmailSenderDep,
+    email_sender_service: EmailSenderServiceDep,
     conf: ServerConfigDep,
     user_service: UserServceDep,
 ) -> AuthService:
     default_user = User(**dict(conf.default_user))
+    reset_mail_template = EmailTemplate(
+        sender="reset-password@hanseintellitech.pl",
+        subject="Resetowanie hasła - Chat",
+        body_template="""Witaj!
+        
+Otrzymałeś ten email, ponieważ poprosiłeś o zresetowanie hasła.
+Aby zresetować swoje hasło, wpisz kod: {reset_code} w formularzu.
+Kod jest ważny przez {RESET_CODE_EXPIRE_MINUTES} minut.
+Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
+""",
+    )
     return AuthService(
         storage_factory=factory,
-        email_sender=email_sender,
+        email_sender_service=email_sender_service,
         user_service=user_service,
         default_user=default_user,
+        reset_mail_template=reset_mail_template,
         jwt_secret_key=conf.jwt_secret_key,
     )
 
@@ -78,12 +90,14 @@ def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep):
 
 TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
 
+
 def get_user_email(token_payload: TokenPayloadDep) -> str:
     """Returns the current user's ID from the session."""
     return token_payload.email
 
 
 UserEmailDep = Annotated[str, Depends(get_user_email)]
+
 
 class Authorize:
     """Dependency for authorizing users based on their role."""
