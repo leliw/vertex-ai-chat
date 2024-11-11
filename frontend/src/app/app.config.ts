@@ -6,7 +6,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { GoogleLoginProvider, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
-import { authInterceptor } from './shared/auth/auth.interceptor';
+import { authInterceptor } from './shared/auth/auth.service'
 import { ConfigService } from './shared/config/config.service';
 
 export const appConfig: ApplicationConfig = {
@@ -14,25 +14,25 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideAnimationsAsync(),
         provideHttpClient(withInterceptors([authInterceptor])),
-        {
-            provide: 'SocialAuthServiceConfig',
-            useFactory: async (configService: ConfigService) => {
-                const clientId = await configService.getOAuthClientId();
-                const oneTapEnabled = localStorage.getItem("user") == null;
-                return {
-                    autoLogin: false,
-                    providers: [
-                        {
-                            id: GoogleLoginProvider.PROVIDER_ID,
-                            provider: new GoogleLoginProvider(clientId, { oneTapEnabled: oneTapEnabled })
-                        }
-                    ],
-                    onError: (err: any) => {
-                        console.error(err);
-                    }
-                } as SocialAuthServiceConfig;
-            },
-            deps: [ConfigService]
-        }
+        // {
+        //     provide: 'SocialAuthServiceConfig',
+        //     useFactory: async (configService: ConfigService) => {
+        //         const clientId = await configService.getOAuthClientId();
+        //         const oneTapEnabled = localStorage.getItem("user") == null;
+        //         return {
+        //             autoLogin: false,
+        //             providers: [
+        //                 {
+        //                     id: GoogleLoginProvider.PROVIDER_ID,
+        //                     provider: new GoogleLoginProvider(clientId, { oneTapEnabled: oneTapEnabled })
+        //                 }
+        //             ],
+        //             onError: (err: any) => {
+        //                 console.error(err);
+        //             }
+        //         } as SocialAuthServiceConfig;
+        //     },
+        //     deps: [ConfigService]
+        // }
     ]
 };
