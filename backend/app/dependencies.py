@@ -7,7 +7,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
-from ampf.base import AmpfBaseFactory, BaseEmailSender
+from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender
 from ampf.gcp import AmpfGcpFactory
 from app.user.user_model import User
 from app.user.user_service import UserService
@@ -46,8 +46,8 @@ def user_service_dep(factory: FactoryDep) -> UserService:
 UserServceDep = Annotated[UserService, Depends(user_service_dep)]
 
 
-def get_email_sender() -> BaseEmailSender:
-    return None
+def get_email_sender(conf: ServerConfigDep) -> BaseEmailSender:
+    return SmtpEmailSender(**dict(conf.smtp))
 
 
 EmailSenderDep = Annotated[BaseEmailSender, Depends(get_email_sender)]

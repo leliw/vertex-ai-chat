@@ -38,9 +38,8 @@ class UserServiceBase[T: AuthUser](ABC):
     def get_user_by_credentials(self, username: str, password: str) -> T:
         """Zwraca użytkownika po nazwie i haśle albo wyrzuca wyjątek"""
         user = self.get(username)
-        self._log.debug(f"User: {user}")
         if not user or user.hashed_password != self._hash_password(password):
-            self._log.info(f"User {username} not found or password incorrect")
+            self._log.error(f"User {username} not found or password incorrect")
             raise IncorrectUsernameOrPasswordException
         return user
 
