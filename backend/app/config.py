@@ -30,6 +30,18 @@ class SmtpConfig(BaseModel):
     use_ssl: bool = True
 
 
+class ResetPasswordMailConfig(BaseModel):
+    sender: str = "admin@example.com"
+    subject: str = "Resetowanie hasła - Chat"
+    body_template: str = """Witaj!
+        
+Otrzymałeś ten email, ponieważ poprosiłeś o zresetowanie hasła.
+Aby zresetować swoje hasło, wpisz kod: {reset_code} w formularzu.
+Kod jest ważny przez {reset_code_expire_minutes} minut.
+Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
+"""
+
+
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
@@ -47,6 +59,7 @@ class ServerConfig(BaseSettings):
     knowledge_base: KnowledgeBaseConfig = KnowledgeBaseConfig()
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
     smtp: SmtpConfig = SmtpConfig()
+    reset_password_mail: ResetPasswordMailConfig = ResetPasswordMailConfig()
 
 
 class ClientConfig(BaseModel):

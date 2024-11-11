@@ -130,7 +130,7 @@ class AuthService[T: AuthUser]:
             **self.reset_mail_template.render(
                 recipient=recipient,
                 reset_code=reset_code,
-                RESET_CODE_EXPIRE_MINUTES=RESET_CODE_EXPIRE_MINUTES,
+                reset_code_expire_minutes=RESET_CODE_EXPIRE_MINUTES,
             )
         )
 

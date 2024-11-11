@@ -60,17 +60,7 @@ def auth_service_dep(
     user_service: UserServceDep,
 ) -> AuthService:
     default_user = User(**dict(conf.default_user))
-    reset_mail_template = EmailTemplate(
-        sender="reset-password@hanseintellitech.pl",
-        subject="Resetowanie hasła - Chat",
-        body_template="""Witaj!
-        
-Otrzymałeś ten email, ponieważ poprosiłeś o zresetowanie hasła.
-Aby zresetować swoje hasło, wpisz kod: {reset_code} w formularzu.
-Kod jest ważny przez {RESET_CODE_EXPIRE_MINUTES} minut.
-Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
-""",
-    )
+    reset_mail_template = EmailTemplate(**dict(conf.reset_password_mail))
     return AuthService(
         storage_factory=factory,
         email_sender_service=email_sender_service,
