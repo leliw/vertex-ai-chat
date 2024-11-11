@@ -42,6 +42,9 @@ class OAuth:
         self.included_paths = included_paths or ["/api/*"]
         self.excluded_paths = excluded_paths or [
             "/api/config",
+            "/api/ping",
+            "/api/reset-password-request",
+            "/api/reset-password",
         ]
         self._google_public_keys = self._get_google_public_keys()
 
