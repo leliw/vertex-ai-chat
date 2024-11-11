@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 from uuid import uuid4
-from pydantic import Field
+from pydantic import Field, model_serializer
 
 from ampf.auth import AuthUser
 
@@ -32,3 +32,10 @@ class User(UserHeader):
         self.o_terms_accepted = None
         self.picture = self.picture or self.o_picture_url
         self.o_picture_url = None
+
+
+class UserInDB(User):
+    @model_serializer
+    def ser_model(self) -> Dict[str, Any]:
+        self.password = None
+        return dict(self)
