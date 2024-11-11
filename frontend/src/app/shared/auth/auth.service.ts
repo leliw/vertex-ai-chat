@@ -33,10 +33,7 @@ export class AuthService {
         this.access_token = localStorage.getItem("access_token") ?? undefined
         this.refresh_token = localStorage.getItem("refresh_token") ?? undefined
         if (this.refresh_token) {
-            const payload: any = jwtDecode(this.refresh_token);
-            this.username = payload.name;
-            this.user_email = payload.email;
-            this.roles = payload.roles;
+            this.decodeToken(this.refresh_token);
             return true;
         }
         return false;
@@ -50,10 +47,7 @@ export class AuthService {
             next: value => {
                 this.access_token = value.access_token;
                 this.refresh_token = value.refresh_token
-                const payload: any = jwtDecode(this.access_token);
-                this.username = payload.name;
-                this.user_email = payload.email;
-                this.roles = payload.roles;
+                this.decodeToken(this.access_token);
                 if (credentials.store_token) {
                     localStorage.setItem("access_token", this.access_token);
                     localStorage.setItem("refresh_token", this.refresh_token);
@@ -74,14 +68,32 @@ export class AuthService {
     logout(): Observable<void> {
         const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
         return this.http.post<void>('/api/logout', { headers: headers }).pipe(tap(() => {
-            this.access_token = undefined;
-            this.username = undefined;
-            this.user_email = undefined
-            this.roles = []
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
+            this.cleanData();
             this.router.navigate(['/login']);
         }));
+    }
+
+    /**
+     * Decode JWT token and set user data
+     * @param token JWT token
+     */
+    private decodeToken(token: string): void {
+        const payload: any = jwtDecode(token);
+        this.username = payload.email;
+        this.user_email = payload.email;
+        this.roles = payload.roles;
+    }
+
+    /**
+     * Clear user data and remove tokens from local storage
+     */
+    cleanData(): void {
+        this.access_token = undefined;
+        this.username = undefined;
+        this.user_email = undefined;
+        this.roles = [];
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
     }
 
     resetPasswordRequest(email: string): Observable<void> {
@@ -164,12 +176,22 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    if (req.url.endsWith('/api/config') || req.url.endsWith('/api/login') || req.url.endsWith('/api/token-refresh')) {
+    if ([
+        '/api/config',
+        '/api/login',
+        '/api/logout',
+        '/api/token-refresh',
+        '/api/reset-password-request',
+        '/api/reset-password'
+    ].includes(req.url))
         return next(req);
-    } else {
-        const authService = inject(AuthService);
-        const router = inject(Router);
 
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    if (!authService.isLoggedIn()) {
+        router.navigate(['/login']);
+        throw new Error('Brak dostępu' + req.url);
+    } else {
         // Clone the request and add the authorization header
         const authReq = req.clone({
             setHeaders: {
@@ -190,6 +212,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                         }),
                         catchError(err => {
                             if (err.status === 401) {
+                                console.log('Refresh token error:', err);
+                                authService.cleanData();
                                 router.navigate(['/login']);
                             }
                             throw err;
