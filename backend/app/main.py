@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.chat.chat_service import ChatSession
+from app.logging_conf import setup_logging
 from app.routers import auth, chats, chats_message, config
 from app.user import User
 from base import static_file_response
@@ -20,9 +21,11 @@ class SessionData(BaseSessionData):
     api_user: Optional[User] = None
 
 
+setup_logging()
+
 app = FastAPI()
 
-#app.include_router(prefix="/api", router=auth.router)
+app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
 app.include_router(prefix="/api/users", router=users.router)
 
