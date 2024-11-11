@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -17,7 +17,7 @@ export interface ApiUser {
 })
 export class ApiService {
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(private readonly httpClient: HttpClient) { }
     /**
      * Authenticate user by token in request header
      * @returns 
