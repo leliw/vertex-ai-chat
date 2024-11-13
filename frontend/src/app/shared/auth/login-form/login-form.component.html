@@ -26,5 +26,8 @@
             <button mat-raised-button type="button" routerLink="/reset-password-request">Reset hasła</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.form.valid">Zaloguj</button>
         </mat-card-actions>
+        <mat-card-footer>
+            ver.: {{version}}
+        </mat-card-footer>
     </mat-card>
 </form>
