@@ -40,11 +40,5 @@ export class ApiService {
     getUser(): Observable<ApiUser> {
         return this.httpClient.get<ApiUser>('/api/user');
     }
-    /**
-     * Logout user 
-     */
-    logout(): Observable<void> {
-        return this.httpClient.post<void>('/api/logout', {});
-    }
 
 }

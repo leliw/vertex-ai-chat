@@ -68,7 +68,7 @@ export class AuthService {
 
     logout(): Observable<void> {
         const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
-        return this.http.post<void>('/api/logout', { headers: headers }).pipe(tap(() => {
+        return this.http.post<void>('/api/logout', {}, { headers: headers }).pipe(tap(() => {
             this.cleanData();
             this.router.navigate(['/login']);
         }));
