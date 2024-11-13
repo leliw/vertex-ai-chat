@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { BehaviorSubject, catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
+import { ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 
 export interface Tokens {
     access_token: string;
@@ -223,3 +224,37 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }));
     }
 };
+
+/**
+ * Check if new password is equal to new_password2
+ * It should be used for password confirmation (second) field
+ * @returns ValidatorFn
+ */
+export function newPasswordEuqalsValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const value2: string = control.value;
+        const value1: string = control.parent?.value.new_password
+        return value1 != value2 ? { equals: true } : null;
+    }
+}
+
+/**
+ * Check if password has at least one uppercase letter, one lowercase letter and one digit
+ * @param minLength Minimal password length
+ * @returns 
+ */
+export function passwordStrengthValidator(minLength: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const value: string = control.value;
+        if (!value) {
+            return null;
+        }
+        if (value.length < minLength)
+            return { minlength: true }
+        const hasUpperCase = /[A-Z]+/.test(value);
+        const hasLowerCase = /[a-z]+/.test(value);
+        const hasNumeric = /\d+/.test(value);
+        const passwordValid = hasUpperCase && hasLowerCase && hasNumeric;
+        return !passwordValid ? { passwordStrength: true } : null;
+    }
+}

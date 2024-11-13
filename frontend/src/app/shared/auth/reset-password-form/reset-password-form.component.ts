@@ -4,11 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-// import { passwordStrengthValidator } from '../../../user/user.service';
-// import { newPasswordEuqalsValidator } from '../../change-password-dialog/change-password-dialog.component';
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthService } from '../auth.service';
+import { AuthService, newPasswordEuqalsValidator, passwordStrengthValidator } from '../auth.service';
 
 @Component({
     selector: 'app-reset-password-form',
@@ -31,10 +29,8 @@ export class ResetPasswordFormComponent {
     form = this.fb.group({
         email: ['', [Validators.email, Validators.required]],
         reset_code: ['', Validators.required],
-        new_password: ['', [Validators.required]],
-        new_password2: ['', [Validators.required]],
-        // new_password: ['', [Validators.required, passwordStrengthValidator(8)]],
-        // new_password2: ['', [Validators.required, newPasswordEuqalsValidator()]],
+        new_password: ['', [Validators.required, passwordStrengthValidator(8)]],
+        new_password2: ['', [Validators.required, newPasswordEuqalsValidator()]],
     })
 
     constructor(private readonly authService: AuthService) { }
