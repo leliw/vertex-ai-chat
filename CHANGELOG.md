@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.1 - 2024-11-13
+
+* Local users authentication
+
 ## Version 0.5.8 - 2024-10-25
 
 * PingService - refactor
