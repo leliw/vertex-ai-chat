@@ -1,5 +1,4 @@
-@if (!authService.isLoading && !authService.isRegistered()) {
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="center-content">
     <mat-card>
         <mat-card-header>
             <mat-card-title>Rejestracja</mat-card-title>
@@ -32,11 +31,6 @@
                 }
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="full-width">
-                <mat-label>Nazwa</mat-label>
-                <input matInput formControlName="name">
-            </mat-form-field>
-
             <mat-checkbox class="form-field" formControlName="termsAccepted">Akceptuję <a routerLink="/static/terms-of-service" >warunki korzystania z serwisu</a> oraz <a routerLink="/static/privacy-policy">politykę prywatności</a>
                 @if (form.get('termsAccepted')?.hasError('required')) {
                 <mat-error>Musisz zaakceptować warunki</mat-error>
@@ -49,4 +43,3 @@
         </mat-card-actions>
     </mat-card>
 </form>
-}

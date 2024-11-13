@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 import hashlib
+import logging
 
 from pydantic import EmailStr
 
-from base.base_storage import KeyExists, KeyNotExists
+from ..base import KeyExists, KeyNotExists
 
 from .auth_model import AuthUser
 from .auth_exceptions import (
@@ -15,6 +16,9 @@ from .auth_exceptions import (
 
 class UserServiceBase[T: AuthUser](ABC):
     """Base class for user service."""
+
+    def __init__(self):
+        self._log = logging.getLogger(__name__)
 
     @abstractmethod
     def is_empty(self) -> bool:
@@ -36,6 +40,7 @@ class UserServiceBase[T: AuthUser](ABC):
         """Zwraca użytkownika po nazwie i haśle albo wyrzuca wyjątek"""
         user = self.get(username)
         if not user or user.hashed_password != self._hash_password(password):
+            self._log.error(f"User {username} not found or password incorrect")
             raise IncorrectUsernameOrPasswordException
         return user
 

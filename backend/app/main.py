@@ -2,16 +2,17 @@
 
 from typing import List, Optional
 
-from fastapi import FastAPI, File, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, File, Request, UploadFile
+from fastapi.responses import HTMLResponse
 
 from app.chat.chat_service import ChatSession
-from app.routers import chats, chats_message, config
+from app.logging_conf import setup_logging
+from app.routers import auth, chats, chats_message, config
 from app.user import User
 from base import static_file_response
-from gcp import SessionManager, SessionData as BaseSessionData
+from gcp import SessionData as BaseSessionData
 
-from app.dependencies import ServerConfigDep, file_storage
+from app.dependencies import ServerConfigDep
 from .routers import users, agents, knowledge_base
 
 
@@ -20,44 +21,27 @@ class SessionData(BaseSessionData):
     api_user: Optional[User] = None
 
 
+setup_logging()
+
 app = FastAPI()
 
+app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
+app.include_router(prefix="/api/users", router=users.router)
+app.include_router(prefix="/api/chats", router=chats.router)
 
 
-session_manager = SessionManager(session_class=SessionData, file_storage=file_storage)
-
-
-@app.middleware("http")
-async def add_session_data(request: Request, call_next):
-    return await session_manager.middleware_add_session_data(request, call_next)
-
-
-@app.get("/api/login")
-async def login_google(request: Request):
-    return session_manager.redirect_login(request)
-
-
-app.include_router(chats.router, prefix="/api/chats")
-app.include_router(users.router, prefix="/api")
-
-
-@app.get("/api/auth")
-async def auth_google(
-    user_service: users.UserServiceDep, request: Request, response: Response
-):
-    user_data = await session_manager.auth(request, response)
-    if user_data:
-        user = user_service.get(user_data["email"])
-        if user:
-            return JSONResponse(status_code=200, content=user_data)
-        else:
-            return JSONResponse(status_code=404, content=user_data)
-
-
-@app.post("/api/logout")
-async def logout(request: Request, response: Response):
-    await request.state.session_data.delete_session(request, response)
+# @app.get("/api/auth")
+# async def auth_google(
+#     user_service: users.UserServiceDep, request: Request, response: Response
+# ):
+#     user_data = await session_manager.auth(request, response)
+#     if user_data:
+#         user = user_service.get(user_data["email"])
+#         if user:
+#             return JSONResponse(status_code=200, content=user_data)
+#         else:
+#             return JSONResponse(status_code=404, content=user_data)
 
 
 @app.get("/api/user")
@@ -92,7 +76,7 @@ def files_delete(name: str, request: Request):
 
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
-app.include_router(chats_message.router, prefix="/api/chats/message")
+app.include_router(chats_message.router, prefix="/api/chats/{chat_id}/messages")
 
 
 # Angular static files - it have to be at the end of file

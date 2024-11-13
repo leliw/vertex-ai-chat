@@ -1,14 +1,14 @@
-from typing import List, Optional
+from typing import Any, Dict, Optional
 from uuid import uuid4
-from pydantic import BaseModel, Field
+from pydantic import Field, model_serializer
+
+from ampf.auth import AuthUser
 
 
-class UserHeader(BaseModel):
+class UserHeader(AuthUser):
     user_id: str = Field(default_factory=lambda: str(uuid4()))
-    email: str
     given_name: Optional[str] = None
     family_name: Optional[str] = None
-    roles: Optional[List[str]] = None
 
 
 class User(UserHeader):
@@ -16,7 +16,6 @@ class User(UserHeader):
     picture: Optional[str] = None
 
     """ Old version fields"""
-    name: Optional[str] = None
     o_first__name: Optional[str] = Field(None, alias="firstName")
     o_last_name: Optional[str] = Field(None, alias="lastName")
     o_terms_accepted: bool = Field(False, alias="termsAccepted")
@@ -33,3 +32,10 @@ class User(UserHeader):
         self.o_terms_accepted = None
         self.picture = self.picture or self.o_picture_url
         self.o_picture_url = None
+
+
+class UserInDB(User):
+    @model_serializer
+    def ser_model(self) -> Dict[str, Any]:
+        self.password = None
+        return dict(self)

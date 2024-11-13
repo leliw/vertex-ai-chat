@@ -1,11 +1,10 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface ApiUser {
     user_id?: string;
     email: string;
-    name: string;
     firstName: string;
     lastName: string;
     termsAccepted: boolean;
@@ -17,7 +16,7 @@ export interface ApiUser {
 })
 export class ApiService {
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(private readonly httpClient: HttpClient) { }
     /**
      * Authenticate user by token in request header
      * @returns 
@@ -31,7 +30,8 @@ export class ApiService {
      * @returns 
      */
     register(user: ApiUser): Observable<ApiUser> {
-        return this.httpClient.post<ApiUser>('/api/register', user);
+        console.log(user);
+        return this.httpClient.post<ApiUser>('/api/users/register', user);
     }
     /**
      * Get authenticated and registered user (from session)
@@ -39,12 +39,6 @@ export class ApiService {
      */
     getUser(): Observable<ApiUser> {
         return this.httpClient.get<ApiUser>('/api/user');
-    }
-    /**
-     * Logout user 
-     */
-    logout(): Observable<void> {
-        return this.httpClient.post<void>('/api/logout', {});
     }
 
 }

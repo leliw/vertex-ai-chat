@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import pytest
 
-from app.dependencies import get_current_user_id
+from app.dependencies import get_user_email
 from app.routers import agents
 
 
@@ -12,7 +12,7 @@ def client(tmp_path):
     app.include_router(agents.router, prefix="/api/agents")
 
     client = TestClient(app)
-    app.dependency_overrides[get_current_user_id] = lambda: "test_user"
+    app.dependency_overrides[get_user_email] = lambda: "test_user"
     return client
 
 

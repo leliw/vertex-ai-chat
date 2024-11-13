@@ -27,7 +27,6 @@ export class RegisterComponent {
     private fb = inject(FormBuilder);
     form = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
-        name: [''],
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
         termsAccepted: [false, Validators.requiredTrue],
@@ -40,10 +39,10 @@ export class RegisterComponent {
         private apiService: ApiService,
     ) {
         this.form.patchValue({
-            email: authService.socialUser?.email ?? '',
-            name: authService.socialUser?.name ?? '',
-            firstName: authService.socialUser?.firstName ?? '',
-            lastName: authService.socialUser?.lastName ?? '',
+            // email: authService.socialUser?.email ?? '',
+            // name: authService.socialUser?.name ?? '',
+            // firstName: authService.socialUser?.firstName ?? '',
+            // lastName: authService.socialUser?.lastName ?? '',
         });
     }
 
@@ -54,15 +53,15 @@ export class RegisterComponent {
     onSubmit() {
         if (this.form.valid) {
             const formData = this.form.value as unknown as ApiUser;
-
             this.apiService.register(formData)
                 .subscribe({
                     next: (user) => {
-                        this.snackBar.open('Rejestracja udana! Zaloguj się.', 'Zamknij');
-                        this.router.navigate(['/login']);
+                        this.snackBar.open('Rejestracja udana! Skorzystaj z żądania resetowania hasła, aby ustawić hasło.', 'Zamknij');
+                        this.router.navigate(['/reset-password-request']);
                     },
                     error: (error) => {
-                        this.snackBar.open(error.error.message, 'Zamknij');
+                        console.error('Błąd rejestracji:', error);
+                        this.snackBar.open(error.error.message ?? error.error.detail, 'Zamknij');
                     }
                 });
         }

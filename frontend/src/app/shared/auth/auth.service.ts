@@ -1,111 +1,172 @@
-import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
-import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpInterceptorFn } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { ApiService, ApiUser } from '../api.service';
+import { BehaviorSubject, catchError, Observable, switchMap, tap, throwError } from 'rxjs';
+import { jwtDecode } from "jwt-decode";
+import { ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 
+export interface Tokens {
+    access_token: string;
+    refresh_token: string;
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    isLoading = true;
-    socialUser: SocialUser | null = null;
-    apiUser: ApiUser | null = null;
 
-    constructor(private router: Router, private socialAuthService: SocialAuthService, private apiService: ApiService) {
-        const jsonUser = localStorage.getItem("socialUser")
-        if (jsonUser) {
-            this.socialUser = JSON.parse(jsonUser);
-            this.apiService.getUser().subscribe({
-                next: (apiUser) => {
-                    this.apiUser = apiUser;
-                    this.router.navigate(['/'])
-                    this.isLoading = false;
-                },
-                error: (err) => {
-                    if (err.status == 404)
-                        this.router.navigate(['/register']);
-                    else
-                        this.router.navigate(['/login']);
-                }
-            });
-        } else {
-            this.isLoading = false;
-        }
-        this.socialAuthService.authState.subscribe((socialUser) => {
-            this.socialUser = socialUser;
-            if (socialUser) {
-                localStorage.setItem("socialUser", JSON.stringify(socialUser));
-                this.getApiUserAndRedirect();
-            }
-        });
-    }
+    public username?: string;
+    public user_email?: string;
+    private redirectUrl?: string;
+    public roles?: string[];
+    public access_token?: string;
+    public refresh_token?: string;
 
-    private getApiUserAndRedirect(): void {
-        this.apiService.auth().subscribe({
-            next: (apiUser) => {
-                this.apiUser = apiUser;
-                this.router.navigate(['/'])
-            },
-            error: (err) => {
-                if (err.status == 404)
-                    this.router.navigate(['/register']);
-                else
-                    this.router.navigate(['/login']);
-            }
-        });
-    }
+    private isRefreshing = false;
+    private readonly refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
-    public signOut(): void {
-        this.socialAuthService.signOut();
-        this.apiService.logout().subscribe(
-            () => {
-                this.router.navigate(['/login']);
-                localStorage.removeItem("socialUser");
-                this.socialUser = null;
-                this.apiUser = null;
-            }
-        );
-    }
 
-    public getToken(): string {
-        if (!this.socialUser) {
-            const jsonUser = localStorage.getItem("socialUser")
-            if (jsonUser)
-                this.socialUser = JSON.parse(jsonUser);
-        }
-        return this.socialUser?.idToken ?? '';
-    }
+    constructor(private readonly http: HttpClient, private readonly router: Router) { }
 
-    public getUserPhotoUrl(): string {
-        return this.socialUser?.photoUrl ?? '';
-    }
-
-    public isAuthenticated(): boolean {
-        return this.socialUser != null;
-    }
-
-    public isRegistered(): boolean {
-        return this.apiUser != null;
-    }
-
-    public hasRole(role: string): boolean {
-        if (role=="admin" && this.apiUser?.email=="marcin.leliwa@gmail.com")
+    isLoggedIn(): boolean {
+        if (this.username)
             return true;
-        else
-            return this.apiUser?.roles?.includes(role) ?? false;
+        this.access_token = localStorage.getItem("access_token") ?? undefined
+        this.refresh_token = localStorage.getItem("refresh_token") ?? undefined
+        if (this.refresh_token) {
+            this.decodeToken(this.refresh_token);
+            return true;
+        }
+        return false;
+    }
+
+    login(credentials: any): Observable<any> {
+        const formData = new FormData();
+        formData.append('username', credentials.username);
+        formData.append('password', credentials.password);
+        return this.http.post<Tokens>('/api/login', formData).pipe(tap({
+            next: value => {
+                this.access_token = value.access_token;
+                this.refresh_token = value.refresh_token
+                this.decodeToken(this.access_token);
+                if (credentials.store_token) {
+                    localStorage.setItem("access_token", this.access_token);
+                    localStorage.setItem("refresh_token", this.refresh_token);
+                }
+            },
+            complete: () => {
+                if (this.redirectUrl) {
+                    this.router.navigate([this.redirectUrl]);
+                    this.redirectUrl = undefined;
+                } else {
+                    this.router.navigate(['/']); // Przekierowanie na stronę główną
+                }
+            },
+            error: error => console.error('Błąd logowania:', error),
+        }));
+    }
+
+    logout(): Observable<void> {
+        const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
+        return this.http.post<void>('/api/logout', {}, { headers: headers }).pipe(tap(() => {
+            this.cleanData();
+            this.router.navigate(['/login']);
+        }));
+    }
+
+    /**
+     * Decode JWT token and set user data
+     * @param token JWT token
+     */
+    private decodeToken(token: string): void {
+        const payload: any = jwtDecode(token);
+        this.username = payload.email;
+        this.user_email = payload.email;
+        this.roles = payload.roles;
+    }
+
+    /**
+     * Clear user data and remove tokens from local storage
+     */
+    cleanData(): void {
+        this.access_token = undefined;
+        this.username = undefined;
+        this.user_email = undefined;
+        this.roles = [];
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+    }
+
+    resetPasswordRequest(email: string): Observable<void> {
+        return this.http.post<void>("/api/reset-password-request", { email: email });
+    }
+
+    resetPassword(email: string, reset_code: string, new_password: string): Observable<void> {
+        return this.http.post<void>("/api/reset-password", {
+            email: email,
+            reset_code: reset_code,
+            new_password: new_password
+        });
+    }
+
+    changePassword(old_password: string, new_password: string): Observable<void> {
+        return this.http.post<void>('/api/change-password', {
+            old_password: old_password,
+            new_password: new_password
+        });
     }
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-        if (!this.isAuthenticated()) {
+        if (!this.isLoggedIn) {
+            this.redirectUrl = state.url
             this.router.navigate(['/login']);
             return false;
-        } else if (!this.isRegistered() && route.url[0].path != 'register') {
-            this.router.navigate(['/register']);
-            return false;
         } else {
-            return true;
+            const role = route.data['role']
+            if (!role || this.hasRole(role))
+                return true;
+            else
+                return false;
         }
+    }
+
+    public hasRole(role: string): boolean {
+        return this.roles ? this.roles.includes(role) : false;
+    }
+
+    public hasAllRoles(roles: string[]): boolean {
+        return roles.every(role => this.hasRole(role))
+    }
+
+    public hasAnyRoles(roles: string[]): boolean {
+        return roles.some(role => this.hasRole(role))
+    }
+
+    public getBlob(url: string): Observable<Blob> {
+        const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.access_token}` });
+        return this.http.get(url, { headers: headers, responseType: 'blob' });
+    }
+
+    refreshTokens(): Observable<any> {
+        if (this.isRefreshing)
+            return this.refreshTokenSubject.asObservable();
+        this.isRefreshing = true;
+
+        const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
+        return this.http.post<Tokens>('/api/token-refresh', {}, { headers: headers }).pipe(
+            catchError(error => {
+                this.refreshTokenSubject.next(null);
+                this.isRefreshing = false;
+                return throwError(() => error);
+            }),
+            tap(tokens => {
+                this.refreshTokenSubject.next(tokens);
+                this.isRefreshing = false;
+                this.access_token = tokens.access_token;
+                this.refresh_token = tokens.refresh_token;
+                localStorage.setItem("access_token", this.access_token);
+                localStorage.setItem("refresh_token", this.refresh_token);
+            }));
     }
 
 }
@@ -113,3 +174,89 @@ export class AuthService {
 export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     return inject(AuthService).canActivate(route, state);
 };
+
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+    if ([
+        '/api/ping',
+        '/api/config',
+        '/api/users/register',
+        '/api/login',
+        '/api/logout',
+        '/api/token-refresh',
+        '/api/reset-password-request',
+        '/api/reset-password'
+    ].includes(req.url))
+        return next(req);
+
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    if (!authService.isLoggedIn()) {
+        router.navigate(['/login']);
+        throw new Error('Brak dostępu' + req.url);
+    } else {
+        // Clone the request and add the authorization header
+        const authReq = req.clone({
+            setHeaders: {
+                Authorization: `Bearer ${authService.access_token}`
+            }
+        });
+        return next(authReq).pipe(
+            catchError(err => {
+                if (err.status === 401) {
+                    return authService.refreshTokens().pipe(
+                        switchMap(() => {
+                            const authReq = req.clone({
+                                setHeaders: {
+                                    Authorization: `Bearer ${authService.access_token}`
+                                }
+                            });
+                            return next(authReq);
+                        }),
+                        catchError(err => {
+                            if (err.status === 401) {
+                                console.log('Refresh token error:', err);
+                                authService.cleanData();
+                                router.navigate(['/login']);
+                            }
+                            throw err;
+                        }))
+                };
+                throw err;
+            }));
+    }
+};
+
+/**
+ * Check if new password is equal to new_password2
+ * It should be used for password confirmation (second) field
+ * @returns ValidatorFn
+ */
+export function newPasswordEuqalsValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const value2: string = control.value;
+        const value1: string = control.parent?.value.new_password
+        return value1 != value2 ? { equals: true } : null;
+    }
+}
+
+/**
+ * Check if password has at least one uppercase letter, one lowercase letter and one digit
+ * @param minLength Minimal password length
+ * @returns 
+ */
+export function passwordStrengthValidator(minLength: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const value: string = control.value;
+        if (!value) {
+            return null;
+        }
+        if (value.length < minLength)
+            return { minlength: true }
+        const hasUpperCase = /[A-Z]+/.test(value);
+        const hasLowerCase = /[a-z]+/.test(value);
+        const hasNumeric = /\d+/.test(value);
+        const passwordValid = hasUpperCase && hasLowerCase && hasNumeric;
+        return !passwordValid ? { passwordStrength: true } : null;
+    }
+}

@@ -12,16 +12,26 @@ class InMemoryStorage[T: BaseModel](BaseStorage):
         self.items = {}
 
     def put(self, key: str, value: T) -> None:
-        self.items[key] = value
+        self.items[key] = value.model_copy(deep=True)
 
     def get(self, key: str) -> T:
-        return self.items.get(key)
+        ret = self.items.get(key)
+        if ret:
+            return ret.model_copy(deep=True)
+        else:
+            return None
 
     def keys(self) -> Iterator[T]:
         return self.items.keys()
 
     def delete(self, key: str) -> None:
         self.items.pop(key, None)
+
+    def is_empty(self) -> bool:
+        return not bool(self.items)
+
+    def drop(self):
+        self.items = {}
 
 
 class AmpfInMemoryFactory(AmpfBaseFactory):

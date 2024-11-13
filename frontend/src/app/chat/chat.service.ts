@@ -85,7 +85,7 @@ export class ChatService {
         return new Observable(observer => {
             let buffer = '';
             let params = new HttpParams().set('agent', agent);
-            this.httpClient.post(`${this.endpoint}/message`, message, {
+            this.httpClient.post(`${this.endpoint}/${this.chat.chat_session_id}/messages`, message, {
                 params: params,
                 responseType: 'text',
                 reportProgress: true,
