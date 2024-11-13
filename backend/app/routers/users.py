@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 from app.dependencies import Authorize, FactoryDep
 
@@ -17,9 +17,8 @@ UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 
 @router.post("/register")
-async def register(service: UserServiceDep, request: Request, user: User):
+async def register(service: UserServiceDep, user: User) -> User:
     service.create(user)
-    request.state.session_data.api_user = user
     return user
 
 

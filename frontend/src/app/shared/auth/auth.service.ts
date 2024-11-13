@@ -179,6 +179,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     if ([
         '/api/config',
+        '/api/users/register',
         '/api/login',
         '/api/logout',
         '/api/token-refresh',

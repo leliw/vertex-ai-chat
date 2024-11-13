@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 export interface ApiUser {
     user_id?: string;
     email: string;
-    name: string;
     firstName: string;
     lastName: string;
     termsAccepted: boolean;
@@ -31,7 +30,8 @@ export class ApiService {
      * @returns 
      */
     register(user: ApiUser): Observable<ApiUser> {
-        return this.httpClient.post<ApiUser>('/api/register', user);
+        console.log(user);
+        return this.httpClient.post<ApiUser>('/api/users/register', user);
     }
     /**
      * Get authenticated and registered user (from session)
