@@ -29,6 +29,7 @@ def client(factory, email_sender, test_config):
     user_service.storage.drop()
     user_service.create(User(**test_config.default_user.model_dump()))
 
+
 def test_login_ok(client):
     # When: Default user logs in
     response = client.post(
@@ -144,6 +145,7 @@ def test_reset_password_request(email_sender, client):
     match = re.search(r"Kod jest ważny przez (\d+) minut\.", email["body"])
     time = match.group(1)
     assert time == "15"
+
 
 def test_reset_password(email_sender, client):
     # Given: Default user requests password reset

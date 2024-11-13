@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 class BaseEmailSender(ABC):
     """An abstract base class for email senders"""
+
     @abstractmethod
     def send(
         self,

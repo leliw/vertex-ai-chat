@@ -8,6 +8,7 @@ from .base_email_sender import BaseEmailSender
 
 class SmtpEmailSender(BaseEmailSender):
     """Email sender using SMTP protocol."""
+
     def __init__(
         self,
         host: str,
@@ -17,7 +18,7 @@ class SmtpEmailSender(BaseEmailSender):
         use_ssl: bool = False,
     ):
         """Initialize the SMTP email sender.
-        
+
         Args:
             host: SMTP server host.
             port: SMTP server port.
@@ -40,7 +41,7 @@ class SmtpEmailSender(BaseEmailSender):
         attachment_path: Optional[str] = None,
     ) -> None:
         """Send an email.
-        
+
         Args:
             sender: Email sender.
             recipient: Email recipient.

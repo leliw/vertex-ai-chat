@@ -44,7 +44,6 @@ app.include_router(prefix="/api/chats", router=chats.router)
 #             return JSONResponse(status_code=404, content=user_data)
 
 
-
 @app.get("/api/user")
 async def user_get(user_service: users.UserServiceDep, request: Request):
     if not request.state.session_data.api_user:

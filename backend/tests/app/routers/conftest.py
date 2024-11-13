@@ -14,6 +14,7 @@ def factory():
 
 class TestEmailSender(BaseEmailSender):
     """A test email sender that stores sent emails in memory."""
+
     def __init__(self):
         self.sent_emails = []
 

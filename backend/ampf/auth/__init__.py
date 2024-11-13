@@ -12,7 +12,7 @@ from .auth_exceptions import (
     TokenExpiredException,
     InvalidTokenException,
     InvalidRefreshTokenException,
-    InsufficientPermissionsError
+    InsufficientPermissionsError,
 )
 from .auth_service import AuthService
 from .user_service_base import UserServiceBase

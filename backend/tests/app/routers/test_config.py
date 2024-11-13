@@ -23,4 +23,4 @@ def test_get_client_config(client):
     assert 2 == len(r)
     pattern = r"^\d+\.\d+\.\d+$"
     assert re.match(pattern, r["version"])
-    assert 'google_oauth_client_id' in r
+    assert "google_oauth_client_id" in r

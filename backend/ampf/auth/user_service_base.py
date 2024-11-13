@@ -16,6 +16,7 @@ from .auth_exceptions import (
 
 class UserServiceBase[T: AuthUser](ABC):
     """Base class for user service."""
+
     def __init__(self):
         self._log = logging.getLogger(__name__)
 
