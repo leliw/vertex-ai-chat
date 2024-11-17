@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.2 - 2024-11-17
+
+* Refactor users strorage (1/4)
+
 ## Version 0.6.1 - 2024-11-13
 
 * Local users authentication

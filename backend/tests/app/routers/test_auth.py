@@ -26,7 +26,7 @@ def client(factory, email_sender, test_config):
     yield client
     # Restore default user
     user_service = UserService(factory)
-    user_service.storage.drop()
+    user_service.storage_old.drop()
     user_service.create(User(**test_config.default_user.model_dump()))
 
 
