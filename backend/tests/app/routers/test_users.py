@@ -100,6 +100,7 @@ def test_post_get_put_delete(client, access_token):
     # Then: The response status code is 200
     assert response.status_code == 200
 
+
 def test_register(client, access_token):
     # Given: A new user
     user = {
