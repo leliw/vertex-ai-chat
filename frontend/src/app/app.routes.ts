@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadComponent: () => import('./shared/auth/reset-password-form/reset-password-form.component').then(mod => mod.ResetPasswordFormComponent)
     },
     {
+        path: 'change-password',
+        loadComponent: () => import('./shared/auth/change-password-form/change-password-form.component').then(mod => mod.ChangePasswordFormComponent)
+    },
+    {
         path: 'chat', canActivate: [authGuard],
         loadComponent: () =>
             import('./chat/chat-page/chat-page.component')

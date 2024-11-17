@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.main import app, session_manager, SessionData
+from app.main import app
 
 
 class CookieAwareTestClient(TestClient):
@@ -32,4 +32,4 @@ app_test_client = CookieAwareTestClient(app)
 user_data = {"email": "jasio.fasola@gmail.com", "name": "Jasio Fasola"}
 # Replace the create_session_for_user method with a lambda function that returns a SessionData object with the user_data dictionary.
 # This way, the session_manager will always return the same user data when creating a new session without the need to authenticate.
-session_manager.create_session_for_user = lambda _: SessionData(user=user_data)
+# session_manager.create_session_for_user = lambda _: SessionData(user=user_data)

@@ -5,7 +5,7 @@
         }
     ],
     "settings": {
-        "window.title": "VertexAI${separator}${rootNameShort}${separator}${profileName}${separator}${dirty}${activeEditorShort}${separator}",
+        "window.title": "${activeRepositoryName}${separator}${rootNameShort}${separator}${profileName}${separator}${dirty}${activeEditorShort}${separator}",
         "workbench.colorTheme": "Tomorrow Night Blue",
     },
     

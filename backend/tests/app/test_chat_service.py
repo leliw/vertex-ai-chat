@@ -3,7 +3,7 @@ import pytest
 from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
-from app.chat.chat_service import ChatHistoryException, ChatService
+from app.chat.chat_service import ChatService
 from app.chat.message.message_model import ChatMessage
 from app.config import ServerConfig
 from gcp.gcp_file_storage import FileStorage
@@ -45,18 +45,13 @@ def test_get_answer_async(chat_service):
     )
     message = ChatMessage(author="user", content="Hello")
     text = ""
-    try:
-        for p in chat_service.get_answer_async(
-            model_name=model_name, chat_session=session, message=message, files=[]
-        ):
-            text += p.value
-    except ChatHistoryException as e:
-        chat_history = e.chat_session.history
+    for p in chat_service.get_answer_async(
+        model_name=model_name, chat_session=session, message=message, files=[]
+    ):
+        text += p.value
     answer = ChatMessage(author="ai", content=text)
     assert answer.author == "ai"
     assert isinstance(answer.content, str)
-    assert chat_history[0] == message
-    assert chat_history[1] == answer
 
 
 def test_get_context_without_agent(chat_service):

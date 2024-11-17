@@ -35,6 +35,10 @@
             <span>Users</span>
         </button>
         }
+        <button mat-menu-item routerLink="/change-password" routerLinkActive="active-link">
+            <mat-icon>manage_accounts</mat-icon>
+            <span>Change password</span>
+        </button>
         <button mat-menu-item (click)="authService.logout().subscribe()">
             <mat-icon>logout</mat-icon>
             <span>Logout</span>
