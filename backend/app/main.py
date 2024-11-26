@@ -1,15 +1,14 @@
 """Main file for FastAPI server"""
 
-from typing import List, Optional
+from typing import Optional
 
-from fastapi import FastAPI, File, Request, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 
 from app.chat.chat_service import ChatSession
 from app.logging_conf import setup_logging
-from app.routers import auth, chats, chats_message, config
+from app.routers import auth, chats, chats_message, config, files
 from app.user import User
-from base import static_file_response
 from gcp import SessionData as BaseSessionData
 
 from app.dependencies import ServerConfigDep
@@ -29,6 +28,7 @@ app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
 app.include_router(prefix="/api/users", router=users.router)
 app.include_router(prefix="/api/chats", router=chats.router)
+app.include_router(prefix="/api/files", router=files.router)
 
 
 # @app.get("/api/auth")
@@ -63,24 +63,9 @@ def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-@app.post("/api/files", tags=["files"])
-def files_post(request: Request, files: List[UploadFile] = File(...)):
-    for file in files:
-        request.state.session_data.upload_file(file)
-
-
-@app.delete("/api/files/{name}", tags=["files"])
-def files_delete(name: str, request: Request):
-    request.state.session_data.delete_file(name)
-
-
 app.include_router(agents.router, prefix="/api/agents")
 app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
 app.include_router(chats_message.router, prefix="/api/chats/{chat_id}/messages")
 
-
 # Angular static files - it have to be at the end of file
-@app.get("/{full_path:path}", response_class=HTMLResponse, tags=["static"])
-async def catch_all(_: Request, full_path: str):
-    """Catch all for Angular routing"""
-    return static_file_response("static/browser", full_path)
+app.mount("/", StaticFiles(directory="static/browser", html=True), name="static")
