@@ -2,8 +2,8 @@
 
 from typing import Iterator, Type
 from pydantic import BaseModel
-from .base.ampf_base_factory import AmpfBaseFactory
-from .base.base_storage import BaseStorage
+
+from .base import AmpfBaseFactory, BaseStorage, BaseBlobStorage
 
 
 class InMemoryStorage[T: BaseModel](BaseStorage):
@@ -45,3 +45,8 @@ class AmpfInMemoryFactory(AmpfBaseFactory):
                 clazz=clazz, key_name=key_name
             )
         return self.collections.get(collection_name)
+
+    def create_blob_storage[T: BaseModel](
+        self, bucket_name: str, clazz: Type[T] = None, content_type: str = None
+    ) -> BaseBlobStorage[T]:
+        raise NotImplementedError("In-memory blob storage not implemented")

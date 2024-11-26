@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Type
 from pydantic import BaseModel
 
+from ampf.base.base_blob_storage import BaseBlobStorage
+
 from ..base.ampf_base_factory import AmpfBaseFactory
 from ..base.base_storage import BaseStorage
 from ..local.file_storage import FileStorage, StrPath
@@ -29,3 +31,8 @@ class AmpfLocalFactory(AmpfBaseFactory):
         return JsonOneFileStorage(
             file_name=collection_name, clazz=clazz, key_name=key_name
         )
+
+    def create_blob_storage[T: BaseModel](
+        self, bucket_name: str, clazz: Type[T] = None, content_type: str = None
+    ) -> BaseBlobStorage[T]:
+        raise NotImplementedError("Local blob storage not implemented")
