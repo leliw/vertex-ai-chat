@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator, Type
+from typing import Any, Iterator, Type
 from fastapi import UploadFile
 
 from google.cloud import storage
@@ -59,6 +59,11 @@ class GcpBlobStorage[T](BaseBlobStorage[T]):
     def keys(self) -> Iterator[str]:
         for blob in self._bucket.list_blobs():
             yield blob.name
+
+    def list_blobs(self, dir: str = None) -> Iterator[Any]:
+        for blob in self._bucket.list_blobs(prefix=dir):
+            b: storage.Blob = blob
+            yield {"name": b.name, "mime_type": b.content_type}
 
     # Additional not tested methods
 
