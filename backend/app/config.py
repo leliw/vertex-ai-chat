@@ -56,7 +56,7 @@ class ServerConfig(BaseSettings):
     google_oauth_client_id: str = ""
     google_oauth_client_secret: str = ""
     file_storage_bucket: str = ""
-    
+
     knowledge_base: KnowledgeBaseConfig = KnowledgeBaseConfig()
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
     smtp: SmtpConfig = SmtpConfig()
