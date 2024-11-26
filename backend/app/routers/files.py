@@ -1,19 +1,9 @@
-from typing import Annotated, List
-from fastapi import APIRouter, Depends, File, UploadFile
+from typing import List
+from fastapi import APIRouter, File, UploadFile
 
-from app.dependencies import ServerConfigDep, FactoryDep, UserEmailDep
-from app.file.file_service import FileService
+from app.dependencies import FileServiceDep
 
 router = APIRouter(tags=["files"])
-
-
-def get_file_service(
-    config: ServerConfigDep, factory: FactoryDep, user_email: UserEmailDep
-) -> FileService:
-    return FileService(config, factory, user_email)
-
-
-FileServiceDep = Annotated[FileService, Depends(get_file_service)]
 
 
 @router.post("")

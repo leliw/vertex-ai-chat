@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import AmpfGcpFactory
+from app.file.file_service import FileService
 from app.user.user_model import User
 from app.user.user_service import UserService
 from gcp import FileStorage
@@ -107,6 +108,15 @@ def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentServ
 
 
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
+
+
+def get_file_service(
+    config: ServerConfigDep, factory: FactoryDep, user_email: UserEmailDep
+) -> FileService:
+    return FileService(config, factory, user_email)
+
+
+FileServiceDep = Annotated[FileService, Depends(get_file_service)]
 
 
 def get_chat_service(
