@@ -30,7 +30,8 @@ jobs:
             pip install -r requirements-dev.txt
         - name: Authenticate to GCP
           run: |
-            echo " ${{ secrets.GCP_SERVICE_KEY }}" > service_account_key.json
+            echo "${{ secrets.GCP_SERVICE_KEY }}"
+            echo "${{ secrets.GCP_SERVICE_KEY }}" > service_account_key.json
             gcloud auth activate-service-account --key-file=service_account_key.json
         - name: Test with pytest
           run: |
