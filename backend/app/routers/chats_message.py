@@ -45,7 +45,7 @@ def post_message_async(
         agent_obj = agent_service.get(user_email, agent)
     else:
         agent_obj = agent_service.create_default(
-            user_email, model_name=model if model else config.get("default_model")
+            user_email, model_name=model if model else config.default_model
         )
     responses = chat_service.get_answer_async(
         agent=agent_obj,
