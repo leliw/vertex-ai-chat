@@ -23,7 +23,7 @@ exceptiongroup==1.2.0
 fastapi==0.115.5
 fastapi-sessions==0.3.2
 frozenlist==1.4.1
-google-ai-generativelanguage==0.6.9
+google-ai-generativelanguage==0.6.10
 google-api-core==2.19.2
 google-api-python-client==2.145.0
 google-auth==2.34.0
