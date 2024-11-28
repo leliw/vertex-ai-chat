@@ -1,23 +1,13 @@
 """Main file for FastAPI server"""
 
-from typing import Optional
-
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
-from app.chat.chat_service import ChatSession
 from app.logging_conf import setup_logging
-from app.routers import auth, chats, chats_message, config, files
-from app.user import User
-from gcp import SessionData as BaseSessionData
+from app.routers import auth, chats, config, files
 
 from app.dependencies import ServerConfigDep
 from .routers import users, agents, knowledge_base
-
-
-class SessionData(BaseSessionData):
-    chat_session: Optional[ChatSession] = None
-    api_user: Optional[User] = None
 
 
 setup_logging()
@@ -27,8 +17,11 @@ app = FastAPI()
 app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)
 app.include_router(prefix="/api/users", router=users.router)
-app.include_router(prefix="/api/chats", router=chats.router)
 app.include_router(prefix="/api/files", router=files.router)
+
+app.include_router(prefix="/api/chats", router=chats.router)
+app.include_router(prefix="/api/agents", router=agents.router)
+app.include_router(prefix="/api/knowledge-base", router=knowledge_base.router)
 
 
 # @app.get("/api/auth")
@@ -62,10 +55,6 @@ def ping() -> None:
 def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
-
-app.include_router(agents.router, prefix="/api/agents")
-app.include_router(knowledge_base.router, prefix="/api/knowledge-base")
-app.include_router(chats_message.router, prefix="/api/chats/{chat_id}/messages")
 
 # Angular static files - it have to be at the end of file
 app.mount("/", StaticFiles(directory="static/browser", html=True), name="static")
