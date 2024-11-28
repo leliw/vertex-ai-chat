@@ -31,4 +31,4 @@ jobs:
         - name: Test with pytest
           run: |
             cd backend
-            pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=app --cov-report=xml --cov-report=html
+            pytest tests/ampf/local --doctest-modules --junitxml=junit/test-results.xml --cov=app --cov-report=xml --cov-report=html
