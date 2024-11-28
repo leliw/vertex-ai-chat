@@ -28,14 +28,14 @@ jobs:
             cd backend
             python -m pip install --upgrade pip
             pip install -r requirements-dev.txt
-        - name: Setup Google Cloud SDK
-          uses: google-github-actions/setup-gcloud@v2
-          with:
-            version: 'latest'
         - name: Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
             credentials_json: ${{ secrets.GCP_SERVICE_KEY }}
+        - name: Setup Google Cloud SDK
+          uses: google-github-actions/setup-gcloud@v2
+          with:
+            version: 'latest'
         - name: Test with pytest
           run: |
             cd backend
