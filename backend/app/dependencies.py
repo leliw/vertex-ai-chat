@@ -119,8 +119,6 @@ FileServiceDep = Annotated[FileService, Depends(get_file_service)]
 def get_chat_service(
     factory: FactoryDep, server_config: ServerConfigDep, file_service: FileServiceDep
 ) -> ChatService:
-    
-    
     return ChatService(factory, file_service.storage, server_config)
 
 
