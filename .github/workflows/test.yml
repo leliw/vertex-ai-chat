@@ -39,11 +39,8 @@ jobs:
         - name: Test with pytest
           run: |
             cd backend
-            coverage run --source=app --module pytest tests --cov=. --doctest-modules --cov-report html
+            coverage run --source=app --module pytest tests --doctest-modules
             coverage report -m
-            rm -f htmlcov/.gitignore
-            ls -la
-            ls -la htmlcov
         - name: Coverage Badge
           uses: tj-actions/coverage-badge-py@v2
           with:
@@ -54,14 +51,12 @@ jobs:
           with:
             files: |
               backend/coverage.svg
-              backend/htmlcov/*
         - name: Commit files
           if: steps.verify-changed-files.outputs.files_changed == 'true'
           run: |
             git config --local user.email "github-actions[bot]@users.noreply.github.com"
             git config --local user.name "github-actions[bot]"
             git add backend/coverage.svg
-            git add backend/htmlcov/*
             git commit -m "Updated coverage.svg"
         - name: Push changes
           if: steps.verify-changed-files.outputs.files_changed == 'true'
