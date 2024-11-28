@@ -3,7 +3,6 @@
 ![License](https://img.shields.io/github/license/leliw/vertex-ai-chat)
 [![CI](https://github.com/leliw/vertex-ai-chat/actions/workflows/main.yml/badge.svg)](https://github.com/leliw/vertex-ai-chat/actions/workflows/main.yml)
 ![coverage badge](./backend/coverage.svg)
-![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-latest-blue)
 ![Angular](https://img.shields.io/badge/Angular-18-brightgreen)
