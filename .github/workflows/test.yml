@@ -14,9 +14,6 @@ on:
 jobs:
     test:
         env:
-            GOOGLE_CLOUD_LOCATION: europe-west3
-            GOOGLE_CLOUD_PROJECT: vertex-ai-chat-dev 
-            GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
             JWT_SECRET_KEY: 1234567890
             FILE_STORAGE_BUCKET: vertex-ai-chat-dev-session-files
         runs-on: ubuntu-latest
@@ -31,6 +28,10 @@ jobs:
             cd backend
             python -m pip install --upgrade pip
             pip install -r requirements-dev.txt
+        - name: Authenticate to GCP
+          run: |
+            echo "$GCP_SERVICE_KEY" > service_account_key.json
+            gcloud auth activate-service-account --key-file=service_account_key.json
         - name: Test with pytest
           run: |
             cd backend
