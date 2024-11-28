@@ -1,4 +1,4 @@
-name: Run Python linter and formatter
+name: Test
 on:
   push:
     paths-ignore:
@@ -27,4 +27,4 @@ jobs:
             pip install -r requirements-dev.txt
         - name: Test with pytest
           run: |
-            pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+            pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
