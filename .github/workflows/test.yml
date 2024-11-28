@@ -39,7 +39,7 @@ jobs:
         - name: Test with pytest
           run: |
             cd backend
-            coverage run --source=app --module pytest tests/ampf --doctest-modules --cov-report html
+            coverage run --source=app --module pytest tests --doctest-modules --cov-report html
             coverage report -m
         - name: Coverage Badge
           uses: tj-actions/coverage-badge-py@v2
@@ -49,7 +49,9 @@ jobs:
           uses: tj-actions/verify-changed-files@v16
           id: verify-changed-files
           with:
-            files: backend/coverage.svg
+            files: |
+              backend/coverage.svg
+              backend/htmlcov/*
         - name: Commit files
           if: steps.verify-changed-files.outputs.files_changed == 'true'
           run: |
