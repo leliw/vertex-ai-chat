@@ -57,4 +57,4 @@ def models_get_all(config: ServerConfigDep) -> list[str]:
 
 
 # Angular static files - it have to be at the end of file
-app.mount("/", StaticFiles(directory="static/browser", html=True), name="static")
+app.mount("/", StaticFiles(directory="static/browser", html=True, check_dir=False), name="static")
