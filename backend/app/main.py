@@ -56,5 +56,7 @@ def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
+# fmt: off
 # Angular static files - it have to be at the end of file
 app.mount("/", StaticFiles(directory="static/browser", html=True, check_dir=False), name="static")
+# fmt: on
