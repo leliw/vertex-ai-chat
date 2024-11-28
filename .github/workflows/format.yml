@@ -1,8 +1,9 @@
 name: Run Python linter and formatter
 on:
   push:
-    branches:
-      - main
+    paths-ignore:
+      - '**.md'
+      - 'frontend/**'
   pull_request:
     branches:
       - main
