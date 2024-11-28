@@ -16,6 +16,7 @@ jobs:
         env:
             JWT_SECRET_KEY: 1234567890
             FILE_STORAGE_BUCKET: vertex-ai-chat-dev-session-files
+            GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v4
@@ -31,4 +32,4 @@ jobs:
         - name: Test with pytest
           run: |
             cd backend
-            pytest tests/ampf/local --doctest-modules --junitxml=junit/test-results.xml --cov=app --cov-report=xml --cov-report=html
+            pytest tests/ampf --doctest-modules --junitxml=junit/test-results.xml --cov=app --cov-report=xml --cov-report=html
