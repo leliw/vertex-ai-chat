@@ -7,6 +7,7 @@ from .base import AmpfBaseFactory, BaseStorage, BaseBlobStorage
 
 
 class InMemoryStorage[T: BaseModel](BaseStorage):
+    """In memory storage implementation"""
     def __init__(self, clazz: Type[T], key_name: str = None):
         super().__init__(clazz, key_name)
         self.items = {}
@@ -34,6 +35,56 @@ class InMemoryStorage[T: BaseModel](BaseStorage):
         self.items = {}
 
 
+class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
+    """In memory blob storage implementation"""
+    buckets = {}
+
+    def __init__(self, bucket_name: str, clazz: Type[T], content_type: str = None):
+        self.bucket_name = bucket_name
+        self.clazz = clazz
+        self.contet_type = content_type
+
+    def upload_blob(
+        self, key: str, data: bytes, metadata: T = None, content_type: str = None
+    ) -> None:
+        if self.bucket_name not in self.buckets:
+            self.buckets[self.bucket_name] = {}
+        if key not in self.buckets[self.bucket_name]:
+            self.buckets[self.bucket_name][key] = {}
+        self.buckets[self.bucket_name][key]["data"] = data
+        if metadata:
+            self.buckets[self.bucket_name][key]["metadata"] = metadata.model_copy(
+                deep=True
+            )
+        if content_type:
+            self.buckets[self.bucket_name][key]["content_type"] = content_type
+
+    def download_blob(self, key: str) -> bytes:
+        return self.buckets[self.bucket_name][key]["data"]
+
+    def put_metadata(self, key: str, metadata: T) -> None:
+        self.buckets[self.bucket_name][key]["metadata"] = metadata.model_copy(deep=True)
+
+    def get_metadata(self, key: str) -> T:
+        return self.buckets[self.bucket_name][key]["metadata"]
+
+    def delete(self, key: str):
+        self.buckets[self.bucket_name].pop(key, None)
+
+    def keys(self) -> Iterator[str]:
+        return self.buckets[self.bucket_name].keys()
+
+    def drop(self) -> None:
+        self.buckets.pop(self.bucket_name, None)
+
+    def list_blobs(self, prefix: str = None) -> Iterator[str]:
+        if self.bucket_name not in self.buckets:
+            return
+        for k in self.buckets[self.bucket_name].keys():
+            if not prefix or k.startswith(prefix):
+                yield {"name": k, "mime_type": self.buckets[self.bucket_name][k]["content_type"]}
+
+
 class AmpfInMemoryFactory(AmpfBaseFactory):
     collections = {}
 
@@ -49,4 +100,4 @@ class AmpfInMemoryFactory(AmpfBaseFactory):
     def create_blob_storage[T: BaseModel](
         self, bucket_name: str, clazz: Type[T] = None, content_type: str = None
     ) -> BaseBlobStorage[T]:
-        raise NotImplementedError("In-memory blob storage not implemented")
+        return InMemoryBlobStorage(bucket_name, clazz, content_type)

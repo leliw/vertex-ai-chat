@@ -45,7 +45,7 @@ class Query[T]:
         return self._src()
 
 
-class BaseStorage[T](ABC, Query[T]):
+class BaseStorage[T](ABC, Query):
     """Base class for storage implementations which store Pydantic objects
 
     Parameters:
