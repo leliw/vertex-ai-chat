@@ -8,6 +8,7 @@ from .base import AmpfBaseFactory, BaseStorage, BaseBlobStorage
 
 class InMemoryStorage[T: BaseModel](BaseStorage):
     """In memory storage implementation"""
+
     def __init__(self, clazz: Type[T], key_name: str = None):
         super().__init__(clazz, key_name)
         self.items = {}
@@ -37,6 +38,7 @@ class InMemoryStorage[T: BaseModel](BaseStorage):
 
 class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
     """In memory blob storage implementation"""
+
     buckets = {}
 
     def __init__(self, bucket_name: str, clazz: Type[T], content_type: str = None):
@@ -82,7 +84,10 @@ class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
             return
         for k in self.buckets[self.bucket_name].keys():
             if not prefix or k.startswith(prefix):
-                yield {"name": k, "mime_type": self.buckets[self.bucket_name][k]["content_type"]}
+                yield {
+                    "name": k,
+                    "mime_type": self.buckets[self.bucket_name][k]["content_type"],
+                }
 
 
 class AmpfInMemoryFactory(AmpfBaseFactory):
