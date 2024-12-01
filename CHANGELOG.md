@@ -1,8 +1,14 @@
 # Changelog
 
+## Version 0.6.3 - 2024-11-17
+
+* README.md badges
+* github actions - test
+* sending file to chat (fix)
+
 ## Version 0.6.2 - 2024-11-17
 
-* Refactor users strorage (1/4)
+* Refactor users storage (1/4)
 
 ## Version 0.6.1 - 2024-11-13
 
