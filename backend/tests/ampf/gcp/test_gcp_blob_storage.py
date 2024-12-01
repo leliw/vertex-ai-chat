@@ -13,7 +13,10 @@ class TC(BaseModel):
 @pytest.fixture
 def storage():
     load_dotenv()
-    return GcpBlobStorage("vertex-ai-chat-dev-unit-tests", TC)
+    storage = GcpBlobStorage("vertex-ai-chat-dev-unit-tests", TC)
+    yield storage
+    # Clean up
+    storage.drop()
 
 
 def test_download_key_not_exists(storage):

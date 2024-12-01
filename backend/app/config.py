@@ -45,7 +45,7 @@ Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
-    version: str = "0.6.2"
+    version: str = "0.6.3"
 
     jwt_secret_key: str
     default_user: DefaultUserConfig = DefaultUserConfig()
@@ -55,6 +55,7 @@ class ServerConfig(BaseSettings):
 
     google_oauth_client_id: str = ""
     google_oauth_client_secret: str = ""
+    file_storage_bucket: str = ""
 
     knowledge_base: KnowledgeBaseConfig = KnowledgeBaseConfig()
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()

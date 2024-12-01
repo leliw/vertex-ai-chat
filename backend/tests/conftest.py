@@ -47,5 +47,6 @@ def email_sender():
 def test_config():
     """Return a test configuration."""
     return ServerConfig(
-        default_user=DefaultUserConfig(email="test@test.com", password="test")
+        default_user=DefaultUserConfig(email="test@test.com", password="test"),
+        file_storage_bucket="vertex-ai-chat-dev-unit-tests",
     )

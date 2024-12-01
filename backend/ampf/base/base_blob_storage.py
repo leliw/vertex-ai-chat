@@ -20,13 +20,16 @@ class BaseBlobStorage[T: BaseModel](ABC):
         self.contet_type = content_type
 
     @abstractmethod
-    def upload_blob(self, key: str, data: bytes, metadata: T = None) -> None:
+    def upload_blob(
+        self, key: str, data: bytes, metadata: T = None, content_type: str = None
+    ) -> None:
         """Uploads a blob to the storage
 
         Args:
             key: The key of the blob
             data: The data of the blob
             metadata: The metadata of the blob
+            content_type: The content type of the blob
         """
 
     @abstractmethod
@@ -65,3 +68,8 @@ class BaseBlobStorage[T: BaseModel](ABC):
     @abstractmethod
     def keys(self) -> Iterator[str]:
         """Gets the keys of all blobs in the storage"""
+
+    def drop(self) -> None:
+        """Deletes all the blobs from the storage"""
+        for key in self.keys():
+            self.delete(key)

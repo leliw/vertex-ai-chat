@@ -4,8 +4,7 @@ from uuid import uuid4
 
 from google.api_core import exceptions
 from google.cloud import firestore
-from google.generativeai.types.content_types import ContentDict
-from google.generativeai.types.file_types import FileDataDict
+from google.generativeai.types import ContentDict, BlobDict
 
 from ai_agents import AIAgent
 from ampf.base import AmpfBaseFactory, logger
@@ -46,7 +45,7 @@ class ChatService:
             embedding_search_limit=config.knowledge_base.embedding_search_limit,
         )
         self.file_storage = file_storage
-        self.logger = logger.get_logger(__name__)
+        self._log = logger.get_logger(__name__)
 
     def get_answer(
         self, model_name: str, history: list[ChatMessage], message: ChatMessage
@@ -85,12 +84,16 @@ class ChatService:
             ai_agent = AIAgent(model_name=model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
+            # Iterate over the user (session) files
             for file in files:
+                # Move the file to the chat session directory
                 chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
-                self.file_storage.move_blob(file.url, chat_blob_name)
-                uri = f"gs://{self.file_storage.bucket_name}/{chat_blob_name}"
-                parts.append(FileDataDict(uri, mime_type=file.mime_type))
-                file_names[uri] = file.name
+                blob = self.file_storage.move_blob(file.name, chat_blob_name)
+                # Create a part with the file content
+                blob_dict = BlobDict(
+                    mime_type=file.mime_type, data=blob.download_as_string()
+                )
+                parts.append(blob_dict)
             content = ContentDict(role="user", parts=parts)
             responses = chat.send_message_streaming(content)
             for response in responses:
@@ -105,6 +108,7 @@ class ChatService:
                 chat_session.summary = out_history[0].content
             self.storage.save(chat_session)
         except Exception as e:
+            self._log.exception("Error in get_answer_async: %s", e)
             yield StreamedEvent(type=f"error:{type(e).__name__}", value=str(e))
 
     def get_context(self, text: str, agent: Agent = None) -> str:

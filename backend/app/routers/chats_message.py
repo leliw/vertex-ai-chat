@@ -9,9 +9,10 @@ from app.dependencies import (
     AgentServiceDep,
     ChatServiceDep,
     UserEmailDep,
+    FileServiceDep,
 )
 from app.chat.chat_service import StreamedEvent
-from app.chat.message.message_model import ChatMessage
+from app.chat.message.message_model import ChatMessage, ChatMessageFile
 
 
 router = APIRouter(
@@ -28,6 +29,7 @@ def post_message_async(
     user_email: UserEmailDep,
     agent_service: AgentServiceDep,
     chat_service: ChatServiceDep,
+    file_service: FileServiceDep,
     chat_id: str,
     model: str = None,
     agent: str = None,
@@ -36,21 +38,14 @@ def post_message_async(
     chat_session = chat_service.get(chat_id, user_email)
     if not chat_session:
         chat_session = ChatSession(chat_session_id=chat_id, user=user_email)
-    # session_id = chat_session.chat_session_id
-    # files: list[ChatMessageFile] = [
-    #     ChatMessageFile(
-    #         name=sf.name,
-    #         url=sf.url or f"session-{session_id}/{sf.name}",
-    #         mime_type=sf.mime_type,
-    #     )
-    #     for sf in request.state.session_data.files
-    # ]
-    files = []
+    files: list[ChatMessageFile] = [
+        ChatMessageFile(**sf) for sf in file_service.get_all_files()
+    ]
     if agent:
         agent_obj = agent_service.get(user_email, agent)
     else:
         agent_obj = agent_service.create_default(
-            user_email, model_name=model if model else config.get("default_model")
+            user_email, model_name=model if model else config.default_model
         )
     responses = chat_service.get_answer_async(
         agent=agent_obj,

@@ -1,6 +1,5 @@
 """This module contains dependencies for FastAPI endpoints."""
 
-import os
 from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends
@@ -9,9 +8,9 @@ from fastapi.security import OAuth2PasswordBearer
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import AmpfGcpFactory
+from app.file.file_service import FileService
 from app.user.user_model import User
 from app.user.user_service import UserService
-from gcp import FileStorage
 
 from app.config import ServerConfig
 from app.agent import AgentService
@@ -26,7 +25,6 @@ def get_server_config() -> ServerConfig:
 
 
 ServerConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
-file_storage = FileStorage(os.getenv("FILE_STORAGE_BUCKET"))
 
 
 def get_factory() -> AmpfBaseFactory:
@@ -109,10 +107,19 @@ def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentServ
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
 
 
+def get_file_service(
+    config: ServerConfigDep, factory: FactoryDep, user_email: UserEmailDep
+) -> FileService:
+    return FileService(config, factory, user_email)
+
+
+FileServiceDep = Annotated[FileService, Depends(get_file_service)]
+
+
 def get_chat_service(
-    factory: FactoryDep, server_config: ServerConfigDep
+    factory: FactoryDep, server_config: ServerConfigDep, file_service: FileServiceDep
 ) -> ChatService:
-    return ChatService(factory, file_storage, server_config)
+    return ChatService(factory, file_service.storage, server_config)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

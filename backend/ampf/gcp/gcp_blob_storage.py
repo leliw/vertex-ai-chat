@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator, Type
+from typing import Any, Iterator, Type
 from fastapi import UploadFile
 
 from google.cloud import storage
@@ -10,7 +10,9 @@ from ampf.base import BaseBlobStorage, KeyNotExists
 class GcpBlobStorage[T](BaseBlobStorage[T]):
     """A simple wrapper around Google Cloud Storage."""
 
-    def __init__(self, bucket_name: str, clazz: Type[T], content_type: str = None):
+    def __init__(
+        self, bucket_name: str, clazz: Type[T] = None, content_type: str = None
+    ):
         super().__init__(bucket_name, clazz, content_type)
         self._log = logging.getLogger(__name__)
         self._storage_client = storage.Client()
@@ -20,11 +22,13 @@ class GcpBlobStorage[T](BaseBlobStorage[T]):
             self._bucket.create()
             self._log.warning("Bucket %s created", bucket_name)
 
-    def upload_blob(self, key: str, data: bytes, metadata: T = None) -> None:
+    def upload_blob(
+        self, key: str, data: bytes, metadata: T = None, content_type: str = None
+    ) -> None:
         blob = self._bucket.blob(key)
         if metadata:
             blob.metadata = metadata.dict()
-        blob.upload_from_string(data, content_type=self.contet_type)
+        blob.upload_from_string(data, content_type=content_type or self.contet_type)
 
     def download_blob(self, key: str) -> bytes:
         blob = self._bucket.blob(key)
@@ -55,6 +59,11 @@ class GcpBlobStorage[T](BaseBlobStorage[T]):
     def keys(self) -> Iterator[str]:
         for blob in self._bucket.list_blobs():
             yield blob.name
+
+    def list_blobs(self, dir: str = None) -> Iterator[Any]:
+        for blob in self._bucket.list_blobs(prefix=dir):
+            b: storage.Blob = blob
+            yield {"name": b.name, "mime_type": b.content_type}
 
     # Additional not tested methods
 

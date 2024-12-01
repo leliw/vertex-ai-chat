@@ -2,9 +2,11 @@ from fastapi import APIRouter, Request
 
 from app.chat.chat_model import ChatSession, ChatSessionHeader
 from app.dependencies import ChatServiceDep, UserEmailDep
+from app.routers import chats_message
 
 
 router = APIRouter(tags=["chat sessions"])
+router.include_router(prefix="/{chat_id}/messages", router=chats_message.router)  # fmt: off
 ID_PATH = "/{chat_id}"
 
 

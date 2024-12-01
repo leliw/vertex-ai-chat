@@ -11,3 +11,4 @@ def setup_logging():
 
     logging.getLogger("app").setLevel(logging.DEBUG)
     logging.getLogger("ampf").setLevel(logging.DEBUG)
+    logging.getLogger("gcp").setLevel(logging.DEBUG)

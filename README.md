@@ -1,5 +1,12 @@
 # Vertex AI chat
 
+![License](https://img.shields.io/github/license/leliw/vertex-ai-chat)
+[![CI](https://github.com/leliw/vertex-ai-chat/actions/workflows/main.yml/badge.svg)](https://github.com/leliw/vertex-ai-chat/actions/workflows/main.yml)
+![coverage badge](./backend/coverage.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-latest-blue)
+![Angular](https://img.shields.io/badge/Angular-18-brightgreen)
+
 Chat application for general purposes usig `VertexAI` and `gemini-1.*` models.
 
 ## Changelog

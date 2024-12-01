@@ -9,8 +9,7 @@ from google.generativeai.types.file_types import FileDataDict
 class ChatMessageFile(BaseModel):
     """File in chat message."""
 
-    name: Optional[str] = Field("")
-    url: str
+    name: str
     mime_type: str
 
 

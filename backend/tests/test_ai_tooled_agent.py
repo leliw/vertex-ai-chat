@@ -74,7 +74,7 @@ class TestAITooledAgentWithPreparedFunction(unittest.TestCase):
             """
             return base_func(user, year)
 
-        agent = AITooledAgent(model_name="gemini-1.5-flash", tools=[prep_func])
+        agent = AITooledAgent(model_name="gemini-1.5-flash-001", tools=[prep_func])
         chat = agent.start_chat()
         response = chat.send_message("Ile zostało mi dni urlopu z 2024 roku?")
 
