@@ -3,7 +3,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
-from typing import Callable, Generator, Iterator, Type, TypeVar
+from typing import Any, Callable, Generator, Iterator, Type, TypeVar
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -99,7 +99,7 @@ class BaseStorage[T](ABC, Query):
         for key in self.keys():
             self.delete(key)
 
-    def get_all(self) -> Iterator[T]:
+    def get_all(self, sort: Any = None) -> Iterator[T]:
         """Get all the values"""
         for key in self.keys():
             yield self.get(key)
