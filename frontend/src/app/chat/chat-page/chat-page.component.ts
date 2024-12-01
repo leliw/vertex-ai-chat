@@ -9,7 +9,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MarkdownPipe } from '../../shared/markdown.pipe';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -43,7 +42,7 @@ import { RouterModule } from '@angular/router';
         MatListModule,
         MatIconModule,
         AsyncPipe,
-        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MarkdownPipe, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent, TextFieldModule,
+        FormsModule, MatInputModule, MatTooltipModule, MatMenuModule, MatProgressSpinnerModule, ChatListComponent, ChatViewComponent, SpeechRecognitionButtonComponent, TextFieldModule,
         MainToolbarComponent
     ]
 })
@@ -78,15 +77,14 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     selectedAgent!: string;
 
     constructor(public authService: AuthService, private config: ConfigService, private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
-        // Get the initial messages from the server
-        this.agentService.get_all().subscribe(agents => {
-            this.agents = agents.map(agent => agent.name);
-            this.selectedAgent = this.agents[0];
-        });
-
         this.chatService.get_all().subscribe(chats => {
             this.newChat()
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
+            // Get the initial messages from the server
+            this.agentService.get_all().subscribe(agents => {
+                this.agents = agents.map(agent => agent.name);
+                this.selectedAgent = this.agents[0];
+            });
         });
         this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }
