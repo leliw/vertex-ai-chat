@@ -1,8 +1,9 @@
-"""Upgrade router. 
+"""Upgrade router.
 
 It shoult be called at night to upgrade the system.
 All steps have to be repeatable without any side effects.
 """
+
 from fastapi import APIRouter, Depends
 
 from app.dependencies import Authorize

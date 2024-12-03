@@ -94,6 +94,7 @@ class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
             source_key
         )
 
+
 class AmpfInMemoryFactory(AmpfBaseFactory):
     collections = {}
 

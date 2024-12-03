@@ -62,7 +62,7 @@ def client(factory, email_sender, test_config):
     app.dependency_overrides[get_factory] = lambda: factory
     app.dependency_overrides[get_email_sender] = lambda: email_sender
     app.dependency_overrides[get_server_config] = lambda: test_config
-  
+
     client = AuthClient(app)
     # Clear token_black_list
     factory.create_compact_storage("token_black_list", TokenExp, "token").drop()

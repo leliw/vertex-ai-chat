@@ -36,6 +36,7 @@ def test_upgrade_not_exists(user_service):
     # Then: The user is in the new storage
     assert user_service.storage_new.get(email) == user
 
+
 def test_upgrade_exists(user_service):
     # Given: A user in both storages
     email = "jasio@wp.pl"

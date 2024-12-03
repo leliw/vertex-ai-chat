@@ -41,9 +41,9 @@ class UserService(UserServiceBase):
 
     def upgrade(self) -> None:
         """Upgrade the storage to the new version."""
-        # For each user in the old storage, 
+        # For each user in the old storage,
         for o in self.storage_old.get_all():
-            # if the user is not in the new storage, 
+            # if the user is not in the new storage,
             if self.storage_new.get(o.email):
                 continue
             self._log.info(f"Upgrading user {o.email}")
