@@ -11,7 +11,7 @@ from ampf.base import AmpfBaseFactory, logger
 from app.agent.agent_model import Agent
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
-from ai_model import AiFactory
+from haintech.ai import AiFactory
 
 from app.config import ServerConfig
 from .chat_model import ChatSessionHeader, ChatSession

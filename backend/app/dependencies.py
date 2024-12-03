@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from ai_model.ai_factory import AiFactory
+from haintech.ai import AiFactory
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import AmpfGcpFactory

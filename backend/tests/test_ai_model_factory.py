@@ -2,7 +2,7 @@ import unittest
 
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession, Content, Part
-from ai_model import AiFactory
+from haintech.ai import AiFactory
 from vertexai.language_models import ChatModel
 
 

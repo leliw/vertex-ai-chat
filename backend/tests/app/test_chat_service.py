@@ -1,6 +1,6 @@
 import datetime
 import pytest
-from ai_model.ai_factory import AiFactory
+from haintech.ai import AiFactory
 from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession

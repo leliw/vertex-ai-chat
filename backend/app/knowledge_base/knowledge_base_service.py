@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional
 from uuid import uuid4
 
-from ai_model import AiFactory
+from haintech.ai import AiFactory
 
 from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
