@@ -11,7 +11,7 @@ from ampf.base import AmpfBaseFactory, logger
 from app.agent.agent_model import Agent
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
-from ai_model import AIModelFactory
+from ai_model import AiFactory
 
 from app.config import ServerConfig
 from .chat_model import ChatSessionHeader, ChatSession
@@ -32,9 +32,13 @@ class ChatService:
     """Service for chat."""
 
     def __init__(
-        self, factory: AmpfBaseFactory, file_storage: FileStorage, config: ServerConfig
+        self,
+        factory: AmpfBaseFactory,
+        ai_factory: AiFactory,
+        file_storage: FileStorage,
+        config: ServerConfig,
     ):
-        self.ai_factory = AIModelFactory()
+        self.ai_factory = ai_factory
         self.role = ""
         self.storage = factory.create_storage(
             "ChatSessions", ChatSession, key_name="chat_session_id"

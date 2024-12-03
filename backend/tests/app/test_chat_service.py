@@ -1,5 +1,6 @@
 import datetime
 import pytest
+from ai_model.ai_factory import AiFactory
 from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
@@ -17,9 +18,14 @@ def factory():
 
 
 @pytest.fixture
-def chat_service(factory):
+def ai_factory():
+    return AiFactory()
+
+
+@pytest.fixture
+def chat_service(factory, ai_factory):
     file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(factory, file_storage, ServerConfig())
+    service = ChatService(factory, ai_factory, file_storage, ServerConfig())
     service.role = "This is role"
     return service
 

@@ -2,14 +2,14 @@ import unittest
 
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession, Content, Part
-from ai_model import AIModelFactory
+from ai_model import AiFactory
 from vertexai.language_models import ChatModel
 
 
 class TestVertexAiFactoryGemini(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.factory = AIModelFactory()
+        cls.factory = AiFactory()
         cls.model_name = "gemini-1.0-pro-002"
 
     def test_get_model(self):
@@ -40,7 +40,7 @@ class TestVertexAiFactoryGemini(unittest.TestCase):
 class TestVertexAiFactoryBison(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.factory = AIModelFactory()
+        cls.factory = AiFactory()
         cls.model_name = "chat-bison@002"
 
     def test_get_model(self):

@@ -12,7 +12,7 @@ from vertexai.language_models import ChatModel, TextEmbeddingInput, TextEmbeddin
 from functools import lru_cache
 
 
-class AIModelFactory:
+class AiFactory:
     """Factory for AI models."""
 
     def __init__(self):

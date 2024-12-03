@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
+from ai_model.ai_factory import AiFactory
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import AmpfGcpFactory
@@ -100,7 +101,9 @@ class Authorize:
             raise InsufficientPermissionsError()
 
 
-async def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentService:
+async def get_agent_service(
+    config: ServerConfigDep, factory: FactoryDep
+) -> AgentService:
     return AgentService(config, factory)
 
 
@@ -116,10 +119,20 @@ async def get_file_service(
 FileServiceDep = Annotated[FileService, Depends(get_file_service)]
 
 
+async def get_ai_factory() -> AiFactory:
+    return AiFactory()
+
+
+AiFactoryDep = Annotated[AiFactory, Depends(get_ai_factory)]
+
+
 async def get_chat_service(
-    factory: FactoryDep, server_config: ServerConfigDep, file_service: FileServiceDep
+    factory: FactoryDep,
+    ai_factory: AiFactoryDep,
+    server_config: ServerConfigDep,
+    file_service: FileServiceDep,
 ) -> ChatService:
-    return ChatService(factory, file_service.storage, server_config)
+    return ChatService(factory, ai_factory, file_service.storage, server_config)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
