@@ -88,6 +88,7 @@ class ChatService:
             for file in files:
                 # Move the file to the chat session directory
                 chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
+                self._log.debug("Moving file %s to %s", file.name, chat_blob_name)
                 blob = self.file_storage.move_blob(file.name, chat_blob_name)
                 # Create a part with the file content
                 blob_dict = BlobDict(
@@ -95,8 +96,10 @@ class ChatService:
                 )
                 parts.append(blob_dict)
             content = ContentDict(role="user", parts=parts)
+            self._log.debug("Sending message: %s", content)
             responses = chat.send_message_streaming(content)
             for response in responses:
+                self._log.debug("Received response: %s", response)
                 if response.text:
                     yield StreamedEvent(type="text", value=response.text)
                 # await asyncio.sleep(0.1)
@@ -162,6 +165,9 @@ class ChatService:
     async def delete_chat(self, chat_session_id: str, user: str) -> None:
         """Delete chat history by id."""
         chat_session = self.storage.get(chat_session_id)
+        if not chat_session:
+            self._log.warning("Chat session not found: %s", chat_session_id)
+            return
         if chat_session.user != user:
             raise ChatSessionUserError()
         chat_session = self.storage.get(chat_session_id)

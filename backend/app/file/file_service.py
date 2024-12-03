@@ -32,4 +32,5 @@ class FileService:
         self._log.debug("Getting all files for user %s", self.user_email)
         ret = self.storage.list_blobs(f"{self.user_email}/")
         for f in ret:
+            self._log.debug("Found file %s", f)
             yield f

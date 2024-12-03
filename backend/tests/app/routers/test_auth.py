@@ -15,17 +15,17 @@ from app.user.user_service import UserService
 
 @pytest.fixture
 def client(factory, email_sender, test_config):
-    logging.getLogger("ampf").setLevel(logging.DEBUG)
+    logging.getLogger("").setLevel(logging.DEBUG)
     app = FastAPI()
     app.dependency_overrides[get_factory] = lambda: factory
     app.dependency_overrides[get_email_sender] = lambda: email_sender
     app.dependency_overrides[get_server_config] = lambda: test_config
     app.include_router(auth.router, prefix="/api")
     app.include_router(config.router, prefix="/api/config")
-    client = TestClient(app)
-    yield client
+    yield TestClient(app)
     # Restore default user
     user_service = UserService(factory)
+    user_service.storage_new.drop()
     user_service.storage_old.drop()
     user_service.create(User(**test_config.default_user.model_dump()))
 
@@ -125,6 +125,15 @@ def test_change_password(client, tokens):
     )
     # Then: The response status code is 200
     assert response.status_code == 200
+    # Clean up
+    assert (
+        200
+        == client.post(
+            "/api/change-password",
+            headers={"Authorization": f"Bearer {tokens['access_token']}"},
+            json={"old_password": "new_test", "new_password": "test"},
+        ).status_code
+    )
 
 
 def test_reset_password_request(email_sender, client):
