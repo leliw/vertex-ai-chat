@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.6.3 - 2024-11-17
+## Version 0.6.4 - 2024-12-03
+
+* Refactor users storage (2/4)
+
+## Version 0.6.3 - 2024-12-01
 
 * README.md badges
 * github actions - test
