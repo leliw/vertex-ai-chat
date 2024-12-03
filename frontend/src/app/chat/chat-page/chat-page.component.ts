@@ -77,15 +77,15 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     selectedAgent!: string;
 
     constructor(public authService: AuthService, private config: ConfigService, private speechSynthesis: SpeechSynthesisService, public sessionService: SessionService, public chatService: ChatService) {
+        this.agentService.get_all().subscribe(agents => {
+            this.agents = agents.map(agent => agent.name);
+            this.selectedAgent = this.agents[0];
+        });
         this.chatService.get_all().subscribe(chats => {
             this.newChat()
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
-            // Get the initial messages from the server
-            this.agentService.get_all().subscribe(agents => {
-                this.agents = agents.map(agent => agent.name);
-                this.selectedAgent = this.agents[0];
-            });
         });
+        // Get the initial messages from the server
         this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }
 
