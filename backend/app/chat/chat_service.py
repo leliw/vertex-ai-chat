@@ -89,11 +89,10 @@ class ChatService:
                 # Move the file to the chat session directory
                 chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
                 self._log.debug("Moving file %s to %s", file.name, chat_blob_name)
-                blob = self.file_storage.move_blob(file.name, chat_blob_name)
+                self.file_storage.move_blob(file.name, chat_blob_name)
+                blob_data = self.file_storage.download_blob(chat_blob_name)
                 # Create a part with the file content
-                blob_dict = BlobDict(
-                    mime_type=file.mime_type, data=blob.download_as_string()
-                )
+                blob_dict = BlobDict(mime_type=file.mime_type, data=blob_data)
                 parts.append(blob_dict)
             content = ContentDict(role="user", parts=parts)
             self._log.debug("Sending message: %s", content)

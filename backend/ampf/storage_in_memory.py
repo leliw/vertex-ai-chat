@@ -89,6 +89,10 @@ class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
                     "mime_type": self.buckets[self.bucket_name][k]["content_type"],
                 }
 
+    def move_blob(self, source_key: str, dest_key: str):
+        self.buckets[self.bucket_name][dest_key] = self.buckets[self.bucket_name].pop(
+            source_key
+        )
 
 class AmpfInMemoryFactory(AmpfBaseFactory):
     collections = {}
