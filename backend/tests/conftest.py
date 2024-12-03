@@ -1,6 +1,7 @@
 from typing import Optional
 import pytest
 
+from ampf.auth.auth_model import TokenExp
 from ampf.base import BaseEmailSender
 from ampf.storage_in_memory import AmpfInMemoryFactory
 from app.config import DefaultUserConfig, ServerConfig
@@ -50,3 +51,26 @@ def test_config():
         default_user=DefaultUserConfig(email="test@test.com", password="test"),
         file_storage_bucket="vertex-ai-chat-dev-unit-tests",
     )
+
+
+@pytest.fixture
+def tokens(factory, client):
+    """Login and return tokens."""
+    # Clear token_black_list
+    factory.create_compact_storage("token_black_list", TokenExp, "token").drop()
+    # Login
+    response = client.post(
+        "/api/login",
+        data={"username": "test@test.com", "password": "test"},
+    )
+    r = response.json()
+    yield r
+    # Logout
+    client.post(
+        "/api/logout", headers={"Authorization": f"Bearer {r['refresh_token']}"}
+    )
+
+
+@pytest.fixture
+def auth_header(tokens):
+    yield {"Authorization": f"Bearer {tokens['access_token']}"}
