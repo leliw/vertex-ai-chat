@@ -20,14 +20,14 @@ from app.chat import ChatService
 load_dotenv()
 
 
-def get_server_config() -> ServerConfig:
+async def get_server_config() -> ServerConfig:
     return ServerConfig()
 
 
 ServerConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
 
 
-def get_factory() -> AmpfBaseFactory:
+async def get_factory() -> AmpfBaseFactory:
     return AmpfGcpFactory()
 
 
@@ -37,21 +37,21 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
 AuthTokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 
-def user_service_dep(factory: FactoryDep) -> UserService:
+async def user_service_dep(factory: FactoryDep) -> UserService:
     return UserService(factory)
 
 
 UserServceDep = Annotated[UserService, Depends(user_service_dep)]
 
 
-def get_email_sender(conf: ServerConfigDep) -> BaseEmailSender:
+async def get_email_sender(conf: ServerConfigDep) -> BaseEmailSender:
     return SmtpEmailSender(**dict(conf.smtp))
 
 
 EmailSenderServiceDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
 
 
-def auth_service_dep(
+async def auth_service_dep(
     factory: FactoryDep,
     email_sender_service: EmailSenderServiceDep,
     conf: ServerConfigDep,
@@ -72,14 +72,14 @@ def auth_service_dep(
 AuthServiceDep = Annotated[AuthService, Depends(auth_service_dep)]
 
 
-def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep):
+async def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep):
     return auth_service.decode_token(token)
 
 
 TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
 
 
-def get_user_email(token_payload: TokenPayloadDep) -> str:
+async def get_user_email(token_payload: TokenPayloadDep) -> str:
     """Returns the current user's ID from the session."""
     return token_payload.email
 
@@ -100,14 +100,14 @@ class Authorize:
             raise InsufficientPermissionsError()
 
 
-def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentService:
+async def get_agent_service(config: ServerConfigDep, factory: FactoryDep) -> AgentService:
     return AgentService(config, factory)
 
 
 AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
 
 
-def get_file_service(
+async def get_file_service(
     config: ServerConfigDep, factory: FactoryDep, user_email: UserEmailDep
 ) -> FileService:
     return FileService(config, factory, user_email)
@@ -116,7 +116,7 @@ def get_file_service(
 FileServiceDep = Annotated[FileService, Depends(get_file_service)]
 
 
-def get_chat_service(
+async def get_chat_service(
     factory: FactoryDep, server_config: ServerConfigDep, file_service: FileServiceDep
 ) -> ChatService:
     return ChatService(factory, file_service.storage, server_config)

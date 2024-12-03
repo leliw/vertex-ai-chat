@@ -47,12 +47,12 @@ async def user_get(user_service: users.UserServiceDep, request: Request):
 
 
 @app.get("/api/ping")
-def ping() -> None:
+async def ping() -> None:
     """Just for keep container alive"""
 
 
 @app.get("/api/models")
-def models_get_all(config: ServerConfigDep) -> list[str]:
+async def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
