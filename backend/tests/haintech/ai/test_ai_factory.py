@@ -37,3 +37,16 @@ def test_send_message(ai_factory):
     assert isinstance(chat.history, list)
     assert isinstance(chat.history[0], Content)
     assert isinstance(resp.text, str)
+
+
+@pytest.mark.asyncio
+async def test_get_embedding(ai_factory):
+    # Given: TextEmbeddingModel
+    m = ai_factory.get_text_embedding_model()
+    # And: Some text
+    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    # When: Embedding is requested
+    embedding = await m.get_embedding(text)
+    # Then: Embedding is returned
+    assert embedding is not None
+    assert len(embedding) > 0

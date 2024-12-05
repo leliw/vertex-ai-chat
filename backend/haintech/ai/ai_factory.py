@@ -1,6 +1,7 @@
 """Factory for Vertex AI models."""
 
-from typing import Any, List, Optional
+from typing import Any, List
+from warnings import deprecated
 import vertexai
 from vertexai.generative_models import (
     GenerativeModel,
@@ -8,8 +9,12 @@ from vertexai.generative_models import (
     Content,
 )
 import vertexai.preview.generative_models as generative_models
-from vertexai.language_models import ChatModel, TextEmbeddingInput, TextEmbeddingModel
+from vertexai.language_models import ChatModel
 from functools import lru_cache
+
+from haintech.ai.vertex_ai.vertex_ai_text_embedding_model import (
+    VertexAITextEmbeddingModel,
+)
 
 
 class AiFactory:
@@ -103,23 +108,21 @@ class AiFactory:
             return model.start_chat(message_history=history, **parameters)
 
     @lru_cache(maxsize=16)
-    def get_text_embedding_model(self, model_name: str = None):
-        if not model_name:
-            model_name = "text-multilingual-embedding-002"
-        model = TextEmbeddingModel.from_pretrained(model_name)
-        return model
-
-    def embed_text(
+    def get_text_embedding_model(
+        self, model_name: str = "text-multilingual-embedding-002"
+    ):
+        return VertexAITextEmbeddingModel(model_name)
+    
+    @deprecated(
+        "Use get_text_embedding_model instead.",
+        version="0.1.0",
+        action="always",
+    )
+    def get_embeddings(
         self,
         text: str,
-        task: str = "RETRIEVAL_DOCUMENT",
-        title: str = None,
         model_name: str = "text-multilingual-embedding-002",
-        dimensionality: Optional[int] = 256,
     ) -> List[float]:
         """Embeds texts with a pre-trained, foundational model."""
         model = self.get_text_embedding_model(model_name)
-        inputs = [TextEmbeddingInput(text, task, title=title)]
-        kwargs = dict(output_dimensionality=dimensionality) if dimensionality else {}
-        embeddings = model.get_embeddings(inputs, **kwargs)
-        return embeddings[0].values
+        return model.get_embedding(text)
