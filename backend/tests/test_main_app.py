@@ -1,20 +1,37 @@
-import unittest
-from .app_test_client import app_test_client
+from typing import Any
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+import pytest
+
+from app.main import app
 
 
-class TestMainApp(unittest.TestCase):
-    """Test the main FastAPI app."""
+class CookieAwareTestClient(TestClient):
+    """Test client that stores and sends cookies with requests."""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.client = app_test_client
+    def __init__(self, app: FastAPI):
+        super().__init__(app)
+        self.cookies = {}
 
-    def test_config_get(self):
-        """Test the /api/config endpoint."""
-        response = self.client.get("/api/config")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("version", response.json().keys())
+    def request(self, method: str, url: str, **kwargs: Any) -> Any:
+        """Send a request with cookies."""
+        if self.cookies:
+            kwargs["cookies"] = self.cookies
+
+        response = super().request(method, url, **kwargs)
+        self.cookies.update(response.cookies)
+        return response
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def client():
+    return CookieAwareTestClient(app)
+
+
+def test_config_get(client):
+    # When: GET request to /api/config
+    response = client.get("/api/config")
+    # Then: Response status code is 200
+    assert 200 == response.status_code
+    # And: Response contains the config
+    assert "version" in response.json().keys()
