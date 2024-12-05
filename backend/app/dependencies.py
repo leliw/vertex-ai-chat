@@ -126,10 +126,17 @@ async def get_ai_factory() -> AiFactory:
 
 AiFactoryDep = Annotated[AiFactory, Depends(get_ai_factory)]
 
-async def get_ai_text_embedding_model(ai_factory: AiFactoryDep, config: ServerConfigDep):
+
+async def get_ai_text_embedding_model(
+    ai_factory: AiFactoryDep, config: ServerConfigDep
+):
     return ai_factory.get_text_embedding_model(config.knowledge_base.embedding_model)
 
-EmbeddingModelDep = Annotated[BaseAITextEmbeddingModel, Depends(get_ai_text_embedding_model)]
+
+EmbeddingModelDep = Annotated[
+    BaseAITextEmbeddingModel, Depends(get_ai_text_embedding_model)
+]
+
 
 async def get_chat_service(
     factory: FactoryDep,
@@ -138,7 +145,9 @@ async def get_chat_service(
     server_config: ServerConfigDep,
     file_service: FileServiceDep,
 ) -> ChatService:
-    return ChatService(factory, ai_factory, embedding_model, file_service.storage, server_config)
+    return ChatService(
+        factory, ai_factory, embedding_model, file_service.storage, server_config
+    )
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

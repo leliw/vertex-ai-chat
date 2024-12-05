@@ -81,6 +81,7 @@ class MockAITextEmbeddingModel(BaseAITextEmbeddingModel):
     async def get_embedding(self, text: str) -> List[float]:
         return [0.1] * 256
 
+
 @pytest.fixture
 def embedding_model():
     return MockAITextEmbeddingModel()
