@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import List, Optional
 import pytest
 
 from ampf.auth.auth_model import TokenExp
 from ampf.base import BaseEmailSender
 from ampf.storage_in_memory import AmpfInMemoryFactory
 from app.config import DefaultUserConfig, ServerConfig
+from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
 
 @pytest.fixture
@@ -74,3 +75,13 @@ def tokens(factory, client):
 @pytest.fixture
 def auth_header(tokens):
     yield {"Authorization": f"Bearer {tokens['access_token']}"}
+
+
+class MockAITextEmbeddingModel(BaseAITextEmbeddingModel):
+    async def get_embedding(self, text: str) -> List[float]:
+        return [0.1] * 256
+
+
+@pytest.fixture
+def embedding_model():
+    return MockAITextEmbeddingModel()

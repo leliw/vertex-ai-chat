@@ -23,9 +23,11 @@ def ai_factory():
 
 
 @pytest.fixture
-def chat_service(factory, ai_factory):
+def chat_service(factory, ai_factory, embedding_model):
     file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(factory, ai_factory, file_storage, ServerConfig())
+    service = ChatService(
+        factory, ai_factory, embedding_model, file_storage, ServerConfig()
+    )
     service.role = "This is role"
     return service
 
@@ -42,7 +44,8 @@ def test_get_answer(chat_service):
     assert chat_history[1] == answer
 
 
-def test_get_answer_async(chat_service):
+@pytest.mark.asyncio
+async def test_get_answer_async(chat_service):
     session = ChatSession(
         chat_session_id="x",
         user="x",
@@ -51,7 +54,7 @@ def test_get_answer_async(chat_service):
     )
     message = ChatMessage(author="user", content="Hello")
     text = ""
-    for p in chat_service.get_answer_async(
+    async for p in chat_service.get_answer_async(
         model_name=model_name, chat_session=session, message=message, files=[]
     ):
         text += p.value
@@ -60,19 +63,21 @@ def test_get_answer_async(chat_service):
     assert isinstance(answer.content, str)
 
 
-def test_get_context_without_agent(chat_service):
-    context = chat_service.get_context("test")
+@pytest.mark.asyncio
+async def test_get_context_without_agent(chat_service):
+    context = await chat_service.get_context("test")
 
     assert context.startswith("This is role")
 
 
-def test_get_context_with_agent(chat_service):
+@pytest.mark.asyncio
+async def test_get_context_with_agent(chat_service):
     agent = Agent(
         name="test",
         model_name="test_model",
         system_prompt="Agent prompt",
         keywords=["test"],
     )
-    context = chat_service.get_context("test", agent)
+    context = await chat_service.get_context("test", agent)
 
     assert context == "Agent prompt\n\n"

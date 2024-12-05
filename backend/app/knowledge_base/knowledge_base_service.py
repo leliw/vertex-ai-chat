@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional
 from uuid import uuid4
 
-from haintech.ai import AiFactory
+from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
 from .knowledge_base_storage import KnowledgeBaseStorage
 from .knowledge_base_model import KnowledgeBaseItem, KnowledgeBaseItemHeader
@@ -15,9 +15,12 @@ class KnowledgeBaseService:
     Service for managing knowledge base items.
     """
 
-    def __init__(self, ai_factory: AiFactory, config: KnowledgeBaseConfig):
-        self.ai_factory = ai_factory
-        self.storage = KnowledgeBaseStorage(self.ai_factory, **config.model_dump())
+    def __init__(
+        self, embedding_model: BaseAITextEmbeddingModel, config: KnowledgeBaseConfig
+    ):
+        self.storage = KnowledgeBaseStorage(
+            embedding_model, config.embedding_search_limit
+        )
         self._log = logging.getLogger(__name__)
 
     def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
