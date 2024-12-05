@@ -1,4 +1,4 @@
-from typing import Iterator, List, Mapping, Optional
+from typing import AsyncIterator, Iterator, List, Mapping, Optional
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -31,7 +31,7 @@ class JsonStreamingResponse[T: BaseModel](StreamingResponse):
 
     def __init__(
         self,
-        content: Iterator[T],
+        content: Iterator[T] | AsyncIterator[T],
         status_code: int = 200,
         headers: Mapping[str, str] = None,
         background: BackgroundTask = None,
@@ -41,11 +41,19 @@ class JsonStreamingResponse[T: BaseModel](StreamingResponse):
             self.objects_to_text(content), status_code, headers, media_type, background
         )
 
-    def objects_to_text(self, responses: Iterator[T]) -> Iterator[str]:
+    async def objects_to_text(
+        self, responses: Iterator[T] | AsyncIterator[T]
+    ) -> Iterator[str] | AsyncIterator[str]:
         """Converts object iterator to JSON string iterator of these objects."""
         try:
-            for i, r in enumerate(responses):
-                yield self.object_to_text(i, r)
+            if isinstance(responses, AsyncIterator):
+                i = 0
+                async for r in responses:
+                    yield self.object_to_text(i, r)
+                    i += 1
+            else:
+                for i, r in enumerate(responses):
+                    yield self.object_to_text(i, r)
         except Exception as e:
             yield self.object_to_text(i, StreamedException.from_exception(e))
 
