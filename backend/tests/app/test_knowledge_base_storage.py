@@ -1,12 +1,12 @@
 import pytest
 from app.knowledge_base.knowledge_base_model import KnowledgeBaseItem
 from app.knowledge_base.knowledge_base_storage import KnowledgeBaseStorage
-from haintech.ai.ai_factory import AiFactory
 
 
 @pytest.fixture
-def kb():
-    kb = KnowledgeBaseStorage(ai_factory=AiFactory())
+def kb(embedding_model):
+    kb = KnowledgeBaseStorage(embedding_model)
+    # "universal-sentence-encoder"
     yield kb
     kb.drop()
 
@@ -38,7 +38,7 @@ async def test_find_nearest(kb):
 
     assert ret is not None
     assert len(ret) == 2
-    assert ret[0].title == "Paris"
-    assert ret[0].content == "Paris is the capital of France."
-    assert ret[1].title == "France"
-    assert ret[1].content == "France is a country in Europe."
+    assert ret[0].title == "France"
+    assert ret[0].content == "France is a country in Europe."
+    assert ret[1].title == "Paris"
+    assert ret[1].content == "Paris is the capital of France."

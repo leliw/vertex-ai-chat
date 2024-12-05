@@ -14,6 +14,7 @@ from app.knowledge_base import KnowledgeBaseStorage
 from haintech.ai import AiFactory
 
 from app.config import ServerConfig
+from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 from .chat_model import ChatSessionHeader, ChatSession
 from .message import ChatMessage, ChatMessageFile
 
@@ -35,6 +36,7 @@ class ChatService:
         self,
         factory: AmpfBaseFactory,
         ai_factory: AiFactory,
+        embedding_model: BaseAITextEmbeddingModel,
         file_storage: FileStorage,
         config: ServerConfig,
     ):
@@ -44,8 +46,7 @@ class ChatService:
             "ChatSessions", ChatSession, key_name="chat_session_id"
         )
         self.knowledge_base_storage = KnowledgeBaseStorage(
-            self.ai_factory,
-            embedding_model=config.knowledge_base.embedding_model,
+            embedding_model,
             embedding_search_limit=config.knowledge_base.embedding_search_limit,
         )
         self.file_storage = file_storage

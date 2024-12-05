@@ -1,7 +1,7 @@
 """Factory for Vertex AI models."""
 
 from typing import Any, List
-from warnings import deprecated
+
 import vertexai
 from vertexai.generative_models import (
     GenerativeModel,
@@ -12,6 +12,7 @@ import vertexai.preview.generative_models as generative_models
 from vertexai.language_models import ChatModel
 from functools import lru_cache
 
+from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 from haintech.ai.vertex_ai.vertex_ai_text_embedding_model import (
     VertexAITextEmbeddingModel,
 )
@@ -110,14 +111,9 @@ class AiFactory:
     @lru_cache(maxsize=16)
     def get_text_embedding_model(
         self, model_name: str = "text-multilingual-embedding-002"
-    ):
+    ) -> BaseAITextEmbeddingModel:
         return VertexAITextEmbeddingModel(model_name)
-    
-    @deprecated(
-        "Use get_text_embedding_model instead.",
-        version="0.1.0",
-        action="always",
-    )
+
     def get_embeddings(
         self,
         text: str,

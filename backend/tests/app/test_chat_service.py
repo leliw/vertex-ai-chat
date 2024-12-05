@@ -23,9 +23,11 @@ def ai_factory():
 
 
 @pytest.fixture
-def chat_service(factory, ai_factory):
+def chat_service(factory, ai_factory, embedding_model):
     file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(factory, ai_factory, file_storage, ServerConfig())
+    service = ChatService(
+        factory, ai_factory, embedding_model, file_storage, ServerConfig()
+    )
     service.role = "This is role"
     return service
 
