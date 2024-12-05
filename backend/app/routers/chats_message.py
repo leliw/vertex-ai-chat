@@ -22,7 +22,7 @@ _log = logging.getLogger(__name__)
 
 
 @router.post("", responses={200: {"content": {"text/event-stream": {}}}})
-def post_message_async(
+async def post_message_async(
     message: ChatMessage,
     config: ServerConfigDep,
     user_email: UserEmailDep,

@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import AsyncIterator
 from pydantic import BaseModel
 from uuid import uuid4
 
@@ -63,14 +63,14 @@ class ChatService:
         out_history = [ChatMessage.from_content(m, {}) for m in chat.get_history()]
         return (ret, out_history)
 
-    def get_answer_async(
+    async def get_answer_async(
         self,
         message: ChatMessage,
         files: list[ChatMessageFile],
         agent: Agent = None,
         model_name: str = None,
         chat_session: ChatSession = None,
-    ) -> Iterator[StreamedEvent]:
+    ) -> AsyncIterator[StreamedEvent]:
         """Get an answer from the model."""
         file_names = {}
         in_history = []
@@ -84,7 +84,7 @@ class ChatService:
         if agent:
             model_name = agent.model_name
         try:
-            context = self.get_context(message.content, agent)
+            context = await self.get_context(message.content, agent)
             ai_agent = AIAgent(model_name=model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
@@ -117,7 +117,7 @@ class ChatService:
             self._log.exception("Error in get_answer_async: %s", e)
             yield StreamedEvent(type=f"error:{type(e).__name__}", value=str(e))
 
-    def get_context(self, text: str, agent: Agent = None) -> str:
+    async def get_context(self, text: str, agent: Agent = None) -> str:
         """Get the context of the chat session."""
         if agent:
             context = agent.system_prompt + "\n\n"
@@ -128,7 +128,7 @@ class ChatService:
         else:
             context = ""
             keywords = None
-        neartest = self.knowledge_base_storage.find_nearest(f"{text}", keywords)
+        neartest = await self.knowledge_base_storage.find_nearest(f"{text}", keywords)
         for n in neartest:
             context += "\n\n# " + n.title + "\n" + n.content + "\n\n"
         return context

@@ -21,18 +21,17 @@ class KnowledgeBaseStorage(GcpStorage):
         self.embedding_model = embedding_model
         self.embedding_search_limit = embedding_search_limit
 
-    def on_before_save(self, item: dict) -> dict:
+    async def on_before_save(self, item: dict) -> dict:
         """Calculate embedding vector before saving data to Firestore."""
         item["embedding"] = Vector(
-            self.ai_factory.embed_text(
-                title=item["title"],
+            await self.ai_factory.get_embeddings(
                 text=item["content"],
                 model_name=self.embedding_model,
             )
         )
         return item
 
-    def find_nearest(
+    async def find_nearest(
         self, text: str, keywords: List[str] = None
     ) -> List[KnowledgeBaseItem]:
         """Finds the nearest knowledge base items to the given string.
@@ -40,8 +39,8 @@ class KnowledgeBaseStorage(GcpStorage):
         Args:
             text: The text to search for.
             keywords: A list of keywords (any of) to filter the search results."""
-        embedding = self.ai_factory.embed_text(
-            text=text, model_name=self.embedding_model, task="QUESTION_ANSWERING"
+        embedding = await self.ai_factory.get_embeddings(
+            text=text, model_name=self.embedding_model
         )
         vq: VectorQuery = self._coll_ref.find_nearest(
             vector_field="embedding",
@@ -58,3 +57,14 @@ class KnowledgeBaseStorage(GcpStorage):
         else:
             ret = [KnowledgeBaseItem(**ds.to_dict()) for ds in vq]
         return ret
+
+    # Async methods of superclass
+    async def save(self, value: KnowledgeBaseItem) -> None:
+        key = self.get_key(value)
+        await self.put(key, value)
+
+    async def put(self, key: str, data: KnowledgeBaseItem) -> None:
+        """Put a document in the collection."""
+        data_dict = data.model_dump(by_alias=True, exclude_none=True)
+        data_dict = await self.on_before_save(data_dict)  # Preprocess data
+        self._coll_ref.document(key).set(data_dict)

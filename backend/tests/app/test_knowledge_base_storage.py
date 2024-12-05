@@ -11,15 +11,16 @@ def kb():
     kb.drop()
 
 
-def test_before_save(kb):
+@pytest.mark.asyncio
+async def test_before_save(kb):
     item = {"title": "title", "content": "content"}
-    item = kb.on_before_save(item)
+    item = await kb.on_before_save(item)
     assert "embedding" in item
 
 
-@pytest.mark.skip(reason="Quota exceeded expected")
-def test_find_nearest(kb):
-    ret = kb.find_nearest("text", ["pytest"])
+@pytest.mark.asyncio
+async def test_find_nearest(kb):
+    ret = await kb.find_nearest("text", ["pytest"])
 
     assert ret is not None
     assert len(ret) == 0
@@ -27,13 +28,13 @@ def test_find_nearest(kb):
     kb1 = KnowledgeBaseItem(
         title="Paris", content="Paris is the capital of France.", keywords=["pytest"]
     )
-    kb.save(kb1)
+    await kb.save(kb1)
     kb2 = KnowledgeBaseItem(
         title="France", content="France is a country in Europe.", keywords=["pytest"]
     )
-    kb.save(kb2)
+    await kb.save(kb2)
 
-    ret = kb.find_nearest("What is the capital of France?", ["pytest"])
+    ret = await kb.find_nearest("What is the capital of France?", ["pytest"])
 
     assert ret is not None
     assert len(ret) == 2
