@@ -17,7 +17,7 @@ class KnowledgeBaseStorage(GcpStorage):
         embedding_search_limit: int = 5,
     ):
         super().__init__("KnowledgeBase", KnowledgeBaseItem, key_name="item_id")
-        self.ai_factory = ai_factory if ai_factory else AiFactory()
+        self.ai_factory = ai_factory
         self.embedding_model = embedding_model
         self.embedding_search_limit = embedding_search_limit
 

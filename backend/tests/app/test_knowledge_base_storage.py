@@ -1,11 +1,12 @@
 import pytest
 from app.knowledge_base.knowledge_base_model import KnowledgeBaseItem
 from app.knowledge_base.knowledge_base_storage import KnowledgeBaseStorage
+from haintech.ai.ai_factory import AiFactory
 
 
 @pytest.fixture
 def kb():
-    kb = KnowledgeBaseStorage()
+    kb = KnowledgeBaseStorage(ai_factory=AiFactory())
     yield kb
     kb.drop()
 
