@@ -79,13 +79,15 @@ class InMemoryBlobStorage[T: BaseModel](BaseBlobStorage):
     def drop(self) -> None:
         self.buckets.pop(self.bucket_name, None)
 
-    def list_blobs(self, prefix: str = None) -> Iterator[str]:
+    def list_blobs(self, dir: str = None) -> Iterator[str]:
         if self.bucket_name not in self.buckets:
             return
         for k in self.buckets[self.bucket_name].keys():
+            prefix = dir if dir[-1] == "/" else dir + "/"
+            i = len(prefix) if prefix else 0
             if not prefix or k.startswith(prefix):
                 yield {
-                    "name": k,
+                    "name": k[i:],
                     "mime_type": self.buckets[self.bucket_name][k]["content_type"],
                 }
 

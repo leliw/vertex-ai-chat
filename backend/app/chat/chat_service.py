@@ -1,6 +1,5 @@
 from typing import AsyncIterator
 from pydantic import BaseModel
-from uuid import uuid4
 
 from google.api_core import exceptions
 from google.cloud import firestore
@@ -39,6 +38,7 @@ class ChatService:
         embedding_model: BaseAITextEmbeddingModel,
         file_storage: FileStorage,
         config: ServerConfig,
+        user_email: str,
     ):
         self.ai_factory = ai_factory
         self.role = ""
@@ -50,6 +50,7 @@ class ChatService:
             embedding_search_limit=config.knowledge_base.embedding_search_limit,
         )
         self.file_storage = file_storage
+        self.user_email = user_email
         self._log = logger.get_logger(__name__)
 
     def get_answer(
@@ -92,14 +93,21 @@ class ChatService:
             # Iterate over the user (session) files
             for file in files:
                 # Move the file to the chat session directory
-                chat_blob_name = f"chat-{chat_session.chat_session_id}/{str(uuid4())}"
+                # file_name = f"users/{self.user_email}/session_files/{file.name}"
+                chat_blob_name = f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files/{file.name}"
+                # file.url = chat_blob_name
                 self._log.debug("Moving file %s to %s", file.name, chat_blob_name)
-                self.file_storage.move_blob(file.name, chat_blob_name)
+                self.file_storage.move_blob(
+                    f"users/{self.user_email}/session_files/{file.name}", chat_blob_name
+                )
                 blob_data = self.file_storage.download_blob(chat_blob_name)
                 # Create a part with the file content
                 blob_dict = BlobDict(mime_type=file.mime_type, data=blob_data)
                 parts.append(blob_dict)
             content = ContentDict(role="user", parts=parts)
+            chat_session.history.append(
+                ChatMessage(author="user", content=message.content, files=files)
+            )
             self._log.debug("Sending message: %s", content)
             responses = chat.send_message_streaming(content)
             for response in responses:
@@ -107,12 +115,10 @@ class ChatService:
                 if response.text:
                     yield StreamedEvent(type="text", value=response.text)
                 # await asyncio.sleep(0.1)
-            out_history = [
-                ChatMessage.from_content(m, file_names) for m in chat.get_history()
-            ]
-            chat_session.history = out_history
+            out_message = ChatMessage.from_content(chat.get_history()[-1], file_names)
+            chat_session.history.append(out_message)
             if not chat_session.summary:
-                chat_session.summary = out_history[0].content
+                chat_session.summary = chat_session.history[0].content
             self.storage.save(chat_session)
         except Exception as e:
             self._log.exception("Error in get_answer_async: %s", e)

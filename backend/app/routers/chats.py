@@ -18,7 +18,7 @@ async def get_all(
 
 
 @router.get(ID_PATH)
-def get(service: ChatServiceDep, user_email: UserEmailDep, chat_id: str) -> ChatSession:
+async def get(service: ChatServiceDep, user_email: UserEmailDep, chat_id: str) -> ChatSession:
     chat_session = service.get(chat_id, user_email)
     return chat_session
 

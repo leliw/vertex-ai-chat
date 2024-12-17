@@ -144,9 +144,15 @@ async def get_chat_service(
     embedding_model: EmbeddingModelDep,
     server_config: ServerConfigDep,
     file_service: FileServiceDep,
+    user_email: UserEmailDep,
 ) -> ChatService:
     return ChatService(
-        factory, ai_factory, embedding_model, file_service.storage, server_config
+        factory,
+        ai_factory,
+        embedding_model,
+        file_service.storage,
+        server_config,
+        user_email,
     )
 
 

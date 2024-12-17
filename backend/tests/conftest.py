@@ -44,12 +44,16 @@ def email_sender():
     """Return an instance of the test email sender."""
     return TestEmailSender()
 
+@pytest.fixture
+def user_email() -> str:
+    return "test@test.com"
+
 
 @pytest.fixture
-def test_config():
+def test_config(user_email):
     """Return a test configuration."""
     return ServerConfig(
-        default_user=DefaultUserConfig(email="test@test.com", password="test"),
+        default_user=DefaultUserConfig(email=user_email, password="test"),
         file_storage_bucket="vertex-ai-chat-dev-unit-tests",
     )
 
