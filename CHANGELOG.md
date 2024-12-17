@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.5 - 2024-12-03
+
+* Chat session is loaded with file names
+
 ## Version 0.6.4 - 2024-12-03
 
 * Refactor users storage (2/4)
