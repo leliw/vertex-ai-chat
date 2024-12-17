@@ -44,6 +44,7 @@ def email_sender():
     """Return an instance of the test email sender."""
     return TestEmailSender()
 
+
 @pytest.fixture
 def user_email() -> str:
     return "test@test.com"

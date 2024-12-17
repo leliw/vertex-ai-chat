@@ -89,7 +89,10 @@ def test_send_message(client, chat_session_id):
 def test_send_message_with_file(client, chat_session_id):
     # Given: A file
     files = [
-        ("files", ("test4.txt", b"Content of the document:File content 4", "text/plain")),
+        (
+            "files",
+            ("test4.txt", b"Content of the document:File content 4", "text/plain"),
+        ),
     ]
     # And: The file is uploaded
     client.post("/api/files", files=files)
