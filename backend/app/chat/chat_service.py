@@ -184,7 +184,7 @@ class ChatService:
         for message in chat_session.history:
             for file in message.files:
                 try:
-                    self.file_storage.delete("/".join(file.url.split("/")[3:]))
+                    self.file_storage.delete(file.name)
                 except exceptions.NotFound:
                     pass
         return self.storage.delete(chat_session_id)
