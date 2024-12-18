@@ -150,6 +150,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     loadChat(chat_session_id: string) {
         setTimeout(() => this.progressSpinner = this.chatService.isLoading, 500);
+        this.sessionService.getAllFiles().subscribe();
         this.chatService.get(chat_session_id).subscribe(() => {
             if (this.isHandset)
                 this.drawerContainer.close();

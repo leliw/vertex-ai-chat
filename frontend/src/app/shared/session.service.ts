@@ -1,6 +1,11 @@
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+
+export interface FileHeader {
+    name: string;
+    mime_type: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -20,6 +25,15 @@ export class SessionService {
     clearFiles(): void {
         this.selectedFiles = [];
         this.uploadProgress = [];
+    }
+
+    getAllFiles(): Observable<FileHeader[]> {
+        return this.httpClient.get<FileHeader[]>(`/api/files`).pipe(
+            tap(files => {
+                this.selectedFiles = files.map(file => new File([], file.name));
+                this.uploadProgress = files.map(() => 100);
+            })
+        );
     }
 
     openFileDialog(): void {
