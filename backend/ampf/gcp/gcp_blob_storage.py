@@ -61,9 +61,11 @@ class GcpBlobStorage[T](BaseBlobStorage[T]):
             yield blob.name
 
     def list_blobs(self, dir: str = None) -> Iterator[Any]:
-        for blob in self._bucket.list_blobs(prefix=dir):
+        prefix = dir if dir[-1] == "/" else dir + "/"
+        i = len(prefix)
+        for blob in self._bucket.list_blobs(prefix=prefix):
             b: storage.Blob = blob
-            yield {"name": b.name, "mime_type": b.content_type}
+            yield {"name": b.name[i:], "mime_type": b.content_type, "path": b.name}
 
     # Additional not tested methods
 

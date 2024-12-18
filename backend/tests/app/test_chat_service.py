@@ -1,12 +1,16 @@
 import datetime
+from io import BytesIO
+from fastapi import UploadFile
 import pytest
+from app.file.file_service import FileService
+from haintech.ai import AiFactory
 from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
 from app.chat.chat_service import ChatService
-from app.chat.message.message_model import ChatMessage
+from app.chat.message.message_model import ChatMessage, ChatMessageFile
 from app.config import ServerConfig
-from gcp.gcp_file_storage import FileStorage
+from tests.conftest import MockAITextEmbeddingModel
 
 model_name = "gemini-1.5-flash"
 
@@ -17,14 +21,34 @@ def factory():
 
 
 @pytest.fixture
-def chat_service(factory):
-    file_storage = FileStorage("vertex-ai-chat-dev-session-files")
-    service = ChatService(factory, file_storage, ServerConfig())
+def ai_factory():
+    return AiFactory()
+
+
+@pytest.fixture
+def chat_service(
+    test_config: ServerConfig,
+    factory: AmpfGcpFactory,
+    ai_factory: AiFactory,
+    embedding_model: MockAITextEmbeddingModel,
+    user_email: str,
+):
+    file_storage = factory.create_blob_storage(test_config.file_storage_bucket)
+    service = ChatService(
+        factory, ai_factory, embedding_model, file_storage, ServerConfig(), user_email
+    )
     service.role = "This is role"
     return service
 
 
-def test_get_answer(chat_service):
+@pytest.fixture
+def file_service(
+    test_config: ServerConfig, factory: AmpfGcpFactory, user_email: str
+) -> FileService:
+    return FileService(test_config, factory, user_email)
+
+
+def test_get_answer(chat_service: ChatService):
     history = []
     message = ChatMessage(author="user", content="Hello")
 
@@ -36,7 +60,8 @@ def test_get_answer(chat_service):
     assert chat_history[1] == answer
 
 
-def test_get_answer_async(chat_service):
+@pytest.mark.asyncio
+async def test_get_answer_async(chat_service: ChatService):
     session = ChatSession(
         chat_session_id="x",
         user="x",
@@ -45,7 +70,7 @@ def test_get_answer_async(chat_service):
     )
     message = ChatMessage(author="user", content="Hello")
     text = ""
-    for p in chat_service.get_answer_async(
+    async for p in chat_service.get_answer_async(
         model_name=model_name, chat_session=session, message=message, files=[]
     ):
         text += p.value
@@ -54,19 +79,73 @@ def test_get_answer_async(chat_service):
     assert isinstance(answer.content, str)
 
 
-def test_get_context_without_agent(chat_service):
-    context = chat_service.get_context("test")
+@pytest.mark.asyncio
+async def test_get_context_without_agent(chat_service: ChatService):
+    context = await chat_service.get_context("test")
 
     assert context.startswith("This is role")
 
 
-def test_get_context_with_agent(chat_service):
+@pytest.mark.asyncio
+async def test_get_context_with_agent(chat_service: ChatService):
     agent = Agent(
         name="test",
         model_name="test_model",
         system_prompt="Agent prompt",
         keywords=["test"],
     )
-    context = chat_service.get_context("test", agent)
+    context = await chat_service.get_context("test", agent)
 
     assert context == "Agent prompt\n\n"
+
+
+@pytest.mark.asyncio
+async def test_get_answer_async_with_file(
+    chat_service: ChatService, file_service: FileService
+):
+    # STEP:1
+
+    # Given: Uploaded file
+    file_service.upload_file(
+        UploadFile(
+            filename="test1.txt",
+            file=BytesIO(b"This is an attachment content: 123"),
+            headers={"content-type": "text/plain"},
+        )
+    )
+    # Given: Empty chat session
+    session = ChatSession(
+        chat_session_id="x",
+        user="x",
+        created=datetime.datetime.now(),
+        history=[],
+    )
+    # Given: User message
+    message = ChatMessage(author="user", content="Hello. What is in the attachment?")
+    # When: Get answer async
+    text = ""
+    async for p in chat_service.get_answer_async(
+        model_name=model_name,
+        chat_session=session,
+        message=message,
+        files=[
+            ChatMessageFile(
+                name="test1.txt",
+                mime_type="text/plain",
+            )
+        ],
+    ):
+        text += p.value
+    answer = ChatMessage(author="ai", content=text)
+    # Then: Answer is returned
+    assert answer.author == "ai"
+    assert isinstance(answer.content, str)
+    assert "123" in answer.content
+
+    # STEP: 2
+    # When: Chat session is read
+    read_session = chat_service.get(session.chat_session_id, session.user)
+    # Then: Messages are two
+    assert len(read_session.history) == 2
+    # Then: File is specified
+    assert "test1.txt" in read_session.history[0].files[0].name

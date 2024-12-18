@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, APIRouter
 from typing import Annotated, List
 
-from app.dependencies import Authorize, ServerConfigDep
+from app.dependencies import Authorize, EmbeddingModelDep, ServerConfigDep
 
 from ..knowledge_base.knowledge_base_model import (
     KnowledgeBaseItem,
@@ -22,8 +22,10 @@ router = APIRouter(
 )
 
 
-def get_knowledge_base_service(server_config: ServerConfigDep):
-    return KnowledgeBaseService(server_config.knowledge_base)
+def get_knowledge_base_service(
+    embedding_model: EmbeddingModelDep, server_config: ServerConfigDep
+):
+    return KnowledgeBaseService(embedding_model, server_config.knowledge_base)
 
 
 KnowledgeBaseServiceDep = Annotated[

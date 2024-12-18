@@ -11,6 +11,7 @@ class ChatMessageFile(BaseModel):
 
     name: str
     mime_type: str
+    # url: Optional[str] = None
 
 
 class ChatMessage(BaseModel):

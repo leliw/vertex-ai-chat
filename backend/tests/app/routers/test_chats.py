@@ -20,17 +20,24 @@ def blob_storage(test_config):
 
 @pytest.fixture
 def client(test_config, blob_storage):
+    logging.getLogger("test_chats").setLevel(logging.DEBUG)
+    logging.getLogger("app").setLevel(logging.DEBUG)
     logging.getLogger("ampf").setLevel(logging.DEBUG)
+    logging.getLogger("gcp").setLevel(logging.DEBUG)
+
+    _log = logging.getLogger(__name__)
+
     app = FastAPI()
     app.dependency_overrides[get_server_config] = lambda: test_config
     app.dependency_overrides[get_user_email] = lambda: "test@test.com"
+
     app.include_router(prefix="/api/chats", router=chats.router)
-    app.include_router(
-        prefix="/api/chats/{chat_id}/messages", router=chats_message.router
-    )
+    app.include_router(prefix="/api/chats/{chat_id}/messages", router=chats_message.router)  # fmt: skip
     app.include_router(prefix="/api/files", router=files.router)
-    client = TestClient(app)
-    yield client
+
+    _log.debug("Starting test client")
+    yield TestClient(app)
+    _log.debug("Stopping test client")
     # Clean up
     blob_storage.delete_folder("test@test.com")
 
@@ -79,11 +86,13 @@ def test_send_message(client, chat_session_id):
     assert "Graham Bell" in get_answer(response)
 
 
-@pytest.mark.skip(reason="File problem")
 def test_send_message_with_file(client, chat_session_id):
     # Given: A file
     files = [
-        ("files", ("test4.txt", b"File content 4", "text/plain")),
+        (
+            "files",
+            ("test4.txt", b"Content of the document:File content 4", "text/plain"),
+        ),
     ]
     # And: The file is uploaded
     client.post("/api/files", files=files)
@@ -92,7 +101,7 @@ def test_send_message_with_file(client, chat_session_id):
         f"/api/chats/{chat_session_id}/messages",
         json={
             "author": "user",
-            "content": "Jaka jest treść załączonego pliku?",
+            "content": "What is the content of the document?",
         },
     )
     # Then: The response status code is 200
