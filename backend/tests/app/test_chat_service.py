@@ -101,7 +101,7 @@ async def test_get_context_with_agent(chat_service: ChatService):
 
 @pytest.mark.asyncio
 async def test_get_answer_async_with_file(
-    chat_service: ChatService, file_service: FileService, user_email: str
+    chat_service: ChatService, file_service: FileService
 ):
     # STEP:1
 
