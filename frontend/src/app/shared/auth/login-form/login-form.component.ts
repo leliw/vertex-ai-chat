@@ -6,9 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfigService } from '../../config/config.service';
+import { GoogleAuthService } from '../google-auth.service';
+import { GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
 @Component({
     selector: 'app-login-form',
@@ -23,21 +25,26 @@ import { ConfigService } from '../../config/config.service';
         MatButtonModule,
         MatCheckboxModule,
         MatSnackBarModule,
+        GoogleSigninButtonModule,
     ],
     templateUrl: './login-form.component.html',
     styleUrl: './login-form.component.css'
 })
 export class LoginFormComponent implements OnInit {
-    credentials = { username: '', password: '', store_token: false };
+    credentials = { username: '', password: '' };
     version = ""
 
-    constructor(private readonly authService: AuthService, private readonly router: Router, private configService: ConfigService) {
+    constructor(private readonly authService: AuthService, public googleAuthService: GoogleAuthService, private readonly router: Router, private configService: ConfigService) {
         this.configService.getConfig().subscribe(config => this.version = config.version);
     }
 
     ngOnInit() {
         if (this.authService.isLoggedIn())
             this.router.navigate(['/']);
+    }
+
+    setStoreToken(change: MatCheckboxChange) {
+        this.authService.store_token = change.checked;
     }
 
     snackbar = inject(MatSnackBar);

@@ -1,5 +1,6 @@
+import logging
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ampf.auth import (
@@ -14,6 +15,9 @@ from app.dependencies import (
     AuthTokenDep,
     TokenPayloadDep,
 )
+from gcp.gcp_oauth import OAuth
+
+_log = logging.getLogger(__name__)
 
 
 router = APIRouter(tags=["Autentykacja"])
@@ -55,3 +59,32 @@ def reset_password_request(auth_service: AuthServiceDep, rpr: ResetPasswordReque
 @router.post("/reset-password")
 async def reset_password_route(auth_service: AuthServiceDep, rp: ResetPassword):
     auth_service.reset_password(rp.email, rp.reset_code, rp.new_password)
+
+
+def get_authorization_token(request: Request) -> str:
+    return request.headers.get("Authorization")
+
+
+def get_google_oauth() -> OAuth:
+    return OAuth()
+
+
+@router.post("/google/login")
+def google_login(
+    auth_service: AuthServiceDep,
+    oauth: Annotated[OAuth, Depends(get_google_oauth)],
+    token: Annotated[str, Depends(get_authorization_token)],
+) -> Tokens:
+    """Login with Google OAuth."""
+    # Verify google token
+    user_data = oauth.verify_jwt(token)
+    # Get user (if exist)
+    user = auth_service._user_service.get_user_by_email(user_data["email"])
+    if not user:
+        _log.warning(f"User {user_data["email"]} not found")
+        raise HTTPException(
+            status_code=404, detail=f"User {user_data["email"]} not found"
+        )
+    # Create tokens for given user
+    payload = auth_service.create_token_payload(user)
+    return auth_service.create_tokens(payload)

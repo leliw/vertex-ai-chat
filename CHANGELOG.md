@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.6 - 2024-12-19
+
+* Google authentication resored
+
 ## Version 0.6.5 - 2024-12-03
 
 * Chat session is loaded with file names

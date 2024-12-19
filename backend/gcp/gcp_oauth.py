@@ -124,7 +124,6 @@ class OAuth:
         """Verify token."""
         token = request.headers.get("Authorization")
         if token:
-            token = token.split(" ")[1]
             return self.verify_jwt(token)
         return None
 
@@ -140,6 +139,8 @@ class OAuth:
 
     def verify_jwt(self, token) -> dict[str, Any] | None:
         """Verify Google JWT token and return decoded token."""
+        if token.startswith("Bearer "):
+            token = token.split(" ")[1]
         try:
             decoded_token = jwt.decode(
                 token,
