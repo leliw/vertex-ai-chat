@@ -46,15 +46,12 @@ export class AuthService {
         formData.append('username', credentials.username);
         formData.append('password', credentials.password);
         return this.http.post<Tokens>('/api/login', formData).pipe(tap({
-            next: value => {
-                this.set_tokens(value.access_token, value.refresh_token)
-            },
-            error: error => console.error('Błąd logowania:', error),
+            next: (value) => this.set_tokens(value.access_token, value.refresh_token),
+            error: (err) => console.error('Błąd logowania:', err),
         }));
     }
 
     set_tokens(access_token: string, refresh_token: string): void {
-        console.log(access_token)
         this.access_token = access_token;
         this.refresh_token = refresh_token
         this.decodeToken(this.access_token);
@@ -62,7 +59,6 @@ export class AuthService {
             localStorage.setItem("access_token", this.access_token);
             localStorage.setItem("refresh_token", this.refresh_token);
         }
-        console.log(this.redirectUrl)
         if (this.redirectUrl) {
             this.router.navigate([this.redirectUrl]);
             this.redirectUrl = undefined;
