@@ -15,13 +15,14 @@
             <div class="row">
                 <div class="col">
                     <div class="full-width">
-                        <mat-checkbox name="store_token" [(ngModel)]="credentials.store_token">Nie wylogowywuj
+                        <mat-checkbox name="store_token" (change)="setStoreToken($event)">Nie wylogowywuj
                             mnie</mat-checkbox>
                     </div>
                 </div>
             </div>
         </mat-card-content>
         <mat-card-actions align="end">
+            <asl-google-signin-button type='icon' size='large'></asl-google-signin-button>
             <button mat-raised-button type="button" routerLink="/register">Rejestracja</button>
             <button mat-raised-button type="button" routerLink="/reset-password-request">Reset hasła</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.form.valid">Zaloguj</button>

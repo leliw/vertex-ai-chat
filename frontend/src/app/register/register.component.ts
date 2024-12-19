@@ -9,12 +9,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ApiService, ApiUser } from '../shared/api.service';
+import { GoogleAuthService } from '../shared/auth/google-auth.service';
 
 @Component({
     selector: 'app-register',
     standalone: true,
     imports: [
-        RouterModule, 
+        RouterModule,
         ReactiveFormsModule,
         MatFormFieldModule, FormsModule,
         MatInputModule, MatCheckboxModule, MatButtonModule,
@@ -33,16 +34,16 @@ export class RegisterComponent {
     });
 
     constructor(
-        public authService: AuthService,
+        public googleAuthService: GoogleAuthService,
         private router: Router,
         private snackBar: MatSnackBar,
         private apiService: ApiService,
     ) {
         this.form.patchValue({
-            // email: authService.socialUser?.email ?? '',
+            email: googleAuthService.user?.email ?? '',
             // name: authService.socialUser?.name ?? '',
-            // firstName: authService.socialUser?.firstName ?? '',
-            // lastName: authService.socialUser?.lastName ?? '',
+            firstName: googleAuthService.user?.firstName ?? '',
+            lastName: googleAuthService.user?.lastName ?? '',
         });
     }
 
@@ -53,11 +54,23 @@ export class RegisterComponent {
     onSubmit() {
         if (this.form.valid) {
             const formData = this.form.value as unknown as ApiUser;
+            // Register user
             this.apiService.register(formData)
                 .subscribe({
                     next: (user) => {
-                        this.snackBar.open('Rejestracja udana! Skorzystaj z żądania resetowania hasła, aby ustawić hasło.', 'Zamknij');
-                        this.router.navigate(['/reset-password-request']);
+                        // If user is already authorized with google
+                        if (this.googleAuthService.user) {
+                            // Get tokens for google user
+                            this.googleAuthService.getTokens(this.googleAuthService.user).subscribe(() =>
+                                this.snackBar.open('Rejestracja udana! ', 'Zamknij', { duration: 5000 }).afterDismissed().subscribe(() =>
+                                    this.router.navigate(['/']))
+                            );
+                        } else {
+                            this.snackBar.open('Rejestracja udana! Skorzystaj z żądania resetowania hasła, aby ustawić hasło.', 'Zamknij', { duration: 5000 })
+                                .afterDismissed().subscribe(() => {
+                                    this.router.navigate(['/reset-password-request']);
+                                });
+                        }
                     },
                     error: (error) => {
                         console.error('Błąd rejestracji:', error);

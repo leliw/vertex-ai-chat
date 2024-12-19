@@ -19,6 +19,7 @@ export class AuthService {
     public user_email?: string;
     private redirectUrl?: string;
     public roles?: string[];
+    public store_token: boolean = false;
     public access_token?: string;
     public refresh_token?: string;
 
@@ -46,24 +47,28 @@ export class AuthService {
         formData.append('password', credentials.password);
         return this.http.post<Tokens>('/api/login', formData).pipe(tap({
             next: value => {
-                this.access_token = value.access_token;
-                this.refresh_token = value.refresh_token
-                this.decodeToken(this.access_token);
-                if (credentials.store_token) {
-                    localStorage.setItem("access_token", this.access_token);
-                    localStorage.setItem("refresh_token", this.refresh_token);
-                }
-            },
-            complete: () => {
-                if (this.redirectUrl) {
-                    this.router.navigate([this.redirectUrl]);
-                    this.redirectUrl = undefined;
-                } else {
-                    this.router.navigate(['/']); // Przekierowanie na stronę główną
-                }
+                this.set_tokens(value.access_token, value.refresh_token)
             },
             error: error => console.error('Błąd logowania:', error),
         }));
+    }
+
+    set_tokens(access_token: string, refresh_token: string): void {
+        console.log(access_token)
+        this.access_token = access_token;
+        this.refresh_token = refresh_token
+        this.decodeToken(this.access_token);
+        if (this.store_token) {
+            localStorage.setItem("access_token", this.access_token);
+            localStorage.setItem("refresh_token", this.refresh_token);
+        }
+        console.log(this.redirectUrl)
+        if (this.redirectUrl) {
+            this.router.navigate([this.redirectUrl]);
+            this.redirectUrl = undefined;
+        } else {
+            this.router.navigate(['/']); // Przekierowanie na stronę główną
+        }
     }
 
     logout(): Observable<void> {
@@ -182,6 +187,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         '/api/config',
         '/api/users/register',
         '/api/login',
+        '/api/google/login',
         '/api/logout',
         '/api/token-refresh',
         '/api/reset-password-request',

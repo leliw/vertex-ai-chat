@@ -1,6 +1,6 @@
 """Main file for FastAPI server"""
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.logging_conf import setup_logging
@@ -23,27 +23,6 @@ app.include_router(prefix="/api/chats", router=chats.router)
 app.include_router(prefix="/api/agents", router=agents.router)
 app.include_router(prefix="/api/knowledge-base", router=knowledge_base.router)
 app.include_router(prefix="/api/upgrade", router=upgrade.router)
-
-# @app.get("/api/auth")
-# async def auth_google(
-#     user_service: users.UserServiceDep, request: Request, response: Response
-# ):
-#     user_data = await session_manager.auth(request, response)
-#     if user_data:
-#         user = user_service.get(user_data["email"])
-#         if user:
-#             return JSONResponse(status_code=200, content=user_data)
-#         else:
-#             return JSONResponse(status_code=404, content=user_data)
-
-
-@app.get("/api/user")
-async def user_get(user_service: users.UserServiceDep, request: Request):
-    if not request.state.session_data.api_user:
-        request.state.session_data.api_user = user_service.get(
-            request.state.session_data.user.email
-        )
-    return request.state.session_data.api_user
 
 
 @app.get("/api/ping")
