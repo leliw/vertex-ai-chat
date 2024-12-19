@@ -64,6 +64,7 @@ async def reset_password_route(auth_service: AuthServiceDep, rp: ResetPassword):
 def get_authorization_token(request: Request) -> str:
     return request.headers.get("Authorization")
 
+
 def get_google_oauth() -> OAuth:
     return OAuth()
 
@@ -71,7 +72,7 @@ def get_google_oauth() -> OAuth:
 @router.post("/google/login")
 def google_login(
     auth_service: AuthServiceDep,
-    oauth: Annotated[OAuth,Depends(get_google_oauth)],
+    oauth: Annotated[OAuth, Depends(get_google_oauth)],
     token: Annotated[str, Depends(get_authorization_token)],
 ) -> Tokens:
     """Login with Google OAuth."""
@@ -81,7 +82,9 @@ def google_login(
     user = auth_service._user_service.get_user_by_email(user_data["email"])
     if not user:
         _log.warning(f"User {user_data["email"]} not found")
-        raise HTTPException(status_code=404, detail=f"User {user_data["email"]} not found")
+        raise HTTPException(
+            status_code=404, detail=f"User {user_data["email"]} not found"
+        )
     # Create tokens for given user
     payload = auth_service.create_token_payload(user)
     return auth_service.create_tokens(payload)
