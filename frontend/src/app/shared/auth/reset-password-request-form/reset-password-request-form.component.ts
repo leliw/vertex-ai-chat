@@ -41,7 +41,7 @@ export class ResetPasswordRequestFormComponent {
         const email = this.form.value.email;
         if (email)
             this.authService.resetPasswordRequest(email).subscribe({
-                complete: () => this.snackbar.open(`Kod został wysłany na ${email}`, "Resetuj hasło")
+                complete: () => this.snackbar.open(`Kod został wysłany na ${email}`, "Resetuj hasło kodem")
                     .afterDismissed().subscribe(() =>
                         this.router.navigateByUrl("/reset-password")),
                 error: (err) => this.snackbar.open(`Bład: ${err.error.detail}`, "Zamknij"),
