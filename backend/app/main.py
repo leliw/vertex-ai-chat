@@ -1,8 +1,8 @@
 """Main file for FastAPI server"""
 
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, HTTPException
 
+from ampf.static_file_response import StaticFileResponse
 from app.logging_conf import setup_logging
 from app.routers import auth, chats, config, files, upgrade
 
@@ -35,7 +35,9 @@ async def models_get_all(config: ServerConfigDep) -> list[str]:
     return [m.strip() for m in config.get("models").split(",")]
 
 
-# fmt: off
-# Angular static files - it have to be at the end of file
-app.mount("/", StaticFiles(directory="static/browser", html=True, check_dir=False), name="static")
-# fmt: on
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    if not full_path.startswith("api/"):
+        return StaticFileResponse("static/browser", full_path)
+    else:
+        raise HTTPException(status_code=404, detail="Not found")
