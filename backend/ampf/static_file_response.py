@@ -6,7 +6,6 @@ from pathlib import Path
 from fastapi import HTTPException, Response
 
 
-
 class StaticFileResponse(Response):
     def __init__(self, base_dir: str, uri_path: str):
         file_path = Path(base_dir) / uri_path
@@ -17,8 +16,8 @@ class StaticFileResponse(Response):
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Page not found")
         super().__init__(
-            content = self.get_file_content(file_path),
-            status_code = 200,
+            content=self.get_file_content(file_path),
+            status_code=200,
             media_type=self.get_content_type(file_path),
         )
 
