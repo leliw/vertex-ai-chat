@@ -1,15 +1,14 @@
 from __future__ import annotations
+import logging
 from typing import Any, Generator
 from google.generativeai import GenerativeModel, ChatSession
 from google.generativeai.types import content_types, generation_types
-
-from ampf.base.logger import get_logger
 
 
 class AIAgent:
     """Standard AI Agent"""
 
-    _logger = get_logger(__name__)
+    _logger = logging.getLogger(__name__)
 
     def __init__(
         self,

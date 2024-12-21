@@ -1,10 +1,10 @@
 """AI Agent for generating code files."""
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
-from ampf.base.logger import get_logger
 
 from .ai_agent import AIAgent
 
@@ -14,7 +14,7 @@ type StrPath = str | Path
 class AICodeFileAgent(AIAgent):
     """AI Agent for generating code files."""
 
-    _logger = get_logger(__name__)
+    _logger = logging.getLogger(__name__)
 
     def __init__(
         self,

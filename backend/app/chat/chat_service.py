@@ -1,3 +1,4 @@
+import logging
 from typing import AsyncIterator
 from pydantic import BaseModel
 
@@ -6,7 +7,7 @@ from google.cloud import firestore
 from google.generativeai.types import ContentDict, BlobDict
 
 from ai_agents import AIAgent
-from ampf.base import AmpfBaseFactory, logger
+from ampf.base import AmpfBaseFactory
 from app.agent.agent_model import Agent
 from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
@@ -51,7 +52,7 @@ class ChatService:
         )
         self.file_storage = file_storage
         self.user_email = user_email
-        self._log = logger.get_logger(__name__)
+        self._log = logging.getLogger(__name__)
 
     def get_answer(
         self, model_name: str, history: list[ChatMessage], message: ChatMessage
