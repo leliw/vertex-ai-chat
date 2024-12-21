@@ -7,6 +7,7 @@ import pytest
 from ampf.auth.auth_model import Tokens
 from app.dependencies import get_email_sender, get_factory, get_server_config
 from app.routers import auth, config, users
+from app.user.user_service import UserService
 
 
 @pytest.fixture
@@ -19,6 +20,7 @@ def client(factory, email_sender, test_config):
     app.include_router(prefix="/api", router=auth.router)
     app.include_router(prefix="/api/config", router=config.router)
     app.include_router(prefix="/api/users", router=users.router)
+    UserService(factory).initialize_storege_with_user(test_config.default_user)
     client = TestClient(app)
     return client
 

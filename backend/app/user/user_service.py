@@ -14,6 +14,11 @@ class UserService(UserServiceBase):
         self.storage_old = factory.create_storage("user", UserInDB, key_name="email")
         self._log = logging.getLogger(__name__)
 
+    def initialize_storege_with_user(self, default_user: User):
+        if self.is_empty():
+            self._log.warning("Initializing storage with default user")
+            self.create(User(**default_user.model_dump()))
+
     def get(self, email: str) -> Optional[User]:
         user_in_db = self.storage_old.get(email)
         return User(**dict(user_in_db)) if user_in_db else None

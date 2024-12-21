@@ -9,7 +9,6 @@ import pytest
 from ampf.auth.auth_model import TokenExp
 from app.dependencies import get_email_sender, get_factory, get_server_config
 from app.routers import auth, config
-from app.user.user_model import User
 from app.user.user_service import UserService
 
 
@@ -22,12 +21,13 @@ def client(factory, email_sender, test_config):
     app.dependency_overrides[get_server_config] = lambda: test_config
     app.include_router(auth.router, prefix="/api")
     app.include_router(config.router, prefix="/api/config")
+    user_service = UserService(factory)
+    user_service.initialize_storege_with_user(test_config.default_user)
     yield TestClient(app)
     # Restore default user
-    user_service = UserService(factory)
     user_service.storage_new.drop()
     user_service.storage_old.drop()
-    user_service.create(User(**test_config.default_user.model_dump()))
+    user_service.initialize_storege_with_user(test_config.default_user)
 
 
 def test_login_ok(client):

@@ -2,7 +2,6 @@ from typing import List, Optional
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ampf.base import singleton
 from ampf.base.ampf_base_factory import AmpfBaseFactory
 
 
@@ -43,7 +42,6 @@ Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
 """
 
 
-@singleton
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 

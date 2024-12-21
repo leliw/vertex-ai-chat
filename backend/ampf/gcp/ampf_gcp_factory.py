@@ -18,7 +18,7 @@ class AmpfGcpFactory(AmpfBaseFactory):
     def create_storage[T: BaseModel](
         self, collection_name: str, clazz: Type[T], key_name: str = None
     ) -> BaseStorage[T]:
-        return GcpStorage(collection_name, clazz, db=self._db, key_name=key_name)
+        return GcpStorage(collection_name, clazz, db=AmpfGcpFactory._db, key_name=key_name)
 
     def create_blob_storage[T: BaseModel](
         self, bucket_name: str, clazz: Type[T] = None, content_type: str = None

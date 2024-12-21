@@ -21,9 +21,10 @@ from app.agent import AgentService
 from app.chat import ChatService
 from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
-_log = logging.getLogger(__name__)
 
 load_dotenv()
+_log = logging.getLogger(__name__)
+_server_config = ServerConfig()
 
 
 @asynccontextmanager
@@ -32,12 +33,15 @@ async def lifespan(app: FastAPI):
     AiFactory().init_client()
     AmpfGcpFactory.init_client()
     GcpBlobStorage.init_client()
+    UserService(AmpfGcpFactory()).initialize_storege_with_user(
+        User(**dict(_server_config.default_user))
+    )
     yield
     _log.debug("Shutting down")
 
 
 async def get_server_config() -> ServerConfig:
-    return ServerConfig()
+    return _server_config
 
 
 ServerConfigDep = Annotated[ServerConfig, Depends(get_server_config)]

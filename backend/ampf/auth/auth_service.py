@@ -44,8 +44,6 @@ class AuthService[T: AuthUser]:
         self._secret_key = jwt_secret_key or os.environ["JWT_SECRET_KEY"]
         self._email_sender_service = email_sender_service
         self._user_service = user_service
-        if user_service.is_empty():
-            user_service.create(default_user)
         self.reset_mail_template = reset_mail_template
         self._log = logging.getLogger(__name__)
 

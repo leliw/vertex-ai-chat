@@ -13,7 +13,7 @@ class VertexAITextEmbeddingModel(BaseAITextEmbeddingModel):
     ):
         self.model_name = model_name
         self.dimensionality = dimensionality
-        self.model = TextEmbeddingModel.from_pretrained(model_name)
+        self.model = None
 
     async def get_embedding(self, text: str) -> List[float]:
         """Embeds texts with a pre-trained, foundational model."""
@@ -23,5 +23,7 @@ class VertexAITextEmbeddingModel(BaseAITextEmbeddingModel):
             if self.dimensionality
             else {}
         )
+        if not self.model:
+            self.model = TextEmbeddingModel.from_pretrained(self.model_name)
         embeddings = await self.model.get_embeddings_async(inputs, **kwargs)
         return embeddings[0].values
