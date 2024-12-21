@@ -1,10 +1,13 @@
 """This module contains dependencies for FastAPI endpoints."""
 
+import logging
 from typing import Annotated
 from dotenv import load_dotenv
-from fastapi import Depends
+from fastapi import Depends, FastAPI
+from fastapi.concurrency import asynccontextmanager
 from fastapi.security import OAuth2PasswordBearer
 
+from ampf.gcp.gcp_blob_storage import GcpBlobStorage
 from haintech.ai import AiFactory
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
@@ -18,8 +21,18 @@ from app.agent import AgentService
 from app.chat import ChatService
 from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
+_log = logging.getLogger(__name__)
 
 load_dotenv()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _log.debug("Starting up")
+    AiFactory().init_client()
+    GcpBlobStorage.init_client()
+    yield
+    _log.debug("Shutting down")
 
 
 async def get_server_config() -> ServerConfig:

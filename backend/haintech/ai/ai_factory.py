@@ -21,8 +21,17 @@ from haintech.ai.vertex_ai.vertex_ai_text_embedding_model import (
 class AiFactory:
     """Factory for AI models."""
 
+    _vertex_initialized = False
+
+    @classmethod
+    def init_client(cls):
+        """Initialize the Vertex AI environment, if not already initialized."""
+        if not cls._vertex_initialized:
+            vertexai.init()
+            cls._vertex_initialized = True
+
     def __init__(self):
-        vertexai.init()
+        AiFactory.init_client()
 
     def get_model(
         self, model_name: str, context: str = None, config: dict[str, Any] = None

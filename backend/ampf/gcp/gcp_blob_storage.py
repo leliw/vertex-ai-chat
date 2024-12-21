@@ -10,14 +10,20 @@ from ampf.base import BaseBlobStorage, KeyNotExists
 class GcpBlobStorage[T](BaseBlobStorage[T]):
     """A simple wrapper around Google Cloud Storage."""
 
+    _storage_client = None
+
+    @classmethod
+    def init_client(cls):
+        if not GcpBlobStorage._storage_client:
+            GcpBlobStorage._storage_client = storage.Client()
+
     def __init__(
         self, bucket_name: str, clazz: Type[T] = None, content_type: str = None
     ):
         super().__init__(bucket_name, clazz, content_type)
         self._log = logging.getLogger(__name__)
-        self._storage_client = storage.Client()
-        self._bucket = self._storage_client.bucket(bucket_name)
-
+        GcpBlobStorage.init_client()
+        self._bucket = GcpBlobStorage._storage_client.bucket(bucket_name)
         if not self._bucket.exists():
             self._bucket.create()
             self._log.warning("Bucket %s created", bucket_name)

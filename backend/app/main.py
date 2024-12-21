@@ -8,13 +8,13 @@ from app.logging_conf import setup_logging
 
 from app.routers import auth, chats, config, files, upgrade
 
-from app.dependencies import ServerConfigDep
+from app.dependencies import ServerConfigDep, lifespan
 from .routers import users, agents, knowledge_base
 
 
 setup_logging()
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 if ServerConfig().profiler:
     from app.middleware_profile import ProfilerMiddleware
