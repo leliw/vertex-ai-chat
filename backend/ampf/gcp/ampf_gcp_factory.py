@@ -6,9 +6,14 @@ from ampf.base import AmpfBaseFactory, BaseStorage, BaseBlobStorage
 from ampf.gcp import GcpStorage, GcpBlobStorage
 
 
+# @singleton
 class AmpfGcpFactory(AmpfBaseFactory):
-    def __init__(self, project: str = None, database: str = None):
-        self._db = firestore.Client(project=project, database=database)
+    _db = None
+
+    @classmethod
+    def init_client(cls):
+        if not AmpfGcpFactory._db:
+            AmpfGcpFactory._db = firestore.Client()
 
     def create_storage[T: BaseModel](
         self, collection_name: str, clazz: Type[T], key_name: str = None

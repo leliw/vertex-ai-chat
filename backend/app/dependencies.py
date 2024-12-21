@@ -30,6 +30,7 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     _log.debug("Starting up")
     AiFactory().init_client()
+    AmpfGcpFactory.init_client()
     GcpBlobStorage.init_client()
     yield
     _log.debug("Shutting down")
