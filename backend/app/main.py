@@ -3,7 +3,9 @@
 from fastapi import FastAPI, HTTPException
 
 from ampf.static_file_response import StaticFileResponse
+from app.config import ServerConfig
 from app.logging_conf import setup_logging
+
 from app.routers import auth, chats, config, files, upgrade
 
 from app.dependencies import ServerConfigDep
@@ -13,6 +15,12 @@ from .routers import users, agents, knowledge_base
 setup_logging()
 
 app = FastAPI()
+
+if ServerConfig().profiler:
+    from app.middleware_profile import ProfilerMiddleware
+
+    app.add_middleware(ProfilerMiddleware)
+
 
 app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api/config", router=config.router)

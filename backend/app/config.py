@@ -63,6 +63,7 @@ class ServerConfig(BaseSettings):
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
     smtp: SmtpConfig = SmtpConfig()
     reset_password_mail: ResetPasswordMailConfig = ResetPasswordMailConfig()
+    profiler: bool = False
 
 
 class ClientConfig(BaseModel):
