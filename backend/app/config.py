@@ -52,7 +52,7 @@ Jeśli nie prosiłeś o zresetowanie hasła, zignoruj ten email.
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
-    version: str = "0.6.7"
+    version: str = "0.6.8"
 
     jwt_secret_key: str
     default_user: DefaultUserConfig = DefaultUserConfig()

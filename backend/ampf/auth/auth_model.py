@@ -16,6 +16,7 @@ class TokenPayload(BaseModel):
     email: str | None = None
     name: str | None = None
     roles: Optional[List[str]] = Field(default_factory=lambda: [])
+    picture: Optional[str] = None
     exp: datetime | None = None
 
 
@@ -34,6 +35,7 @@ class AuthUser(BaseModel):
     name: str | None = None
     disabled: bool = False
     roles: Optional[List[str]] = Field(default_factory=lambda: [])
+    picture: Optional[str] = None
     password: Optional[str] | None = None
     hashed_password: Optional[str] | None = None
     reset_code: Optional[str] = None

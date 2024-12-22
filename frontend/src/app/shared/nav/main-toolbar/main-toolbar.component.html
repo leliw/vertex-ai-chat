@@ -9,10 +9,13 @@
     @if (!pingService.connected()) {
     <mat-icon matTooltip="Connecting to server ..." class="connection-status" color="warn">wifi_off</mat-icon>
     }
-    <!-- @if (!(isHandset$ | async)) {
-    <img src="{{ authService.getUserPhotoUrl() }}" class="profile-photo" alt="User profile"
-        referrerpolicy="no-referrer">
-    } -->
+    @if (!(isHandset$ | async)) {
+    @if (authService.user_photo_url) {
+    <img src="{{ authService.user_photo_url }}" class="profile-photo" [matTooltip]="authService.username">
+    } @else {
+    <mat-icon class="profile-icon" [matTooltip]="authService.username">account_circle</mat-icon>
+    }
+    }
     <button mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_vert</mat-icon>
     </button>

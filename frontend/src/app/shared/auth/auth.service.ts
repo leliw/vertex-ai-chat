@@ -30,6 +30,7 @@ export class AuthService {
     public store_token: boolean = false;
     public access_token?: string;
     public refresh_token?: string;
+    public user_photo_url?: string;
 
     private refreshTokens$?: Observable<any>;
 
@@ -113,6 +114,7 @@ export class AuthService {
         this.username = payload.email;
         this.user_email = payload.email;
         this.roles = payload.roles;
+        this.user_photo_url = payload.picture;
     }
 
     /**

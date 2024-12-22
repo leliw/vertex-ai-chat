@@ -13,7 +13,6 @@ class UserHeader(AuthUser):
 
 class User(UserHeader):
     terms_accepted: bool = False
-    picture: Optional[str] = None
 
     """ Old version fields"""
     o_first__name: Optional[str] = Field(None, alias="firstName")

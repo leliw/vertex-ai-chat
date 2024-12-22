@@ -60,6 +60,7 @@ class AuthService[T: AuthUser]:
             email=user.email,
             name=user.name,
             roles=user.roles,
+            picture=user.picture,
         )
 
     def create_tokens(self, data: TokenPayload) -> Tokens:

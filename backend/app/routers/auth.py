@@ -15,6 +15,7 @@ from app.dependencies import (
     AuthTokenDep,
     TokenPayloadDep,
 )
+from app.user.user_model import User
 from gcp.gcp_oauth import OAuth
 
 _log = logging.getLogger(__name__)
@@ -79,12 +80,15 @@ def google_login(
     # Verify google token
     user_data = oauth.verify_jwt(token)
     # Get user (if exist)
-    user = auth_service._user_service.get_user_by_email(user_data["email"])
+    user: User = auth_service._user_service.get_user_by_email(user_data["email"])
     if not user:
         _log.warning(f"User {user_data["email"]} not found")
         raise HTTPException(
             status_code=404, detail=f"User {user_data["email"]} not found"
         )
+    if user_data["picture"] and user.picture != user_data["picture"]:
+        user.picture = user_data["picture"]
+        auth_service._user_service.update(user.username, user)
     # Create tokens for given user
     payload = auth_service.create_token_payload(user)
     return auth_service.create_tokens(payload)

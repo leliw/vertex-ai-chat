@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.8 - 2024-12-23
+
+* Show user picture for google users
+
 ## Version 0.6.7 - 2024-12-22
 
 * Refactor users storage (3/4)
