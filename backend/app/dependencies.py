@@ -74,18 +74,17 @@ EmailSenderServiceDep = Annotated[BaseEmailSender, Depends(get_email_sender)]
 async def auth_service_dep(
     factory: FactoryDep,
     email_sender_service: EmailSenderServiceDep,
-    conf: ServerConfigDep,
+    server_config: ServerConfigDep,
     user_service: UserServceDep,
 ) -> AuthService:
-    default_user = User(**dict(conf.default_user))
-    reset_mail_template = EmailTemplate(**dict(conf.reset_password_mail))
+    reset_mail_template = EmailTemplate(**dict(server_config.reset_password_mail))
     return AuthService(
         storage_factory=factory,
         email_sender_service=email_sender_service,
         user_service=user_service,
-        default_user=default_user,
         reset_mail_template=reset_mail_template,
-        jwt_secret_key=conf.jwt_secret_key,
+        jwt_secret_key=server_config.jwt_secret_key,
+        auth_config=server_config.auth,
     )
 
 

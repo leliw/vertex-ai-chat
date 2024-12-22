@@ -22,6 +22,13 @@ class GenerativeModelConfig(BaseModel):
     top_p: float = 0.95
 
 
+class AuthConfig(BaseModel):
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_hours: int = 24 * 7  # Seven days
+    reset_code_expire_minutes: int = 15
+
+
 class SmtpConfig(BaseModel):
     host: str = "smtp.gmail.com"
     port: int = 465
@@ -61,6 +68,7 @@ class ServerConfig(BaseSettings):
     generative_model_config: GenerativeModelConfig = GenerativeModelConfig()
     smtp: SmtpConfig = SmtpConfig()
     reset_password_mail: ResetPasswordMailConfig = ResetPasswordMailConfig()
+    auth: AuthConfig = AuthConfig()
     profiler: bool = False
 
 

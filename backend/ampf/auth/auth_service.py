@@ -4,7 +4,7 @@ import os
 import secrets
 
 import jwt
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 
 from ampf.base import BaseEmailSender, EmailTemplate
 
@@ -22,10 +22,11 @@ from .auth_exceptions import (
 from .user_service_base import UserServiceBase
 
 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_HOURS = 24 * 7  # Siedem dni
-RESET_CODE_EXPIRE_MINUTES = 15
+class AuthConfig(BaseModel):
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_hours: int = 24 * 7  # Seven days
+    reset_code_expire_minutes: int = 15
 
 
 class AuthService[T: AuthUser]:
@@ -34,9 +35,9 @@ class AuthService[T: AuthUser]:
         storage_factory: AmpfBaseFactory,
         email_sender_service: BaseEmailSender,
         user_service: UserServiceBase[T],
-        default_user: AuthUser,
         reset_mail_template: EmailTemplate,
         jwt_secret_key: str = None,
+        auth_config: AuthConfig = None,
     ) -> None:
         self._storage = storage_factory.create_compact_storage(
             "token_black_list", TokenExp, "token"
@@ -45,6 +46,7 @@ class AuthService[T: AuthUser]:
         self._email_sender_service = email_sender_service
         self._user_service = user_service
         self.reset_mail_template = reset_mail_template
+        self.config = auth_config or AuthConfig()
         self._log = logging.getLogger(__name__)
 
     def authorize(self, username: str, password: str) -> Tokens:
@@ -62,8 +64,12 @@ class AuthService[T: AuthUser]:
 
     def create_tokens(self, data: TokenPayload) -> Tokens:
         return Tokens(
-            access_token=self.create_token(data, ACCESS_TOKEN_EXPIRE_MINUTES),
-            refresh_token=self.create_token(data, 60 * REFRESH_TOKEN_EXPIRE_HOURS),
+            access_token=self.create_token(
+                data, self.config.access_token_expire_minutes
+            ),
+            refresh_token=self.create_token(
+                data, 60 * self.config.refresh_token_expire_hours
+            ),
             token_type="Bearer",
         )
 
@@ -72,12 +78,16 @@ class AuthService[T: AuthUser]:
         expires_delta = timedelta(minutes=expires_delta_minutes)
         expire = datetime.now(timezone.utc) + expires_delta
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, self._secret_key, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(
+            to_encode, self._secret_key, algorithm=self.config.algorithm
+        )
         return encoded_jwt
 
     def decode_token(self, token: str) -> TokenPayload:
         try:
-            payload = jwt.decode(token, self._secret_key, algorithms=[ALGORITHM])
+            payload = jwt.decode(
+                token, self._secret_key, algorithms=[self.config.algorithm]
+            )
             return TokenPayload(**payload)
         except jwt.exceptions.ExpiredSignatureError:
             raise TokenExpiredException
@@ -118,7 +128,7 @@ class AuthService[T: AuthUser]:
             raise UserNotExistsException(email)
         reset_code = secrets.token_urlsafe(16)[:16]
         self._log.debug(f"Reset code for {email}: {reset_code}")
-        expires_delta = timedelta(minutes=RESET_CODE_EXPIRE_MINUTES)
+        expires_delta = timedelta(minutes=self.config.reset_code_expire_minutes)
         reset_code_expires = datetime.now(timezone.utc) + expires_delta
         self.send_reset_email(email, reset_code)
         self._user_service.set_reset_code(user.username, reset_code, reset_code_expires)
@@ -128,7 +138,7 @@ class AuthService[T: AuthUser]:
             **self.reset_mail_template.render(
                 recipient=recipient,
                 reset_code=reset_code,
-                reset_code_expire_minutes=RESET_CODE_EXPIRE_MINUTES,
+                reset_code_expire_minutes=self.config.reset_code_expire_minutes,
             )
         )
 

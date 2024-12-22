@@ -3,6 +3,7 @@
 ## Version 0.6.7 - 2024-12-22
 
 * Refactor users storage (3/4)
+* Tokens lifetime is set via config
 
 ## Version 0.6.6 - 2024-12-19
 
