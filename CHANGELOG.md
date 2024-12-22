@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.7 - 2024-12-22
+
+* Refactor users storage (3/4)
+
 ## Version 0.6.6 - 2024-12-19
 
 * Google authentication resored

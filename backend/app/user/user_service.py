@@ -20,13 +20,13 @@ class UserService(UserServiceBase):
             self.create(User(**default_user.model_dump()))
 
     def get(self, email: str) -> Optional[User]:
-        user_in_db = self.storage_old.get(email)
+        user_in_db = self.storage_new.get(email)
         return User(**dict(user_in_db)) if user_in_db else None
 
     def get_all(self) -> List[UserHeader]:
         return [
             UserHeader(**i.model_dump(by_alias=True))
-            for i in self.storage_old.get_all()
+            for i in self.storage_new.get_all()
         ]
 
     def put(self, email: str, user: User) -> None:
