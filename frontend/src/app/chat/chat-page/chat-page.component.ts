@@ -61,7 +61,6 @@ export class ChatPageComponent implements OnInit, OnDestroy {
      */
     isSpeech = false;
 
-
     private dataSubscription!: Subscription;
     private breakpointObserver = inject(BreakpointObserver);
 
@@ -81,10 +80,10 @@ export class ChatPageComponent implements OnInit, OnDestroy {
             this.agents = agents.map(agent => agent.name);
             this.selectedAgent = this.agents[0];
         });
-        // this.chatService.get_all().subscribe(chats => {
+        this.chatService.get_all().subscribe(chats => {
             this.newChat()
             setTimeout(() => this.drawerContainer.updateContentMargins(), 100);
-        // });
+        });
         // Get the initial messages from the server
         this.isHandset$.subscribe(isHandset => this.isHandset = isHandset);
     }

@@ -18,7 +18,6 @@ export class ChatListComponent {
 
 
     constructor(public chatService: ChatService) {
-        this.chatService.get_all().subscribe();
     }
 
     loadChat(chat_session_id: string) {
