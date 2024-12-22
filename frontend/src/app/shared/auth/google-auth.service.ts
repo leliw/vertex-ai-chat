@@ -40,7 +40,7 @@ export class GoogleAuthService {
     public getTokens(user: SocialUser): Observable<Tokens> {
         return this.httpClient.post<Tokens>(this.endpoint, null, { "headers": { "Authorization": `Bearer ${user?.idToken}` } })
             .pipe(tap({
-                next: (tokens) => this.authService.set_tokens(tokens["access_token"], tokens["refresh_token"]),
+                next: (tokens) => this.authService.setData(tokens),
                 error: (err) => {
                     if (err.status == 404)
                         this.router.navigate(['/register']);

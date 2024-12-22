@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService, Credentials } from '../auth.service';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfigService } from '../../config/config.service';
@@ -31,7 +31,7 @@ import { GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
     styleUrl: './login-form.component.css'
 })
 export class LoginFormComponent implements OnInit {
-    credentials = { username: '', password: '' };
+    credentials: Credentials = { username: '', password: '' };
     version = ""
 
     constructor(private readonly authService: AuthService, public googleAuthService: GoogleAuthService, private readonly router: Router, private configService: ConfigService) {

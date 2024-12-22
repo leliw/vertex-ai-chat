@@ -1,9 +1,14 @@
 import { HttpClient, HttpHeaders, HttpInterceptorFn } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { BehaviorSubject, catchError, Observable, switchMap, tap, throwError } from 'rxjs';
+import { catchError, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+
+export interface Credentials {
+    username: string;
+    password: string;
+}
 
 export interface Tokens {
     access_token: string;
@@ -13,6 +18,9 @@ export interface Tokens {
 @Injectable({
     providedIn: 'root'
 })
+/**
+ * Service to handle authentication
+ */
 export class AuthService {
 
     public username?: string;
@@ -23,8 +31,7 @@ export class AuthService {
     public access_token?: string;
     public refresh_token?: string;
 
-    private isRefreshing = false;
-    private readonly refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+    private refreshTokens$?: Observable<any>;
 
 
     constructor(private readonly http: HttpClient, private readonly router: Router) { }
@@ -41,24 +48,29 @@ export class AuthService {
         return false;
     }
 
-    login(credentials: any): Observable<any> {
+    /**
+     * Login user with username and password
+     * @param credentials 
+     * @returns 
+     */
+    login(credentials: Credentials): Observable<any> {
         const formData = new FormData();
         formData.append('username', credentials.username);
         formData.append('password', credentials.password);
         return this.http.post<Tokens>('/api/login', formData).pipe(tap({
-            next: (value) => this.set_tokens(value.access_token, value.refresh_token),
+            next: (value) => this.setData(value),
             error: (err) => console.error('Błąd logowania:', err),
         }));
     }
 
-    set_tokens(access_token: string, refresh_token: string): void {
-        this.access_token = access_token;
-        this.refresh_token = refresh_token
-        this.decodeToken(this.access_token);
-        if (this.store_token) {
-            localStorage.setItem("access_token", this.access_token);
-            localStorage.setItem("refresh_token", this.refresh_token);
-        }
+    /**
+     * Set tokens, user data decoded from token and
+     * redirects if necessery
+     * @param tokens 
+     */
+    setData(tokens: Tokens): void {
+        this.setTokens(tokens);
+        this.decodeToken(tokens.access_token);
         if (this.redirectUrl) {
             this.router.navigate([this.redirectUrl]);
             this.redirectUrl = undefined;
@@ -67,6 +79,23 @@ export class AuthService {
         }
     }
 
+    /**
+     * Set tokens (also in browser local storage)
+     * @param tokens 
+     */
+    setTokens(tokens: Tokens): void {
+        this.access_token = tokens.access_token;
+        this.refresh_token = tokens.refresh_token
+        if (this.store_token) {
+            localStorage.setItem("access_token", this.access_token);
+            localStorage.setItem("refresh_token", this.refresh_token);
+        }
+    }
+
+    /**
+     * Logout user from server, clear data and redirect to login page
+     * @returns Observable<void>
+     */
     logout(): Observable<void> {
         const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
         return this.http.post<void>('/api/logout', {}, { headers: headers }).pipe(tap(() => {
@@ -117,6 +146,14 @@ export class AuthService {
         });
     }
 
+    /**
+     * Check if user has access to route
+     * If user is not logged in, redirect to login page
+     * If user does not have required role, return false
+     * @param route 
+     * @param state 
+     * @returns boolean
+     */
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
         if (!this.isLoggedIn) {
             this.redirectUrl = state.url
@@ -143,31 +180,40 @@ export class AuthService {
         return roles.some(role => this.hasRole(role))
     }
 
+    /**
+     * Get blob from url with authorization header
+     * @param url 
+     * @returns Observable<Blob>
+     */
     public getBlob(url: string): Observable<Blob> {
         const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.access_token}` });
         return this.http.get(url, { headers: headers, responseType: 'blob' });
     }
 
+    /** 
+     * Refresh tokens from backend
+     * If refresh token is invalid, redirect to login page
+     * 
+     * @returns Observable<any>
+     */
     refreshTokens(): Observable<any> {
-        if (this.isRefreshing)
-            return this.refreshTokenSubject.asObservable();
-        this.isRefreshing = true;
-
-        const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
-        return this.http.post<Tokens>('/api/token-refresh', {}, { headers: headers }).pipe(
-            catchError(error => {
-                this.refreshTokenSubject.next(null);
-                this.isRefreshing = false;
-                return throwError(() => error);
-            }),
-            tap(tokens => {
-                this.refreshTokenSubject.next(tokens);
-                this.isRefreshing = false;
-                this.access_token = tokens.access_token;
-                this.refresh_token = tokens.refresh_token;
-                localStorage.setItem("access_token", this.access_token);
-                localStorage.setItem("refresh_token", this.refresh_token);
-            }));
+        if (this.refreshTokens$ == undefined) {
+            const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.refresh_token}` });
+            this.refreshTokens$ = this.http.post<Tokens>('/api/token-refresh', {}, { headers: headers }).pipe(
+                tap(tokens => {
+                    this.setTokens(tokens);
+                    this.refreshTokens$ = undefined;
+                }),
+                catchError(err => {
+                    this.cleanData();
+                    this.router.navigate(['/login']);
+                    this.refreshTokens$ = undefined;
+                    throw err;
+                }),
+                shareReplay(1),
+            );
+        }
+        return this.refreshTokens$
     }
 
 }
