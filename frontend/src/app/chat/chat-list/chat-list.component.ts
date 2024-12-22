@@ -16,18 +16,6 @@ export class ChatListComponent {
     @Output() loadEvent = new EventEmitter<string>();
     @Output() deleteEvent = new EventEmitter<string>();
 
-
     constructor(public chatService: ChatService) {
-    }
-
-    loadChat(chat_session_id: string) {
-        this.chatService.get(chat_session_id).subscribe();
-        this.loadEvent.emit(chat_session_id);
-    }
-
-    deleteChat(chat_session_id: string) {
-        this.chatService.delete(chat_session_id).subscribe(() => {
-            this.deleteEvent.emit(chat_session_id);
-        });
     }
 }

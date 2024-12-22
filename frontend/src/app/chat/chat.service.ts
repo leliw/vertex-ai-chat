@@ -38,6 +38,7 @@ export class ChatService {
     public chats: ChatSessionHeader[] = [];
     public chat!: ChatSession;
     public isLoading = false;
+    public isDeleting = false;
     public waitingForResponse = false;
     public isTyping = false;
 
@@ -129,8 +130,12 @@ export class ChatService {
     }
 
     delete(chat_session_id: string): Observable<void> {
+        this.isDeleting = true;
         return this.httpClient.delete<void>(`${this.endpoint}/${chat_session_id}`)
-            .pipe(tap(() => this.chats = this.chats.filter(chat => chat.chat_session_id !== chat_session_id)));
+            .pipe(tap(() => {
+                this.chats = this.chats.filter(chat => chat.chat_session_id !== chat_session_id);
+                this.isDeleting = false;
+            }));
     }
 
     putChatSession(chatSession: ChatSession): Observable<void> {

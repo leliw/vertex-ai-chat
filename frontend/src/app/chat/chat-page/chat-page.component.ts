@@ -183,8 +183,12 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
 
     deleteChat(chat_session_id: string) {
-        if (this.chatService.chat.chat_session_id == chat_session_id)
-            this.newChat();
+        setTimeout(() => this.progressSpinner = this.chatService.isDeleting, 500);
+        this.chatService.delete(chat_session_id).subscribe(() => {
+            if (this.chatService.chat.chat_session_id == chat_session_id)
+                this.newChat();
+            this.progressSpinner = false;
+        });
     }
 
     changeMessage(index: number) {
