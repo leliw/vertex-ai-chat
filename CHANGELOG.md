@@ -4,6 +4,7 @@
 
 * Refactor users storage (3/4)
 * Tokens lifetime is set via config
+* Refresh tokens (fix)
 
 ## Version 0.6.6 - 2024-12-19
 
