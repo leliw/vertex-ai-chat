@@ -1,14 +1,14 @@
 import logging
-from typing import Any, Iterator
+from typing import Iterator
 from fastapi import UploadFile
-from ampf.base.ampf_base_factory import AmpfBaseFactory
+from ampf.base import BaseFactory
 from app.config import ServerConfig
 
 
 class FileService:
     """A service for managing user session files."""
 
-    def __init__(self, config: ServerConfig, factory: AmpfBaseFactory, user_email: str):
+    def __init__(self, config: ServerConfig, factory: BaseFactory, user_email: str):
         self.config = config
         self.factory = factory
         self.storage = factory.create_blob_storage(config.file_storage_bucket)
@@ -28,7 +28,7 @@ class FileService:
         self._log.debug("Deleting file %s", key)
         self.storage.delete(key)
 
-    def get_all_files(self) -> Iterator[Any]:
+    def get_all_files(self) -> Iterator:
         """Get all files from the user's session storage."""
         self._log.debug("Getting all files for user %s", self.user_email)
         ret = self.storage.list_blobs(self.work_dir)

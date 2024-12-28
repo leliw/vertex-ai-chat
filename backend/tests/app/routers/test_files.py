@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import pytest
 
-from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
+from ampf.gcp import GcpFactory
 from app.dependencies import get_server_config, get_user_email
 from app.routers import files
 
@@ -12,8 +12,9 @@ _log = logging.getLogger(__name__)
 
 @pytest.fixture
 def blob_storage(test_config):
-    factory = AmpfGcpFactory()
-    return factory.create_blob_storage(test_config.file_storage_bucket)
+    GcpFactory.init_client(test_config.file_storage_bucket)
+    factory = GcpFactory()
+    return factory.create_blob_storage("")
 
 
 @pytest.fixture

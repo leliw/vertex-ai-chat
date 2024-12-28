@@ -7,11 +7,10 @@ from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.security import OAuth2PasswordBearer
 
-from ampf.gcp.gcp_blob_storage import GcpBlobStorage
 from haintech.ai import AiFactory
 from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
-from ampf.base import AmpfBaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
-from ampf.gcp import AmpfGcpFactory
+from ampf.base import BaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
+from ampf.gcp import GcpFactory
 from app.file.file_service import FileService
 from app.user.user_model import User
 from app.user.user_service import UserService
@@ -31,9 +30,8 @@ _server_config = ServerConfig()
 async def lifespan(app: FastAPI):
     _log.debug("Starting up")
     AiFactory().init_client()
-    AmpfGcpFactory.init_client()
-    GcpBlobStorage.init_client()
-    UserService(AmpfGcpFactory()).initialize_storege_with_user(
+    GcpFactory.init_client(_server_config.file_storage_bucket)
+    UserService(GcpFactory()).initialize_storage_with_user(
         User(**dict(_server_config.default_user))
     )
     yield
@@ -47,11 +45,11 @@ async def get_server_config() -> ServerConfig:
 ServerConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
 
 
-async def get_factory() -> AmpfBaseFactory:
-    return AmpfGcpFactory()
+async def get_factory() -> BaseFactory:
+    return GcpFactory()
 
 
-FactoryDep = Annotated[AmpfBaseFactory, Depends(get_factory)]
+FactoryDep = Annotated[BaseFactory, Depends(get_factory)]
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
 AuthTokenDep = Annotated[str, Depends(oauth2_scheme)]

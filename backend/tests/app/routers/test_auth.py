@@ -22,12 +22,12 @@ def client(factory, email_sender, test_config):
     app.include_router(auth.router, prefix="/api")
     app.include_router(config.router, prefix="/api/config")
     user_service = UserService(factory)
-    user_service.initialize_storege_with_user(test_config.default_user)
+    user_service.initialize_storage_with_user(test_config.default_user)
     yield TestClient(app)
     # Restore default user
     user_service.storage_new.drop()
     user_service.storage_old.drop()
-    user_service.initialize_storege_with_user(test_config.default_user)
+    user_service.initialize_storage_with_user(test_config.default_user)
 
 
 def test_login_ok(client):

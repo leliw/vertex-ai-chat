@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, HTTPException
 
-from ampf.static_file_response import StaticFileResponse
+from ampf.fastapi.static_file_response import StaticFileResponse
 from app.config import ServerConfig
 from app.logging_conf import setup_logging
 

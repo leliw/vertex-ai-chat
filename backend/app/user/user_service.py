@@ -1,25 +1,25 @@
 import logging
-from typing import List, Optional
+from typing import List
 
 from ampf.auth import UserServiceBase
-from ampf.base import AmpfBaseFactory
+from ampf.base import BaseFactory, KeyNotExistsException
 
 from .user_model import User, UserHeader, UserInDB
 
 
 class UserService(UserServiceBase):
-    def __init__(self, factory: AmpfBaseFactory):
+    def __init__(self, factory: BaseFactory):
         super().__init__()
         self.storage_new = factory.create_storage("users", UserInDB, key_name="email")
         self.storage_old = factory.create_storage("user", UserInDB, key_name="email")
         self._log = logging.getLogger(__name__)
 
-    def initialize_storege_with_user(self, default_user: User):
+    def initialize_storage_with_user(self, default_user: User):
         if self.is_empty():
             self._log.warning("Initializing storage with default user")
             self.create(User(**default_user.model_dump()))
 
-    def get(self, email: str) -> Optional[User]:
+    def get(self, email: str) -> User:
         user_in_db = self.storage_new.get(email)
         return User(**dict(user_in_db)) if user_in_db else None
 
@@ -49,8 +49,9 @@ class UserService(UserServiceBase):
         # For each user in the old storage,
         for o in self.storage_old.get_all():
             # if the user is not in the new storage,
-            if self.storage_new.get(o.email):
-                continue
-            self._log.info(f"Upgrading user {o.email}")
-            # put it in the new storage.
-            self.storage_new.put(o.email, o)
+            try:
+                self.storage_new.get(o.email)
+            except KeyNotExistsException:
+                self._log.info(f"Upgrading user {o.email}")
+                # put it in the new storage.
+                self.storage_new.put(o.email, o)

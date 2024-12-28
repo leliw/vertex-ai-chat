@@ -20,7 +20,7 @@ def client(factory, email_sender, test_config):
     app.include_router(prefix="/api", router=auth.router)
     app.include_router(prefix="/api/config", router=config.router)
     app.include_router(prefix="/api/users", router=users.router)
-    UserService(factory).initialize_storege_with_user(test_config.default_user)
+    UserService(factory).initialize_storage_with_user(test_config.default_user)
     client = TestClient(app)
     return client
 

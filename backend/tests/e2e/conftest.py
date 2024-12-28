@@ -69,7 +69,7 @@ def client(factory, embedding_model, email_sender, test_config):
     app.dependency_overrides[get_email_sender] = lambda: email_sender
     app.dependency_overrides[get_server_config] = lambda: test_config
     app.dependency_overrides[get_ai_text_embedding_model] = lambda: embedding_model
-    UserService(factory).initialize_storege_with_user(test_config.default_user)
+    UserService(factory).initialize_storage_with_user(test_config.default_user)
     client = AuthClient(app)
     # Clear token_black_list
     factory.create_compact_storage("token_black_list", TokenExp, "token").drop()

@@ -4,7 +4,7 @@ from fastapi import UploadFile
 import pytest
 from app.file.file_service import FileService
 from haintech.ai import AiFactory
-from ampf.gcp.ampf_gcp_factory import AmpfGcpFactory
+from ampf.gcp import GcpFactory
 from app.agent.agent_model import Agent
 from app.chat.chat_model import ChatSession
 from app.chat.chat_service import ChatService
@@ -16,8 +16,9 @@ model_name = "gemini-1.5-flash"
 
 
 @pytest.fixture
-def factory():
-    return AmpfGcpFactory()
+def factory(test_config):
+    GcpFactory.init_client(test_config.file_storage_bucket)
+    return GcpFactory()
 
 
 @pytest.fixture
@@ -28,7 +29,7 @@ def ai_factory():
 @pytest.fixture
 def chat_service(
     test_config: ServerConfig,
-    factory: AmpfGcpFactory,
+    factory: GcpFactory,
     ai_factory: AiFactory,
     embedding_model: MockAITextEmbeddingModel,
     user_email: str,
@@ -43,7 +44,7 @@ def chat_service(
 
 @pytest.fixture
 def file_service(
-    test_config: ServerConfig, factory: AmpfGcpFactory, user_email: str
+    test_config: ServerConfig, factory: GcpFactory, user_email: str
 ) -> FileService:
     return FileService(test_config, factory, user_email)
 

@@ -1,6 +1,6 @@
 """Service for managing AI agent definitions."""
 
-from ampf.base import AmpfBaseFactory
+from ampf.base import BaseFactory
 from app.config import ServerConfig
 from .agent_model import Agent
 
@@ -8,7 +8,7 @@ from .agent_model import Agent
 class AgentService:
     """Service for managing AI agent definitions."""
 
-    def __init__(self, config: ServerConfig, factory: AmpfBaseFactory):
+    def __init__(self, config: ServerConfig, factory: BaseFactory):
         self.config = config
         self.factory = factory
 

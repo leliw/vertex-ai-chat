@@ -2,7 +2,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ampf.base.ampf_base_factory import AmpfBaseFactory
+from ampf.base import BaseFactory
 
 
 class DefaultUserConfig(BaseModel):
@@ -84,7 +84,7 @@ class UserConfig(BaseModel):
 
 
 class UserConfigService:
-    def __init__(self, factory: AmpfBaseFactory):
+    def __init__(self, factory: BaseFactory):
         self.storage = factory.create_compact_storage(
             "user_config", UserConfig, key_name="config"
         )

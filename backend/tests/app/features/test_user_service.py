@@ -1,5 +1,7 @@
 import pytest
 
+from ampf.base import KeyNotExistsException
+
 from app.user import UserService, User
 
 
@@ -23,7 +25,8 @@ def test_put_get_and_delete_user(user_service):
     # When: The user is deleted from the storage
     user_service.delete(email)
     # Then: The user cannot be retrieved from the storage
-    assert user_service.get(email) is None
+    with pytest.raises(KeyNotExistsException):
+        user_service.get(email)
 
 
 def test_upgrade_not_exists(user_service):

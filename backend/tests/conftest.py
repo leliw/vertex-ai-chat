@@ -1,9 +1,9 @@
 from typing import List, Optional
 import pytest
 
-from ampf.auth.auth_model import TokenExp
+from ampf.auth import TokenExp
 from ampf.base import BaseEmailSender
-from ampf.storage_in_memory import AmpfInMemoryFactory
+from ampf.in_memory import InMemoryFactory
 from app.config import DefaultUserConfig, ServerConfig
 from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
@@ -11,7 +11,7 @@ from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingMod
 @pytest.fixture
 def factory():
     """Return an instance of the in-memory factory."""
-    return AmpfInMemoryFactory()
+    return InMemoryFactory()
 
 
 class TestEmailSender(BaseEmailSender):
