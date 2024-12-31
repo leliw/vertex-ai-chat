@@ -19,7 +19,7 @@
     RUN python -m pip install --upgrade pip
     # Install pip requirements
     COPY backend/requirements.txt .
-    RUN python -m pip install -r requirements.txt
+    RUN python -m pip install --extra-index-url https://europe-west3-python.pkg.dev/development-428212/pip/simple/ -r requirements.txt
     
     COPY ./backend/ /app
     # Copy Angular build to FastAPI static folder
