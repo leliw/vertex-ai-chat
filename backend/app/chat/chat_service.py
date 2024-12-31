@@ -7,9 +7,8 @@ from google.cloud import firestore
 from google.generativeai.types import ContentDict, BlobDict
 
 from ai_agents import AIAgent
-from ampf.base import BaseFactory
+from ampf.base import BaseFactory, BaseBlobStorage
 from app.agent.agent_model import Agent
-from gcp.gcp_file_storage import FileStorage
 from app.knowledge_base import KnowledgeBaseStorage
 from haintech.ai import AiFactory
 
@@ -37,7 +36,7 @@ class ChatService:
         factory: BaseFactory,
         ai_factory: AiFactory,
         embedding_model: BaseAITextEmbeddingModel,
-        file_storage: FileStorage,
+        file_storage: BaseBlobStorage,
         config: ServerConfig,
         user_email: str,
     ):
