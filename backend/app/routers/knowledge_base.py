@@ -20,7 +20,7 @@ router = APIRouter(
     tags=["Knowledge Base"],
     dependencies=[Depends(Authorize("admin"))],
 )
-
+ 
 
 def get_knowledge_base_service(
     embedding_model: EmbeddingModelDep, server_config: ServerConfigDep
@@ -34,11 +34,11 @@ KnowledgeBaseServiceDep = Annotated[
 
 
 @router.post("", response_model=KnowledgeBaseItem)
-def create_item(service: KnowledgeBaseServiceDep, item: KnowledgeBaseItem):
+async def create_item(service: KnowledgeBaseServiceDep, item: KnowledgeBaseItem):
     """
     Create a new knowledge base item.
     """
-    return service.create_item(item)
+    return await service.create_item(item)
 
 
 @router.get("")
@@ -61,13 +61,13 @@ def get_item(service: KnowledgeBaseServiceDep, item_id: str):
 
 
 @router.put(ITEM_ID_PATH, response_model=KnowledgeBaseItem)
-def update_item(
+async def update_item(
     service: KnowledgeBaseServiceDep, item_id: str, updated_item: KnowledgeBaseItem
 ):
     """
     Update a knowledge base item.
     """
-    updated_item = service.update_item(item_id, updated_item)
+    updated_item = await service.update_item(item_id, updated_item)
     if not updated_item:
         raise NotFoundError
     return updated_item

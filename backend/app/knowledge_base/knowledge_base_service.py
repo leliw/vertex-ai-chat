@@ -1,6 +1,5 @@
 import logging
 from typing import List, Optional
-from uuid import uuid4
 
 from haintech.ai.base.base_ai_text_embedding_model import BaseAITextEmbeddingModel
 
@@ -23,12 +22,11 @@ class KnowledgeBaseService:
         )
         self._log = logging.getLogger(__name__)
 
-    def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
+    async def create_item(self, item: KnowledgeBaseItem) -> KnowledgeBaseItem:
         """
         Creates a new knowledge base item.
         """
-        item.item_id = str(uuid4())
-        self.storage.save(item)
+        await self.storage.save(item)
         return item
 
     def get_item(self, item_id: str) -> Optional[KnowledgeBaseItem]:
@@ -45,7 +43,7 @@ class KnowledgeBaseService:
             KnowledgeBaseItemHeader(**i.model_dump()) for i in self.storage.get_all()
         ]
 
-    def update_item(
+    async def update_item(
         self, item_id: str, updated_item: KnowledgeBaseItem
     ) -> Optional[KnowledgeBaseItem]:
         """
@@ -53,7 +51,7 @@ class KnowledgeBaseService:
         """
         if not updated_item.item_id:
             updated_item.item_id = item_id
-        self.storage.put(item_id, updated_item)
+        await self.storage.put(item_id, updated_item)
         return updated_item
 
     def delete_item(self, item_id: str) -> bool:
