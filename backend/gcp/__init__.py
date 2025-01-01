@@ -1,6 +1,6 @@
-from .gcp_oauth import OAuth
+from .gcp_oauth import GcpOAuth
 
 
 __all__ = [
-    "OAuth",
+    "GcpOAuth",
 ]

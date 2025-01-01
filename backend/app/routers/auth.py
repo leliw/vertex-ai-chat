@@ -16,7 +16,7 @@ from app.dependencies import (
     TokenPayloadDep,
 )
 from app.user.user_model import User
-from gcp.gcp_oauth import OAuth
+from gcp.gcp_oauth import GcpOAuth
 
 _log = logging.getLogger(__name__)
 
@@ -66,19 +66,19 @@ def get_authorization_token(request: Request) -> str:
     return request.headers.get("Authorization")
 
 
-def get_google_oauth() -> OAuth:
-    return OAuth()
+def get_google_oauth() -> GcpOAuth:
+    return GcpOAuth()
 
 
 @router.post("/google/login")
 def google_login(
     auth_service: AuthServiceDep,
-    oauth: Annotated[OAuth, Depends(get_google_oauth)],
+    gcp_oauth: Annotated[GcpOAuth, Depends(get_google_oauth)],
     token: Annotated[str, Depends(get_authorization_token)],
 ) -> Tokens:
     """Login with Google OAuth."""
     # Verify google token
-    user_data = oauth.verify_jwt(token)
+    user_data = gcp_oauth.verify_jwt(token)
     # Get user (if exist)
     user: User = auth_service._user_service.get_user_by_email(user_data["email"])
     if not user:
