@@ -11,7 +11,6 @@ def user_service(factory):
     yield service
     # Clean up
     service.storage_new.drop()
-    service.storage_old.drop()
 
 
 def test_put_get_and_delete_user(user_service):
@@ -38,7 +37,8 @@ def test_upgrade_not_exists(user_service):
     user_service.upgrade()
     # Then: The user is in the new storage
     assert user_service.storage_new.get(email) == user
-
+    # And: Old storage is empty
+    assert user_service.storage_old.is_empty()
 
 def test_upgrade_exists(user_service):
     # Given: A user in both storages
@@ -51,3 +51,5 @@ def test_upgrade_exists(user_service):
     user_service.upgrade()
     # Then: The user in the new storage is not changed
     assert user_service.storage_new.get(email) == user_n
+    # And: Old storage is empty
+    assert user_service.storage_old.is_empty()

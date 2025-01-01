@@ -32,14 +32,12 @@ class UserService(UserServiceBase):
     def put(self, email: str, user: User) -> None:
         user_in_db = UserInDB(**dict(user))
         self.storage_new.put(email, user_in_db)
-        self.storage_old.put(email, user_in_db)
 
     def delete(self, email: str) -> None:
         self.storage_new.delete(email)
-        self.storage_old.delete(email)
 
     def is_empty(self) -> bool:
-        return self.storage_old.is_empty()
+        return self.storage_new.is_empty()
 
     def get_user_by_email(self, email: str) -> User:
         return self.get(email)
@@ -55,3 +53,7 @@ class UserService(UserServiceBase):
                 self._log.info(f"Upgrading user {o.email}")
                 # put it in the new storage.
                 self.storage_new.put(o.email, o)
+        # Drop old storage
+        self.storage_old.drop()
+        self._log.info("Upgrade completed")
+

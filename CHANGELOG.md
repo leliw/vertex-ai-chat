@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.6.9 - 2025-01-01
+
+* Refactor ampf library
+* Refactor users storage (4/4)
+
 ## Version 0.6.8 - 2024-12-23
 
 * Show user picture for google users
