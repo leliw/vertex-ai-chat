@@ -18,12 +18,12 @@ class AgentService:
             f"users/{user_email}/agents", Agent, key_name="name"
         )
 
-    def create_default(self, user_email: str, model_name: str):
+    def create_default(self, user_email: str, ai_model_name: str):
         """Create a default agent for a given model."""
         agent = Agent(
-            name=model_name,
-            description=f"Default agent for {model_name}",
-            model_name=model_name,
+            name=ai_model_name,
+            description=f"Default agent for {ai_model_name}",
+            ai_model_name=ai_model_name,
             system_prompt="",
         )
         self.create(user_email, agent)
@@ -39,8 +39,8 @@ class AgentService:
         storage = self._crete_storage(user_email)
         ret = list(storage.get_all())
         if not ret:
-            model_name = self.config.default_model
-            agent = self.create_default(user_email, model_name=model_name)
+            ai_model_name = self.config.default_model
+            agent = self.create_default(user_email, ai_model_name=ai_model_name)
             ret = [agent]
         return ret
 

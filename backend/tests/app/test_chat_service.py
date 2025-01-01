@@ -12,7 +12,7 @@ from app.chat.message.message_model import ChatMessage, ChatMessageFile
 from app.config import ServerConfig
 from tests.conftest import MockAITextEmbeddingModel
 
-model_name = "gemini-1.5-flash"
+ai_model_name = "gemini-1.5-flash"
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_get_answer(chat_service: ChatService):
     history = []
     message = ChatMessage(author="user", content="Hello")
 
-    answer, chat_history = chat_service.get_answer(model_name, history, message)
+    answer, chat_history = chat_service.get_answer(ai_model_name, history, message)
 
     assert answer.author == "ai"
     assert isinstance(answer.content, str)
@@ -72,7 +72,7 @@ async def test_get_answer_async(chat_service: ChatService):
     message = ChatMessage(author="user", content="Hello")
     text = ""
     async for p in chat_service.get_answer_async(
-        model_name=model_name, chat_session=session, message=message, files=[]
+        ai_model_name=ai_model_name, chat_session=session, message=message, files=[]
     ):
         text += p.value
     answer = ChatMessage(author="ai", content=text)
@@ -91,7 +91,7 @@ async def test_get_context_without_agent(chat_service: ChatService):
 async def test_get_context_with_agent(chat_service: ChatService):
     agent = Agent(
         name="test",
-        model_name="test_model",
+        ai_model_name="test_model",
         system_prompt="Agent prompt",
         keywords=["test"],
     )
@@ -126,7 +126,7 @@ async def test_get_answer_async_with_file(
     # When: Get answer async
     text = ""
     async for p in chat_service.get_answer_async(
-        model_name=model_name,
+        ai_model_name=ai_model_name,
         chat_session=session,
         message=message,
         files=[

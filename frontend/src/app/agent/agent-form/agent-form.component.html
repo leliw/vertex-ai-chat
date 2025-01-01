@@ -30,8 +30,8 @@
                 <div class="col">
                     <mat-form-field class="full-width">
                         <mat-label>Model Name</mat-label>
-                        <input matInput placeholder="Model Name" formControlName="model_name">
-                        @if (form.controls['model_name'].hasError('required')) {
+                        <input matInput placeholder="Model Name" formControlName="ai_model_name">
+                        @if (form.controls['ai_model_name'].hasError('required')) {
                         <mat-error>Model Name is <strong>required</strong></mat-error>
                         }
                     </mat-form-field>

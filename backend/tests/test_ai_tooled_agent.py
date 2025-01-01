@@ -24,7 +24,7 @@ class TestAITooledAgent(unittest.TestCase):
         load_dotenv()
 
     def test_run_without_tools(self):
-        agent = AITooledAgent(model_name="gemini-1.5-flash")
+        agent = AITooledAgent(ai_model_name="gemini-1.5-flash")
 
         response = agent.run("Who was the first president of the United States?")
 
@@ -32,7 +32,7 @@ class TestAITooledAgent(unittest.TestCase):
 
     def test_run_with_tool_without_parameters(self):
         agent = AITooledAgent(
-            model_name="gemini-1.5-flash", tools=[get_remaining_vacation_days]
+            ai_model_name="gemini-1.5-flash", tools=[get_remaining_vacation_days]
         )
 
         response = agent.run("Ile zostało mi dni urlopu?")
@@ -41,7 +41,7 @@ class TestAITooledAgent(unittest.TestCase):
 
     def test_chat_with_tool(self):
         agent = AITooledAgent(
-            model_name="gemini-1.5-flash", tools=[get_remaining_vacation_days]
+            ai_model_name="gemini-1.5-flash", tools=[get_remaining_vacation_days]
         )
         chat = agent.start_chat()
         response = chat.send_message("Ile zostało mi dni urlopu?")
@@ -74,7 +74,7 @@ class TestAITooledAgentWithPreparedFunction(unittest.TestCase):
             """
             return base_func(user, year)
 
-        agent = AITooledAgent(model_name="gemini-1.5-flash-001", tools=[prep_func])
+        agent = AITooledAgent(ai_model_name="gemini-1.5-flash-001", tools=[prep_func])
         chat = agent.start_chat()
         response = chat.send_message("Ile zostało mi dni urlopu z 2024 roku?")
 

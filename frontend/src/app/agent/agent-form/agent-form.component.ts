@@ -31,7 +31,7 @@ export class AgentFormComponent {
     form = this.fb.group({
         name: ['', Validators.required],
         description: ['', Validators.required],
-        model_name: ['', Validators.required],
+        ai_model_name: ['', Validators.required],
         system_prompt: ['', Validators.required],
         keywords: [[] as string[]],
     });

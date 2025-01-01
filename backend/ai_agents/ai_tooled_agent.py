@@ -10,7 +10,7 @@ class AITooledAgent(AIAgent):
 
     def __init__(
         self,
-        model_name: str,
+        ai_model_name: str,
         system_instruction: str = None,
         generation_config: dict[str, Any] = None,
         safety_settings: dict = None,
@@ -20,13 +20,13 @@ class AITooledAgent(AIAgent):
         self.function_declarations = []
         self.functions = {}
         super().__init__(
-            model_name, system_instruction, generation_config, safety_settings
+            ai_model_name, system_instruction, generation_config, safety_settings
         )
 
     def _initialize_model(self):
         """Initialize model with tools."""
         return genai.GenerativeModel(
-            self.model_name,
+            self.ai_model_name,
             system_instruction=[self.system_instruction]
             if self.system_instruction
             else None,

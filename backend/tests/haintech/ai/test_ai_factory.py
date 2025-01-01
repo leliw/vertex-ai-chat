@@ -8,16 +8,16 @@ def ai_factory():
     return AiFactory()
 
 
-model_name = "gemini-1.5-flash"
+ai_model_name = "gemini-1.5-flash"
 
 
 def test_get_model(ai_factory):
-    model = ai_factory.get_model(model_name)
+    model = ai_factory.get_model(ai_model_name)
     assert isinstance(model, GenerativeModel)
 
 
 def test_get_chat(ai_factory):
-    chat = ai_factory.get_chat(model_name)
+    chat = ai_factory.get_chat(ai_model_name)
     assert isinstance(chat, ChatSession)
 
 
@@ -27,12 +27,12 @@ def test_get_chat_with_history(ai_factory):
         Content(role="model", parts=[Part.from_text("Hi")]),
         Content(role="user", parts=[Part.from_text("How are you?")]),
     ]
-    chat = ai_factory.get_chat(model_name, history)
+    chat = ai_factory.get_chat(ai_model_name, history)
     assert isinstance(chat, ChatSession)
 
 
 def test_send_message(ai_factory):
-    chat = ai_factory.get_chat(model_name)
+    chat = ai_factory.get_chat(ai_model_name)
     resp = chat.send_message("Who was the first president of the United States?")
     assert isinstance(chat.history, list)
     assert isinstance(chat.history[0], Content)

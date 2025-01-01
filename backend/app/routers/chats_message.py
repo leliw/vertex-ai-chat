@@ -46,7 +46,7 @@ async def post_message_async(
         agent_obj = agent_service.get(user_email, agent)
     else:
         agent_obj = agent_service.create_default(
-            user_email, model_name=model if model else config.default_model
+            user_email, ai_model_name=model if model else config.default_model
         )
     return JsonStreamingResponse(
         chat_service.get_answer_async(

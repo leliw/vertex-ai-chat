@@ -34,7 +34,7 @@ class AiFactory:
         AiFactory.init_client()
 
     def get_model(
-        self, model_name: str, context: str = None, config: dict[str, Any] = None
+        self, ai_model_name: str, context: str = None, config: dict[str, Any] = None
     ) -> GenerativeModel | ChatModel:
         """Get the generative model."""
         system_instruction = context
@@ -42,20 +42,20 @@ class AiFactory:
             config = tuple(config.items())
         else:
             config = tuple({})
-        if "gemini" in model_name:
+        if "gemini" in ai_model_name:
             model = self._create_gemini_model(
-                model_name,
+                ai_model_name,
                 system_instruction=system_instruction,
                 config=config,
             )
         else:
-            model = self._create_chat_model(model_name)
+            model = self._create_chat_model(ai_model_name)
         return model
 
     @lru_cache(maxsize=16)
     def _create_gemini_model(
         self,
-        model_name: str,
+        ai_model_name: str,
         system_instruction: str = None,
         config: tuple[str, Any] = None,
     ) -> GenerativeModel:
@@ -69,7 +69,7 @@ class AiFactory:
             "top_p": 0.95,
         }
         return GenerativeModel(
-            model_name=model_name,
+            ai_model_name,
             system_instruction=system_instruction,
             generation_config=config,
             safety_settings={
@@ -81,13 +81,13 @@ class AiFactory:
         )
 
     @lru_cache(maxsize=16)
-    def _create_chat_model(self, model_name: str) -> ChatModel:
+    def _create_chat_model(self, ai_model_name: str) -> ChatModel:
         """Create a chat model."""
-        return ChatModel.from_pretrained(model_name)
+        return ChatModel.from_pretrained(ai_model_name)
 
     def get_chat(
         self,
-        model_name: str,
+        ai_model_name: str,
         history: list[Content] = None,
         context: str = None,
         config: tuple[str, Any] = None,
@@ -96,20 +96,20 @@ class AiFactory:
 
         Parameters:
         ----------
-        model_name: str
+        ai_model_name: str
             The name of the AI model.
         history: list[ChatMessage]
             The chat history (previous questions and answers).
         context: str
             The context of the chat session.
         """
-        if "gemini" in model_name:
+        if "gemini" in ai_model_name:
             model: GenerativeModel = self.get_model(
-                model_name, context=context, config=config
+                ai_model_name, context=context, config=config
             )
             return model.start_chat(history=history)
         else:
-            model: ChatModel = self.get_model(model_name, context=context)
+            model: ChatModel = self.get_model(ai_model_name, context=context)
             parameters = config or {
                 "max_output_tokens": 1024,
                 "temperature": 0.9,
@@ -119,15 +119,15 @@ class AiFactory:
 
     @lru_cache(maxsize=16)
     def get_text_embedding_model(
-        self, model_name: str = "text-multilingual-embedding-002"
+        self, ai_model_name: str = "text-multilingual-embedding-002"
     ) -> BaseAITextEmbeddingModel:
-        return VertexAITextEmbeddingModel(model_name)
+        return VertexAITextEmbeddingModel(ai_model_name)
 
     def get_embeddings(
         self,
         text: str,
-        model_name: str = "text-multilingual-embedding-002",
+        ai_model_name: str = "text-multilingual-embedding-002",
     ) -> List[float]:
         """Embeds texts with a pre-trained, foundational model."""
-        model = self.get_text_embedding_model(model_name)
+        model = self.get_text_embedding_model(ai_model_name)
         return model.get_embedding(text)

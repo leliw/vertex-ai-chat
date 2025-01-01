@@ -12,15 +12,15 @@ class AIAgent:
 
     def __init__(
         self,
-        model_name: str,
+        ai_model_name: str,
         system_instruction: str = None,
         generation_config: dict[str, Any] = None,
         safety_settings: dict = None,
     ) -> None:
         self._logger.debug(
-            f"Initializing AI Agent with model {model_name}\n{system_instruction}"
+            f"Initializing AI Agent with model {ai_model_name}\n{system_instruction}"
         )
-        self.model_name = model_name
+        self.ai_model_name = ai_model_name
         self.system_instruction = system_instruction
         self.generation_config = generation_config or {
             "max_output_tokens": 8192,
@@ -41,7 +41,7 @@ class AIAgent:
     def _initialize_model(self):
         """Initialize the model."""
         return GenerativeModel(
-            self.model_name,
+            self.ai_model_name,
             system_instruction=[self.system_instruction]
             if self.system_instruction
             else None,

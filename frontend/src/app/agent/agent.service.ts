@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 export interface Agent {
     name: string;
     description: string;
-    model_name: string;
+    ai_model_name: string;
     system_prompt: string;
     keywords: string[];
 }

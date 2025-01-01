@@ -19,7 +19,7 @@ def client(tmp_path):
 def test_create_agent(client):
     response = client.post(
         "/api/agents",
-        json={"name": "test", "model_name": "test_model"},
+        json={"name": "test", "ai_model_name": "test_model"},
     )
     assert response.status_code == 200
     assert response.json()["name"] == "test"
@@ -41,7 +41,7 @@ def test_get_all_and_return_default(client):
 def test_get_agent(client):
     response = client.post(
         "/api/agents",
-        json={"name": "test", "model_name": "test_model"},
+        json={"name": "test", "ai_model_name": "test_model"},
     )
     assert response.status_code == 200
     response = client.get("/api/agents")
@@ -53,7 +53,7 @@ def test_get_agent(client):
     response = client.get("/api/agents/test")
     r = response.json()
     assert response.status_code == 200
-    assert r["model_name"] == "test_model"
+    assert r["ai_model_name"] == "test_model"
 
     client.delete("/api/agents/test")
 
@@ -61,13 +61,13 @@ def test_get_agent(client):
 def test_put_agent(client):
     response = client.put(
         "/api/agents/test",
-        json={"name": "test", "model_name": "test_model"},
+        json={"name": "test", "ai_model_name": "test_model"},
     )
     assert response.status_code == 200
 
     response = client.get("/api/agents/test")
     r = response.json()
     assert response.status_code == 200
-    assert r["model_name"] == "test_model"
+    assert r["ai_model_name"] == "test_model"
 
     client.delete("/api/agents/test")

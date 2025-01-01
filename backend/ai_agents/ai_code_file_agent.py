@@ -18,13 +18,13 @@ class AICodeFileAgent(AIAgent):
 
     def __init__(
         self,
-        model_name: str,
+        ai_model_name: str,
         system_instruction: str,
         generation_config: dict[str, Any] = None,
         safety_settings: dict = None,
     ) -> None:
         super().__init__(
-            model_name,
+            ai_model_name,
             system_instruction
             + "\nPrzed każdym kodem podawaj proponowaną ścieżkę i nazwę pliku dla tego kodu jako nagłowek 2 markdown.",
             generation_config,

@@ -36,7 +36,7 @@ export class AgentTableComponent implements OnInit {
     @ViewChild(MatTable) table!: MatTable<string>;
     dataSource: MatTableDataSource<Agent> = new MatTableDataSource();
 
-    displayedColumns = ['name', 'model_name', 'keywords', 'actions'];
+    displayedColumns = ['name', 'ai_model_name', 'keywords', 'actions'];
 
 
     constructor(private router: Router, public dialog: MatDialog, private agentService: AgentService) { }

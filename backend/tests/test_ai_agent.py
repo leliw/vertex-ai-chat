@@ -6,7 +6,7 @@ from ai_agents import AIAgent
 class TestAIAgent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.agent = AIAgent(model_name="gemini-1.5-flash")
+        cls.agent = AIAgent(ai_model_name="gemini-1.5-flash")
 
     def test_run(self):
         response = self.agent.run("Who was the first president of the United States?")

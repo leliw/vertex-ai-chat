@@ -54,10 +54,10 @@ class ChatService:
         self._log = logging.getLogger(__name__)
 
     def get_answer(
-        self, model_name: str, history: list[ChatMessage], message: ChatMessage
+        self, ai_model_name: str, history: list[ChatMessage], message: ChatMessage
     ) -> tuple[ChatMessage, list[ChatMessage]]:
         """Get an answer from the model."""
-        ai_agent = AIAgent(model_name=model_name)
+        ai_agent = AIAgent(ai_model_name=ai_model_name)
         in_history = [m.to_content() for m in history]
         chat = ai_agent.start_chat(history=in_history)
         response = chat.send_message(message.content)
@@ -70,7 +70,7 @@ class ChatService:
         message: ChatMessage,
         files: list[ChatMessageFile],
         agent: Agent = None,
-        model_name: str = None,
+        ai_model_name: str = None,
         chat_session: ChatSession = None,
     ) -> AsyncIterator[StreamedEvent]:
         """Get an answer from the model."""
@@ -84,10 +84,10 @@ class ChatService:
                 for f in m.files:
                     file_names[f.url] = f.name
         if agent:
-            model_name = agent.model_name
+            ai_model_name = agent.ai_model_name
         try:
             context = await self.get_context(message.content, agent)
-            ai_agent = AIAgent(model_name=model_name, system_instruction=context)
+            ai_agent = AIAgent(ai_model_name=ai_model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
             # Iterate over the user (session) files
