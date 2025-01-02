@@ -1,6 +1,8 @@
 from fastapi import Depends, HTTPException, APIRouter
 from typing import Annotated, List
 
+from pydantic import BaseModel
+
 from app.dependencies import Authorize, EmbeddingModelDep, ServerConfigDep
 
 from ..knowledge_base.knowledge_base_model import (
@@ -20,7 +22,7 @@ router = APIRouter(
     tags=["Knowledge Base"],
     dependencies=[Depends(Authorize("admin"))],
 )
- 
+
 
 def get_knowledge_base_service(
     embedding_model: EmbeddingModelDep, server_config: ServerConfigDep
@@ -82,3 +84,25 @@ def delete_item(service: KnowledgeBaseServiceDep, item_id: str):
     if not success:
         raise NotFoundError
     return True
+
+
+class RAGQuery(BaseModel):
+    """
+    RAG query model.
+    """
+
+    text: str
+    keywords: List[str] = None
+    limit: int = 5
+
+
+@router.post("/find-nearest")
+async def find_nearest(
+    service: KnowledgeBaseServiceDep, rag_query: RAGQuery
+) -> List[KnowledgeBaseItem]:
+    """
+    Find the nearest knowledge base items to the given text.
+    """
+    return await service.find_nearest(
+        rag_query.text, rag_query.keywords, rag_query.limit
+    )

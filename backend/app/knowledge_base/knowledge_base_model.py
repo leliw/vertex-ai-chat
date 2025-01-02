@@ -1,5 +1,5 @@
 from uuid import uuid4
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Optional
 
 
@@ -14,6 +14,13 @@ class KnowledgeBaseItemHeader(BaseModel):
     keywords: Optional[List[str]] = Field(
         default_factory=list, description="List of keywords associated with the item."
     )
+
+    @field_validator("item_id", mode="before")
+    @classmethod
+    def ensure_item_id(cls, value):
+        if not value:
+            return str(uuid4())
+        return value
 
 
 class KnowledgeBaseItem(KnowledgeBaseItemHeader):

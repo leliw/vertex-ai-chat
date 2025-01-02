@@ -59,3 +59,11 @@ class KnowledgeBaseService:
         Deletes a knowledge base item.
         """
         return self.storage.delete(item_id)
+
+    async def find_nearest(
+        self, text: str, keywords: List[str] = None, limit: int = None
+    ) -> List[KnowledgeBaseItem]:
+        """
+        Finds the nearest knowledge base items to the given string.
+        """
+        return await self.storage.find_nearest(text, keywords, limit)

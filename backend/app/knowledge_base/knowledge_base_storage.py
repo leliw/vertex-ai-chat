@@ -27,7 +27,7 @@ class KnowledgeBaseStorage(GcpStorage):
         return item
 
     async def find_nearest(
-        self, text: str, keywords: List[str] = None
+        self, text: str, keywords: List[str] = None, limit: int = None
     ) -> List[KnowledgeBaseItem]:
         """Finds the nearest knowledge base items to the given string.
 
@@ -39,7 +39,7 @@ class KnowledgeBaseStorage(GcpStorage):
             vector_field="embedding",
             query_vector=Vector(embedding),
             distance_measure=DistanceMeasure.COSINE,
-            limit=self.embedding_search_limit,
+            limit=limit or self.embedding_search_limit,
         ).get()
         if keywords:
             ret = []

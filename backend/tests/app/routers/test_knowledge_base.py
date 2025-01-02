@@ -52,7 +52,7 @@ def test_post_get_delete(client, access_token):
     # Step 1
     # Given: A knowledge base item
     kbi = KnowledgeBaseItem(
-        title="Test title", content="Test content", keywords=["test"]
+        item_id="", title="Test title", content="Test content", keywords=["test"]
     )
     # When: Post the item
     response = client.post(
@@ -131,3 +131,39 @@ def test_post_put_get_all(client, access_token):
     # And: The item is returned
     assert len(r) == 1
     assert r[0]["title"] == kbi.title
+
+
+def test_find_nearest(client, access_token):
+    # Given: Some knowledge base items
+    kbi1 = KnowledgeBaseItem(
+        title="Test title 1", content="Test content 1", keywords=["test", "one"]
+    )
+    kbi2 = KnowledgeBaseItem(
+        title="Test title 2", content="Test content 2", keywords=["test", "two"]
+    )
+    client.post(
+        "/api/knowledge-base",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=kbi1.model_dump(),
+    )
+    client.post(
+        "/api/knowledge-base",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=kbi2.model_dump(),
+    )
+    # When: Find nearest items
+    response = client.post(
+        "/api/knowledge-base/find-nearest",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"text": "test", "keywords": ["test"]},
+    )
+    r = response.json()
+    # Then: The response status code is 200
+    assert 200 == response.status_code
+    # And: Two items are returned
+    assert len(r) == 2
+    titles = [item["title"] for item in r]
+    # And: First item is returned
+    assert kbi1.title in titles
+    # And: Second item is returned
+    assert kbi2.title in titles
