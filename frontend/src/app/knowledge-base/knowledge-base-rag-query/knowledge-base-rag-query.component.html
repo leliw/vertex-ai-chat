@@ -2,7 +2,7 @@
     <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
         <div class="input-area">
             <textarea #messageInput matInput cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="10"
-                formControlName="query" placeholder="Type a RAG query ..."  (keyup.enter)="onSubmit()">
+                formControlName="query" placeholder="Type a RAG query ..." (keyup.enter)="onSubmit()">
             </textarea>
             <button mat-icon-button matTooltip="Send message" type="submit" [disabled]="isLoading">
                 <mat-icon>search</mat-icon>
