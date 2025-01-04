@@ -55,6 +55,11 @@ export const routes: Routes = [
                         .then(mod => mod.KnowledgeBaseTableComponent)
             },
             {
+                path: 'rag-query', canActivate: [authGuard], loadComponent: () =>
+                    import('./knowledge-base/knowledge-base-rag-query/knowledge-base-rag-query.component')
+                        .then(mod => mod.KnowledgeBaseRagQueryComponent)
+            },
+            {
                 path: 'create', canActivate: [authGuard], loadComponent: () =>
                     import('./knowledge-base/knowledge-base-form/knowledge-base-form.component')
                         .then(mod => mod.KnowledgeBaseFormComponent)

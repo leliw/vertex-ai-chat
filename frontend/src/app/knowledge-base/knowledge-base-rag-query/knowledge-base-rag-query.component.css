@@ -1,0 +1,47 @@
+.spinner {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+mat-accordion {
+    width: 80%;
+    /* Dopasuj szerokość do swoich potrzeb */
+    margin: 20px auto;
+}
+
+mat-chip-set {
+    margin-right: 1rem;
+}
+
+.content {
+    max-width: 1024px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+hr {
+    margin-top: 2rem;
+}
+
+.input-area {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.input-area textarea {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    height: auto;
+    overflow-y: hidden;
+    resize: none;
+}
