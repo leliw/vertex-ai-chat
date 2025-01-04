@@ -40,6 +40,7 @@ def test_upgrade_not_exists(user_service):
     # And: Old storage is empty
     assert user_service.storage_old.is_empty()
 
+
 def test_upgrade_exists(user_service):
     # Given: A user in both storages
     email = "jasio@wp.pl"

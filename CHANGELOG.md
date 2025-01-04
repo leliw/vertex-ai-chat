@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.10 - 2025-01-06
+
+* Knowledge Base RAG query
+
 ## Version 0.6.9 - 2025-01-01
 
 * Refactor ampf library

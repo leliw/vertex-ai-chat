@@ -56,4 +56,3 @@ class UserService(UserServiceBase):
         # Drop old storage
         self.storage_old.drop()
         self._log.info("Upgrade completed")
-
