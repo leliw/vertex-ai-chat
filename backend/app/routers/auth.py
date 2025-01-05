@@ -1,5 +1,5 @@
 import logging
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -8,7 +8,11 @@ from ampf.auth import (
     ChangePasswordData,
     ResetPassword,
     ResetPasswordRequest,
+    APIKey,
+    APIKeyInDB,
+    APIKeyRequest,
 )
+
 
 from app.dependencies import (
     AuthServiceDep,
@@ -60,6 +64,27 @@ def reset_password_request(auth_service: AuthServiceDep, rpr: ResetPasswordReque
 @router.post("/reset-password")
 async def reset_password_route(auth_service: AuthServiceDep, rp: ResetPassword):
     auth_service.reset_password(rp.email, rp.reset_code, rp.new_password)
+
+
+@router.post("/api-keys")
+async def generate_api_key(
+    auth_service: AuthServiceDep, token_payload: TokenPayloadDep, request: APIKeyRequest
+) -> APIKey:
+    return auth_service.generate_api_key(token_payload, request)
+
+
+@router.get("/api-keys")
+async def get_api_keys(
+    auth_service: AuthServiceDep, token_payload: TokenPayloadDep
+) -> List[APIKeyInDB]:
+    return auth_service.get_api_keys(token_payload)
+
+
+@router.delete("/api-keys/{key_hash}")
+async def delete_api_key(
+    auth_service: AuthServiceDep, token_payload: TokenPayloadDep, key_hash: str
+):
+    return auth_service.delete_api_key(token_payload, key_hash)
 
 
 def get_authorization_token(request: Request) -> str:
