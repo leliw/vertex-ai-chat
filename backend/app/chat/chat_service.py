@@ -31,6 +31,8 @@ class ChatSessionUserError(ValueError):
 class ChatService:
     """Service for chat."""
 
+    _log = logging.getLogger(__name__)
+
     def __init__(
         self,
         factory: BaseFactory,
@@ -51,7 +53,6 @@ class ChatService:
         )
         self.file_storage = file_storage
         self.user_email = user_email
-        self._log = logging.getLogger(__name__)
 
     def get_answer(
         self, ai_model_name: str, history: list[ChatMessage], message: ChatMessage
@@ -111,9 +112,11 @@ class ChatService:
             self._log.debug("Sending message: %s", content)
             responses = chat.send_message_streaming(content)
             for response in responses:
-                self._log.debug("Received response: %s", response)
                 if response.text:
+                    self._log.debug("Received response: %s", response.text)
                     yield StreamedEvent(type="text", value=response.text)
+                else:
+                    self._log.debug("Received response: %s", response)
                 # await asyncio.sleep(0.1)
             out_message = ChatMessage.from_content(chat.get_history()[-1], file_names)
             chat_session.history.append(out_message)

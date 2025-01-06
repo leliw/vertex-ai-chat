@@ -38,6 +38,8 @@ async def post_message_async(
     try:
         chat_session = chat_service.get(chat_id, user_email)
     except KeyNotExistsException:
+        chat_session = None
+    if not chat_session:
         chat_session = ChatSession(chat_session_id=chat_id, user=user_email)
     files: list[ChatMessageFile] = [
         ChatMessageFile(**sf.model_dump()) for sf in file_service.get_all_files()

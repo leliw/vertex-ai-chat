@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
 from app.chat.chat_model import ChatSession, ChatSessionHeader
 from app.dependencies import ChatServiceDep, UserEmailDep
@@ -6,7 +6,7 @@ from app.routers import chats_message
 
 
 router = APIRouter(tags=["chat sessions"])
-router.include_router(prefix="/{chat_id}/messages", router=chats_message.router)  # fmt: off
+router.include_router(prefix="/{chat_id}/messages", router=chats_message.router)  # fmt: skip
 ID_PATH = "/{chat_id}"
 
 
@@ -28,20 +28,12 @@ async def get(
 @router.put(ID_PATH)
 async def chat_session_update(
     service: ChatServiceDep,
+    user_email: UserEmailDep,
     chat_id: str,
     chat_session: ChatSession,
-    request: Request,
 ):
     """Update chat session."""
-    message_index = len(chat_session.history)
-    files = request.state.session_data.chat_session.history[message_index].files
-    request.state.session_data.chat_session = chat_session
-    request.state.session_data.files = files
-    for file in files:
-        file.url = "/".join(file.url.split("/")[-2:])
-    await service.update_chat(
-        chat_id, chat_session, request.state.session_data.user.email
-    )
+    await service.update_chat(chat_id, chat_session, user_email)
 
 
 @router.delete(ID_PATH)

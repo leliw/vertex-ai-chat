@@ -3,7 +3,8 @@
 ## Version 0.6.10 - 2025-01-06
 
 * Knowledge Base RAG query
-* API Keys
+* API Keys (backend)
+* First question editing problem (fix)
 
 ## Version 0.6.9 - 2025-01-01
 
