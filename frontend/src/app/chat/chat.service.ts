@@ -29,6 +29,14 @@ export interface StreamedEvent {
     value: string;
 }
 
+export class StreamingError extends Error {
+    args?: string[];
+
+    constructor(errorType: string, args: string[] | undefined = undefined) {
+        super(errorType);
+        this.args = args;
+    }
+}
 
 @Injectable({
     providedIn: 'root'
@@ -94,18 +102,24 @@ export class ChatService {
             })
                 .pipe(filter(event => event.type === HttpEventType.DownloadProgress && (event as HttpDownloadProgressEvent).partialText != undefined))
                 .subscribe({
-                    next: (data) => {
-                        let buffer = (data as HttpDownloadProgressEvent).partialText ?? '';
+                    next: (event) => {
+                        buffer = (event as HttpDownloadProgressEvent).partialText ?? '';
                         let i;
-                        while ((i = buffer.indexOf('\n', lastCommaIndex + 1)) > -1) {
+                        while ((i = buffer.indexOf('\n', lastCommaIndex)) > -1) {
+                            let jsonStr = buffer.substring(lastCommaIndex, i);
+                            if (jsonStr.startsWith(',')) {
+                                jsonStr = jsonStr.substring(1);  // Removing extra commas
+                            }
+                            lastCommaIndex = i + 1;
                             try {
-                                let jsonStr = buffer.substring(lastCommaIndex, i);
-                                if (jsonStr.startsWith(","))
-                                    jsonStr = jsonStr.substring(1)
-                                const item = JSON.parse(jsonStr) as StreamedEvent;
+                                const item = JSON.parse(jsonStr);
+                                if ("error" in item) {
+                                    console.error('StreamingError:', item);
+                                    observer.error(new StreamingError(item.error, item.args));
+                                }
                                 observer.next(item);
-                                lastCommaIndex = i + 1;
                             } catch (e) {
+                                console.error('JSON parsing error:', e);
                             }
                         }
                     },
