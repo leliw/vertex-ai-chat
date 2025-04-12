@@ -12,13 +12,17 @@ class FileService:
         self.config = config
         self.factory = factory
         self.user_email = user_email
-        self.storage = factory.create_blob_storage(f"users/{self.user_email}/session_files")
+        self.storage = factory.create_blob_storage(
+            f"users/{self.user_email}/session_files"
+        )
         self._log = logging.getLogger(__name__)
 
     def upload_file(self, file: UploadFile):
         """Upload a file to the user's session storage."""
         self._log.debug("Uploading file %s", file.filename)
-        self.storage.upload_blob(file.filename, file.file.read(), content_type=file.content_type)
+        self.storage.upload_blob(
+            file.filename, file.file.read(), content_type=file.content_type
+        )
 
     def delete_file(self, file_name: str):
         """Delete a file from the user's session storage."""

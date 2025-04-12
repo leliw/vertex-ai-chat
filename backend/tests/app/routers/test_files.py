@@ -11,7 +11,7 @@ _log = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def blob_storage(test_config,user_email: str):
+def blob_storage(test_config, user_email: str):
     GcpFactory.init_client(test_config.file_storage_bucket)
     factory = GcpFactory()
     return factory.create_blob_storage(f"users/{user_email}/session_files")

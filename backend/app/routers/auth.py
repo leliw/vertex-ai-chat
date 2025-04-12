@@ -107,9 +107,9 @@ def google_login(
     # Get user (if exist)
     user: User = auth_service._user_service.get_user_by_email(user_data["email"])
     if not user:
-        _log.warning(f"User {user_data["email"]} not found")
+        _log.warning(f"User {user_data['email']} not found")
         raise HTTPException(
-            status_code=404, detail=f"User {user_data["email"]} not found"
+            status_code=404, detail=f"User {user_data['email']} not found"
         )
     if user_data["picture"] and user.picture != user_data["picture"]:
         user.picture = user_data["picture"]

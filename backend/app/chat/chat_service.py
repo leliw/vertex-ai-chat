@@ -92,7 +92,9 @@ class ChatService:
             ai_agent = AIAgent(ai_model_name=ai_model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
-            chat_files_storage = self.factory.create_blob_storage(f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files")
+            chat_files_storage = self.factory.create_blob_storage(
+                f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files"
+            )
             # Iterate over the user (session) files
             for file in files:
                 # Move the file to the chat session directory
@@ -186,7 +188,9 @@ class ChatService:
         if chat_session.user != user:
             raise ChatSessionUserError()
         chat_session = self.storage.get(chat_session_id)
-        chat_files_storage = self.factory.create_blob_storage(f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files")
+        chat_files_storage = self.factory.create_blob_storage(
+            f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files"
+        )
         for message in chat_session.history:
             for file in message.files:
                 try:
