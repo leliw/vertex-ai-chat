@@ -57,8 +57,8 @@ class ServerConfig(BaseSettings):
 
     default_user: DefaultUserConfig = DefaultUserConfig()
 
-    models: List[str] = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
-    default_model: str = "gemini-1.5-flash"
+    models: List[str] = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+    default_model: str = "gemini-2.0-flash"
 
     google_oauth_client_id: str = ""
     google_oauth_client_secret: str = ""
