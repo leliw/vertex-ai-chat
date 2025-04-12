@@ -81,7 +81,6 @@ async def auth_service_dep(
         email_sender_service=email_sender_service,
         user_service=user_service,
         reset_mail_template=reset_mail_template,
-        jwt_secret_key=server_config.jwt_secret_key,
         auth_config=server_config.auth,
     )
 

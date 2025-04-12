@@ -15,6 +15,23 @@ For a detailed history of changes, please refer to the [CHANGELOG.md](CHANGELOG.
 
 ## Preparing environment
 
+### Backend
+
+```bash
+cd backend
+uv init . --python 3.12 --bare
+uv venv --prompt vertex-ai-chat
+source .venv/bin/activate
+uv sync --dev
+```
+
+Create `backend/.env` file.
+
+```.env
+JWT_SECRET_KEY=
+GOOGLE_APPLICATION_CREDENTIALS=
+```
+
 ```bash
 gcloud alpha firestore indexes composite create --project=vertex-ai-chat-dev --collection-group=KnowledgeBase --query-scope=COLLECTION --field-config=vector-config='{"dimension":"256","flat": "{}"}',field-path=embedding
 ```

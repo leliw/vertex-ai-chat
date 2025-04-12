@@ -11,10 +11,10 @@ _log = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def blob_storage(test_config):
+def blob_storage(test_config,user_email: str):
     GcpFactory.init_client(test_config.file_storage_bucket)
     factory = GcpFactory()
-    return factory.create_blob_storage("")
+    return factory.create_blob_storage(f"users/{user_email}/session_files")
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def client(test_config, blob_storage, user_email: str):
     client = TestClient(app)
     yield client
     # Clean up test user session_files folder
-    blob_storage.delete_folder(f"users/{user_email}/session_files")
+    blob_storage.delete_folder("")
 
 
 def test_upload_files(client):

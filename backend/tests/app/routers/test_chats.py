@@ -65,7 +65,7 @@ def chat_session_id(client):
 
 def get_answer(response: Response):
     """Extract the answer from the streaming response"""
-    r = json.loads(f"[{response.text}]")
+    r = json.loads(response.text)
     answer = ""
     for i in r:
         answer += i["value"]

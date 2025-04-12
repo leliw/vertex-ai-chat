@@ -24,6 +24,7 @@ class GenerativeModelConfig(BaseModel):
 
 class AuthConfig(BaseModel):
     algorithm: str = "HS256"
+    jwt_secret_key: str = None
     access_token_expire_minutes: int = 30
     refresh_token_expire_hours: int = 24 * 7  # Seven days
     reset_code_expire_minutes: int = 15
@@ -54,7 +55,6 @@ class ServerConfig(BaseSettings):
 
     version: str = "0.6.10"
 
-    jwt_secret_key: str
     default_user: DefaultUserConfig = DefaultUserConfig()
 
     models: List[str] = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
