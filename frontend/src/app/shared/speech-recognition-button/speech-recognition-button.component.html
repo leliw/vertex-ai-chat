@@ -1,3 +1,4 @@
+@if (recognition) {
 <button #button mat-icon-button
     [matTooltip]="speechSynthesisService.isSpeaking? 'Stop speaking' : (isHearing ? 'I\'m hearing' : 'Talk to me')"
     (click)="speechSynthesisService.isSpeaking ? speechSynthesisService.stopSpeaking() : (isHearing ? stopRecognition() : startRecognition())">
@@ -11,6 +12,7 @@
     <mat-icon class="pulsating-icon">hearing</mat-icon>
     }
 </button>
+}
 @if (progresPercent > 5) {
 <mat-progress-spinner mode="determinate" [value]="progresPercent" diameter="48">
 </mat-progress-spinner>

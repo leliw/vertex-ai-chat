@@ -39,6 +39,10 @@ export class SpeechRecognitionButtonComponent {
 
     constructor(public speechSynthesisService: SpeechSynthesisService) {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error("Speech recognition is not supported in your browser.");
+            return;
+        }
         this.recognition = new SpeechRecognition();
         this.recognition.lang = navigator.language || 'en-US';
         this.recognition.continuous = true;
