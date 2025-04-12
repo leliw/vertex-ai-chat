@@ -17,9 +17,6 @@
                 "type": "debugpy",
                 "request": "launch",
                 "module": "uvicorn",
-                "env": {
-                    "GOOGLE_APPLICATION_CREDENTIALS": "../.keys/ap-gcp.json"
-                },
                 "args": [
                     "main:app",
                     "--reload",

@@ -12,7 +12,6 @@ from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import BaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import GcpFactory
 from app.file.file_service import FileService
-from app.user.user_model import User
 from app.user.user_service import UserService
 
 from app.config import ServerConfig
@@ -31,9 +30,7 @@ async def lifespan(app: FastAPI):
     _log.debug("Starting up")
     AiFactory().init_client()
     GcpFactory.init_client(_server_config.file_storage_bucket)
-    UserService(GcpFactory()).initialize_storage_with_user(
-        User(**dict(_server_config.default_user))
-    )
+    UserService(GcpFactory()).initialize_storage_with_user(_server_config.default_user)
     yield
     _log.debug("Shutting down")
 
@@ -81,7 +78,6 @@ async def auth_service_dep(
         email_sender_service=email_sender_service,
         user_service=user_service,
         reset_mail_template=reset_mail_template,
-        jwt_secret_key=server_config.jwt_secret_key,
         auth_config=server_config.auth,
     )
 

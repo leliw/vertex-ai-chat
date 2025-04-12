@@ -1,8 +1,11 @@
 #!/bin/sh
-cd backend
-source .venv/bin/activate
-uvicorn app.main:app --reload &
-cd ../frontend
-ng serve -o
+
+cd frontend
+ng serve -o &
 cd ..
-killall uvicorn
+cd backend
+.venv/bin/python -m uvicorn app.main:app --reload
+cd ..
+#pkill -f ".venv/bin/python -m uvicorn main:app --reload"
+pkill -f "ng serve -o"
+

@@ -34,7 +34,7 @@ def chat_service(
     embedding_model: MockAITextEmbeddingModel,
     user_email: str,
 ):
-    file_storage = factory.create_blob_storage(test_config.file_storage_bucket)
+    file_storage = factory.create_blob_storage(f"users/{user_email}/session_files")
     service = ChatService(
         factory, ai_factory, embedding_model, file_storage, ServerConfig(), user_email
     )

@@ -38,10 +38,11 @@ class ChatService:
         factory: BaseFactory,
         ai_factory: AiFactory,
         embedding_model: BaseAITextEmbeddingModel,
-        file_storage: BaseBlobStorage,
+        session_files_storage: BaseBlobStorage,
         config: ServerConfig,
         user_email: str,
     ):
+        self.factory = factory
         self.ai_factory = ai_factory
         self.role = ""
         self.storage = factory.create_storage(
@@ -51,7 +52,7 @@ class ChatService:
             embedding_model,
             embedding_search_limit=config.knowledge_base.embedding_search_limit,
         )
-        self.file_storage = file_storage
+        self.session_files_storage = session_files_storage
         self.user_email = user_email
 
     def get_answer(
@@ -91,6 +92,9 @@ class ChatService:
             ai_agent = AIAgent(ai_model_name=ai_model_name, system_instruction=context)
             chat = ai_agent.start_chat(history=in_history)
             parts = [message.content]
+            chat_files_storage = self.factory.create_blob_storage(
+                f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files"
+            )
             # Iterate over the user (session) files
             for file in files:
                 # Move the file to the chat session directory
@@ -98,10 +102,10 @@ class ChatService:
                 chat_blob_name = f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files/{file.name}"
                 # file.url = chat_blob_name
                 self._log.debug("Moving file %s to %s", file.name, chat_blob_name)
-                self.file_storage.move_blob(
-                    f"users/{self.user_email}/session_files/{file.name}", chat_blob_name
+                blob_data = self.session_files_storage.download_blob(file.name)
+                chat_files_storage.upload_blob(
+                    file.name, blob_data, content_type=file.mime_type
                 )
-                blob_data = self.file_storage.download_blob(chat_blob_name)
                 # Create a part with the file content
                 blob_dict = BlobDict(mime_type=file.mime_type, data=blob_data)
                 parts.append(blob_dict)
@@ -184,10 +188,13 @@ class ChatService:
         if chat_session.user != user:
             raise ChatSessionUserError()
         chat_session = self.storage.get(chat_session_id)
+        chat_files_storage = self.factory.create_blob_storage(
+            f"users/{self.user_email}/chats/{chat_session.chat_session_id}/files"
+        )
         for message in chat_session.history:
             for file in message.files:
                 try:
-                    self.file_storage.delete(file.name)
+                    chat_files_storage.delete(file.name)
                 except exceptions.NotFound:
                     pass
         return self.storage.delete(chat_session_id)
