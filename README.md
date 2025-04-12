@@ -30,7 +30,17 @@ Create `backend/.env` file.
 ```.env
 JWT_SECRET_KEY=
 GOOGLE_APPLICATION_CREDENTIALS=
+FILE_STORAGE_BUCKET=
 ```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+### GCP
 
 ```bash
 gcloud alpha firestore indexes composite create --project=vertex-ai-chat-dev --collection-group=KnowledgeBase --query-scope=COLLECTION --field-config=vector-config='{"dimension":"256","flat": "{}"}',field-path=embedding
