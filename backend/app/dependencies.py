@@ -12,7 +12,6 @@ from ampf.auth import TokenPayload, AuthService, InsufficientPermissionsError
 from ampf.base import BaseFactory, BaseEmailSender, SmtpEmailSender, EmailTemplate
 from ampf.gcp import GcpFactory
 from app.file.file_service import FileService
-from app.user.user_model import User
 from app.user.user_service import UserService
 
 from app.config import ServerConfig
