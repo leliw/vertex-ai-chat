@@ -31,9 +31,7 @@ async def lifespan(app: FastAPI):
     _log.debug("Starting up")
     AiFactory().init_client()
     GcpFactory.init_client(_server_config.file_storage_bucket)
-    UserService(GcpFactory()).initialize_storage_with_user(
-        User(**dict(_server_config.default_user))
-    )
+    UserService(GcpFactory()).initialize_storage_with_user(_server_config.default_user)
     yield
     _log.debug("Shutting down")
 
