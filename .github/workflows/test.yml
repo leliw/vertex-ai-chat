@@ -24,7 +24,7 @@ jobs:
         - name: Install the project
           run: |
             cd backend
-            run: uv sync --all-extras --dev
+            uv sync --all-extras --dev
         - name: Set up Python
           run: |
             cd backend
