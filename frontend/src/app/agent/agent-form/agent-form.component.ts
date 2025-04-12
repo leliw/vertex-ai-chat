@@ -24,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
         MatButtonModule,
         MatIconModule,
         MatChipsModule,
+        MatSelectModule
     ]
 })
 export class AgentFormComponent {
@@ -37,9 +38,15 @@ export class AgentFormComponent {
     });
     agentName: string = '';
     editMode: boolean = false;
+    ai_model_names!: string[];
 
     constructor(private agentService: AgentService, private route: ActivatedRoute,
-        private router: Router,) { }
+        private router: Router,) {
+        this.agentService.get_models().subscribe(models => {
+            this.ai_model_names = models;
+        }
+        );
+    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

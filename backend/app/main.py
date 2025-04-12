@@ -40,7 +40,7 @@ async def ping() -> None:
 
 @app.get("/api/models")
 async def models_get_all(config: ServerConfigDep) -> list[str]:
-    return [m.strip() for m in config.get("models").split(",")]
+    return [m.strip() for m in config.models]
 
 
 @app.get("/{full_path:path}")

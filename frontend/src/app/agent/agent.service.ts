@@ -19,6 +19,10 @@ export class AgentService {
 
     constructor(private http: HttpClient) { }
 
+    get_models(): Observable<string[]> {
+        return this.http.get<string[]>('api/models');
+    }
+
     get_all(): Observable<Agent[]> {
         return this.http.get<Agent[]>(this.apiUrl);
     }

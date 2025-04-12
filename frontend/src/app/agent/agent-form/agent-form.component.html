@@ -30,11 +30,15 @@
                 <div class="col">
                     <mat-form-field class="full-width">
                         <mat-label>Model Name</mat-label>
-                        <input matInput placeholder="Model Name" formControlName="ai_model_name">
+                        <mat-select formControlName="ai_model_name">
+                            @for(name of ai_model_names; track name) {
+                            <mat-option [value]="name">{{name}}</mat-option>
+                            }
+                        </mat-select>
                         @if (form.controls['ai_model_name'].hasError('required')) {
-                        <mat-error>Model Name is <strong>required</strong></mat-error>
-                        }
-                    </mat-form-field>
+                            <mat-error>Model Name is <strong>required</strong></mat-error>
+                            }
+                        </mat-form-field>
                 </div>
             </div>
             <div class="row">
