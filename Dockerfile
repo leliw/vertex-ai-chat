@@ -47,5 +47,5 @@
     
     USER appuser
     EXPOSE 8080
-    CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:8080", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
+    CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:8080", "-k", "uvicorn.workers.UvicornWorker", "app.main:app"]
     
