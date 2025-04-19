@@ -43,6 +43,7 @@
     RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
     RUN mkdir /app/data
     RUN chown -R appuser /app/data
+    RUN chmod a+rx /root
     
     USER appuser
     EXPOSE 8080
