@@ -35,7 +35,7 @@
     WORKDIR /app
     RUN uv sync --frozen
 
-    COPY ./backend/app /app
+    COPY ./backend/ /app
     # Copy Angular build to FastAPI static folder
     COPY --from=angular-build /app/dist/frontend /app/static
     
