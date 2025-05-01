@@ -15,4 +15,3 @@ class Agent(BaseModel):
         """Convert old version fields to new version fields"""
         super().__init__(**data)
         self.ai_model_name = self.ai_model_name or self.o_model_name
-        self.o_model_name = None
